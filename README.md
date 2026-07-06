@@ -9,6 +9,7 @@ Stage 0 — Project Preparation
 Completed:
 - Sprint 0.1 — Flask Project Foundation
 - Sprint 0.2 — UI Shell Foundation
+- Sprint 0.3 — Migration and PWA Placeholder Closure
 
 ## Stack
 
@@ -50,6 +51,17 @@ python -m pytest
 $env:FLASK_APP="app"
 flask routes
 
+## Migrations
+
+Alembic / Flask-Migrate is initialized.
+
+Common commands:
+
+flask db current
+flask db heads
+flask db migrate -m "message"
+flask db upgrade
+
 ## Project Philosophy
 
 - Doctor-first
@@ -72,7 +84,10 @@ Implemented:
 - Static assets
 - Clinic OS UI shell
 - Sidebar placeholder navigation
-- UI shell tests
+- Migration setup
+- PWA placeholder manifest
+- PWA placeholder service worker
+- Tests
 - Sprint documentation
 
 Not implemented yet:

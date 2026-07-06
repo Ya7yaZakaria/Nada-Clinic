@@ -1,5 +1,29 @@
 ﻿# Changelog
 
+## 2026-07-06 — Stage 0 / Sprint 0.3 Migration and PWA Placeholder Closure
+
+### Added
+
+- Flask-Migrate / Alembic migration structure.
+- PWA placeholder manifest.
+- PWA placeholder service worker.
+- Base template manifest reference.
+- Base template service worker registration.
+- PWA placeholder tests.
+- Sprint 0.3 documentation.
+
+### Not Added Yet
+
+- Auth.
+- RBAC.
+- Audit models.
+- Patient models.
+- Appointment module.
+- Visit module.
+- Clinical modules.
+- Real offline caching.
+- AI features.
+
 ## 2026-07-06 — Stage 0 / Sprint 0.2 UI Shell Foundation
 
 ### Added

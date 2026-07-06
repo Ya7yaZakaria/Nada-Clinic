@@ -1,0 +1,10 @@
+﻿{
+  "name": "Nada Clinic System",
+  "short_name": "Nada Clinic",
+  "description": "Doctor-first clinic operating system for OB/GYN workflows.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f9fa",
+  "theme_color": "#102a2f",
+  "icons": []
+}
