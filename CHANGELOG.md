@@ -1,5 +1,34 @@
 ﻿# Changelog
 
+## 2026-07-07 — Stage 2 / Sprint 2.1 Patient Model & Migration
+
+### Added
+
+- Patient model.
+- UUID internal patient identifier.
+- Integer medical file number.
+- 6-digit MRN display helper.
+- Arabic and English patient names.
+- Patient search name foundation.
+- DOB/manual age display logic.
+- Virgin checkbox field.
+- Patient service.
+- Patient model tests.
+- Sprint 2.1 documentation.
+
+### Not Added Yet
+
+- Patient CRUD UI.
+- Patient search UI.
+- Patient workspace UI.
+- Appointment implementation.
+- Visit implementation.
+- Clinical notes.
+- Audit table.
+- Partner module.
+- National ID.
+# Changelog
+
 ## 2026-07-06 — Stage 1 / Sprint 1.3 Settings Foundation
 
 ### Added
@@ -133,5 +162,6 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+
 
 

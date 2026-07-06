@@ -187,3 +187,33 @@ Not implemented yet:
 - Visits
 - Real clinical modules
 - AI layer
+
+## Stage 2 / Sprint 2.1 — Patient Model & Migration
+
+Patient is now introduced as the root clinical entity.
+
+Implemented:
+
+- Patient model
+- UUID internal ID
+- Integer MRN
+- 6-digit formatted MRN display
+- Arabic and English names
+- Patient search name foundation
+- Phone fields
+- Address fields: governorate, city, street
+- DOB/manual age logic
+- Virgin checkbox
+- Patient service
+- Patient model tests
+- Sprint 2.1 documentation
+
+Not implemented yet:
+
+- Patient CRUD UI
+- Patient search UI
+- Patient workspace UI
+- Visits
+- Appointments
+- Clinical notes
+- Audit
