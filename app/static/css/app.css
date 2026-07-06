@@ -233,3 +233,14 @@ body {
         padding: 1rem;
     }
 }
+
+.placeholder-box {
+    border: 1px dashed rgba(108, 117, 125, 0.45);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    background: rgba(248, 249, 250, 0.55);
+}
+
+.patient-workspace-header .badge {
+    font-weight: 600;
+}

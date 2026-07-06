@@ -284,3 +284,32 @@ Not implemented yet:
 - Visits
 - Clinical notes
 - Timeline
+
+## Stage 2 / Sprint 2.4 — Patient Workspace v1
+
+Implemented:
+
+- Refined Patient Workspace
+- Patient header with MRN/name/age/phone/address
+- Name display based on localization.language
+- Virgin check display
+- Clinical Snapshot placeholder
+- Recent Visits placeholder
+- Quick Actions section
+- Disabled New Visit and Visits placeholders
+- Patient Workspace tests
+- Sprint 2.4 documentation
+
+Route:
+
+- GET /patients/<uuid>
+
+Not implemented yet:
+
+- Real Visit implementation
+- Timeline
+- Clinical notes
+- Appointments
+- Investigations
+- Documents
+- Partner

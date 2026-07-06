@@ -320,10 +320,12 @@ def test_patient_workspace_header_shows_core_identity():
         assert b"Patient Workspace" in response.data
         assert b"MRN 000001" in response.data
         assert b"Sara Ahmed" in response.data
-        assert b"Age:" in response.data
-        assert b"Phone: 01000000000" in response.data
+        assert b"Age" in response.data
+        assert b"01000000000" in response.data
         assert b"New Visit" in response.data
         assert b"Visits" in response.data
         assert b"Edit" in response.data
 
         db.drop_all()
+
+

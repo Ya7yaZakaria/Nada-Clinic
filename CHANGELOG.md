@@ -1,5 +1,31 @@
 ﻿# Changelog
 
+## 2026-07-07 — Stage 2 / Sprint 2.4 Patient Workspace v1
+
+### Added
+
+- Refined Patient Workspace header.
+- MRN/name/age/phone/address identity display.
+- Name display using system language setting.
+- Virgin badge/check display.
+- Clinical Snapshot placeholder.
+- Recent Visits placeholder.
+- Quick Actions section.
+- Disabled New Visit and Visits placeholders.
+- Patient Workspace tests.
+- Sprint 2.4 documentation.
+
+### Not Added Yet
+
+- Real Visit implementation.
+- Timeline implementation.
+- Clinical notes.
+- Appointments.
+- Investigations.
+- Documents.
+- Partner module.
+# Changelog
+
 ## 2026-07-07 — Stage 2 / Sprint 2.3 Patient Search
 
 ### Added
@@ -218,6 +244,7 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+
 
 
 
