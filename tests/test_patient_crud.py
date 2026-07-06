@@ -52,6 +52,10 @@ def create_patient(**overrides):
     return PatientService.create_patient(**data)
 
 
+def get_patient(patient_id):
+    return db.session.get(Patient, patient_id)
+
+
 def post_patient_form(client, **overrides):
     data = {
         "name_ar": "سارة أحمد",
@@ -184,7 +188,7 @@ def test_patient_can_be_edited():
                 follow_redirects=True,
             )
 
-        updated_patient = Patient.query.get(patient.id)
+        updated_patient = get_patient(patient.id)
 
         assert response.status_code == 200
         assert updated_patient.name_en == "Sara Mohamed"
@@ -241,7 +245,7 @@ def test_non_admin_cannot_change_mrn():
             )
 
         assert response.status_code == 403
-        assert Patient.query.get(patient.id).medical_file_number == 1
+        assert get_patient(patient.id).medical_file_number == 1
 
         db.drop_all()
 
@@ -267,7 +271,7 @@ def test_admin_can_change_mrn_with_warning_confirmation():
             )
 
         assert response.status_code == 200
-        assert Patient.query.get(patient.id).medical_file_number == 10
+        assert get_patient(patient.id).medical_file_number == 10
         assert b"MRN 000010" in response.data
 
         db.drop_all()
@@ -293,7 +297,7 @@ def test_admin_mrn_change_requires_confirmation():
             )
 
         assert response.status_code == 200
-        assert Patient.query.get(patient.id).medical_file_number == 1
+        assert get_patient(patient.id).medical_file_number == 1
         assert b"MRN change was not confirmed" in response.data
 
         db.drop_all()

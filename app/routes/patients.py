@@ -1,4 +1,4 @@
-﻿from flask import Blueprint, abort, flash, redirect, render_template, url_for
+﻿from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.forms.patient_forms import MRNChangeForm, PatientForm
@@ -13,18 +13,27 @@ patients_bp = Blueprint("patients", __name__, url_prefix="/patients")
 @login_required
 @RBACService.require_permission("patients.basic.view")
 def index():
-    patients = (
-        Patient.query.order_by(
-            Patient.created_at.desc(),
-            Patient.id.desc(),
-        )
-        .limit(50)
-        .all()
-    )
+    patients = PatientService.get_recent_patients(limit=10)
 
     return render_template(
         "patients/index.html",
         patients=patients,
+        PatientService=PatientService,
+    )
+
+
+@patients_bp.get("/search")
+@login_required
+@RBACService.require_permission("patients.basic.view")
+def search():
+    query = request.args.get("q", "")
+
+    patients = PatientService.search_patients(query, limit=20)
+
+    return render_template(
+        "patients/_search_results.html",
+        patients=patients,
+        query=query,
         PatientService=PatientService,
     )
 

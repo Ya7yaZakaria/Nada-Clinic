@@ -1,0 +1,24 @@
+﻿<a class="list-group-item list-group-item-action" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">
+    <div class="d-flex justify-content-between gap-3">
+        <div>
+            <div class="fw-semibold">
+                {{ patient.formatted_mrn }} — {{ PatientService.get_display_name(patient) }}
+            </div>
+            <div class="small text-muted">
+                {{ patient.name_ar }} · {{ patient.name_en }}
+            </div>
+            <div class="small text-muted">
+                {{ patient.phone_primary }}
+                {% if PatientService.get_full_address(patient) %}
+                    · {{ PatientService.get_full_address(patient) }}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="text-end small text-muted">
+            Age:
+            {% set age = PatientService.calculate_display_age(patient) %}
+            {{ age if age is not none else "—" }}
+        </div>
+    </div>
+</a>

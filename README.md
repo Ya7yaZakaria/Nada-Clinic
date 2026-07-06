@@ -251,3 +251,36 @@ Not implemented yet:
 - Visits
 - Clinical notes
 - Timeline
+
+## Stage 2 / Sprint 2.3 — Patient Search
+
+Implemented:
+
+- Patient search service helpers
+- Patient search route
+- HTMX live search input
+- Patient search results partial
+- Patient result card partial
+- Search by Arabic name
+- Search by English name
+- Search by integer MRN
+- Search by padded MRN
+- Search by phone
+- Empty search shows recent patients
+- Duplicate phone search can return multiple patients
+- Patient search tests
+- SQLAlchemy legacy Query.get warnings cleaned in patient CRUD tests
+
+Route:
+
+- GET /patients/search
+
+Not implemented yet:
+
+- Global topbar search
+- Advanced filters
+- Pagination
+- Appointments
+- Visits
+- Clinical notes
+- Timeline

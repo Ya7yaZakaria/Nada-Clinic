@@ -2,15 +2,15 @@
 
 {% block title %}Patients — Nada Clinic System{% endblock %}
 {% block page_title %}Patients{% endblock %}
-{% block page_subtitle %}Patient registration and core identity records{% endblock %}
+{% block page_subtitle %}Patient registration, recent patients, and live search{% endblock %}
 
 {% block content %}
 <div class="clinic-card mb-3">
     <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
         <div>
-            <p class="section-kicker">Stage 2 / Sprint 2.2</p>
+            <p class="section-kicker">Stage 2 / Sprint 2.3</p>
             <h1 class="h4 mb-1">Patients</h1>
-            <p class="text-muted mb-0">Recent patient records. Search comes in Sprint 2.3.</p>
+            <p class="text-muted mb-0">Search by Arabic name, English name, MRN, or phone.</p>
         </div>
 
         <div>
@@ -19,34 +19,26 @@
     </div>
 </div>
 
-<div class="clinic-card">
-    {% if patients %}
-        <div class="list-group list-group-flush">
-            {% for patient in patients %}
-                <a class="list-group-item list-group-item-action" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">
-                    <div class="d-flex justify-content-between gap-3">
-                        <div>
-                            <div class="fw-semibold">
-                                {{ patient.formatted_mrn }} — {{ PatientService.get_display_name(patient) }}
-                            </div>
-                            <div class="small text-muted">
-                                {{ patient.phone_primary }}
-                                {% if PatientService.get_full_address(patient) %}
-                                    · {{ PatientService.get_full_address(patient) }}
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="text-end small text-muted">
-                            Age:
-                            {% set age = PatientService.calculate_display_age(patient) %}
-                            {{ age if age is not none else "—" }}
-                        </div>
-                    </div>
-                </a>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="text-muted mb-0">No patients yet.</p>
-    {% endif %}
+<div class="clinic-card mb-3">
+    <label class="form-label" for="patient-search-input">Patient search</label>
+    <input
+        id="patient-search-input"
+        class="form-control form-control-lg"
+        name="q"
+        type="search"
+        placeholder="Search by name, MRN, or phone..."
+        hx-get="{{ url_for('patients.search') }}"
+        hx-trigger="keyup changed delay:250ms, search"
+        hx-target="#patient-search-results"
+        hx-swap="innerHTML"
+    >
+    <div class="form-text">
+        Supports Arabic name, English name, MRN like 1 or 000001, and phone numbers.
+    </div>
+</div>
+
+<div class="clinic-card" id="patient-search-results">
+    {% set query = "" %}
+    {% include "patients/_search_results.html" %}
 </div>
 {% endblock %}

@@ -1,5 +1,33 @@
 ﻿# Changelog
 
+## 2026-07-07 — Stage 2 / Sprint 2.3 Patient Search
+
+### Added
+
+- Patient search service helpers.
+- Patient search route.
+- HTMX search input on patient index.
+- Patient search results partial.
+- Patient result card partial.
+- Recent patients for empty search.
+- Tests for Arabic name, English name, MRN, padded MRN, phone, duplicate phone, and empty search.
+- Sprint 2.3 documentation.
+
+### Changed
+
+- Cleaned patient CRUD tests to use `db.session.get()` instead of legacy `Query.get()`.
+
+### Not Added Yet
+
+- Global topbar search.
+- Advanced filters.
+- Pagination.
+- Appointments.
+- Visits.
+- Clinical notes.
+- Timeline.
+# Changelog
+
 ## 2026-07-07 — Stage 2 / Sprint 2.2 Patient CRUD
 
 ### Added
@@ -190,6 +218,7 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+
 
 
 

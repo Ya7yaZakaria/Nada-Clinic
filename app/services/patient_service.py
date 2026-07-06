@@ -44,6 +44,21 @@ class PatientService:
         return f"{int(mrn):06d}"
 
     @staticmethod
+    def parse_mrn_search(query):
+        if query is None:
+            return None
+
+        cleaned = str(query).strip()
+
+        if not cleaned:
+            return None
+
+        if cleaned.isdigit():
+            return int(cleaned)
+
+        return None
+
+    @staticmethod
     def build_search_name(name_ar, name_en):
         return " ".join(
             part.strip().lower()
@@ -269,3 +284,44 @@ class PatientService:
             query = query.filter(Patient.id != exclude_patient_id)
 
         return query.order_by(Patient.created_at.desc()).all()
+
+    @staticmethod
+    def get_recent_patients(limit=10):
+        return (
+            Patient.query.filter_by(is_active=True)
+            .order_by(Patient.created_at.desc(), Patient.id.desc())
+            .limit(limit)
+            .all()
+        )
+
+    @staticmethod
+    def search_patients(query, limit=20):
+        cleaned_query = (query or "").strip()
+
+        if not cleaned_query:
+            return PatientService.get_recent_patients(limit=limit)
+
+        normalized_phone = PatientService.normalize_phone(cleaned_query)
+        lowered_query = cleaned_query.lower()
+        mrn_value = PatientService.parse_mrn_search(cleaned_query)
+
+        filters = [
+            Patient.name_ar.ilike(f"%{cleaned_query}%"),
+            Patient.name_en.ilike(f"%{cleaned_query}%"),
+            Patient.search_name.ilike(f"%{lowered_query}%"),
+            Patient.phone_primary.ilike(f"%{normalized_phone}%"),
+            Patient.phone_secondary.ilike(f"%{normalized_phone}%"),
+        ]
+
+        if mrn_value is not None:
+            filters.append(Patient.medical_file_number == mrn_value)
+
+        return (
+            Patient.query.filter(
+                Patient.is_active.is_(True),
+                db.or_(*filters),
+            )
+            .order_by(Patient.created_at.desc(), Patient.id.desc())
+            .limit(limit)
+            .all()
+        )

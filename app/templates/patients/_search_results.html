@@ -1,0 +1,19 @@
+﻿{% if query and query.strip() %}
+    <div class="mb-2 small text-muted">
+        Search results for <strong>{{ query }}</strong>
+    </div>
+{% else %}
+    <div class="mb-2 small text-muted">
+        Recent patients
+    </div>
+{% endif %}
+
+{% if patients %}
+    <div class="list-group list-group-flush">
+        {% for patient in patients %}
+            {% include "patients/_patient_card.html" %}
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted mb-0">No matching patients found.</p>
+{% endif %}
