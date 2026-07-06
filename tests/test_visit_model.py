@@ -336,7 +336,7 @@ def test_visit_is_unassigned_to_journey_in_sprint_3_1():
         visit = VisitService.create_visit(patient=patient, visit_type="general")
 
         assert VisitService.has_unassigned_journey(visit) is True
-        assert not hasattr(visit, "journey_id")
+        assert visit.journey_id is None
 
         db.drop_all()
 
@@ -345,3 +345,4 @@ def test_visit_type_and_status_labels():
     assert VisitService.get_visit_type_label("obs") == "OBS"
     assert VisitService.get_visit_type_label("oiti") == "OITI"
     assert VisitService.get_status_label("completed") == "Completed"
+

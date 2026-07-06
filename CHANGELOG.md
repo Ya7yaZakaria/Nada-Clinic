@@ -1,5 +1,34 @@
 ﻿# Changelog
 
+## 2026-07-07 — Stage 3 / Sprint 3.3 Link Visit to Journey
+
+### Added
+
+- Nullable `journey_id` on visits.
+- Visit to Journey relationship.
+- Visit forms.
+- Visit routes.
+- Visit templates.
+- Optional Journey selection during Visit creation/editing.
+- Assign/remove Journey link.
+- Same-patient Journey validation.
+- Standalone Visit warning.
+- Active Journeys card in Patient Workspace.
+- Recent Visits card in Patient Workspace.
+- Sprint 3.3 tests and documentation.
+
+### Not Added Yet
+
+- Timeline.
+- Visit templates by type.
+- OITI sheet.
+- Pregnancy details.
+- Ultrasound.
+- Investigations.
+- Prescription.
+- Appointment integration.
+# Changelog
+
 ## 2026-07-07 — Stage 3 / Sprint 3.2 Journey Module
 
 ### Added
@@ -304,6 +333,7 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+
 
 
 

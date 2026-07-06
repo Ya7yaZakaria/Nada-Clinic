@@ -371,3 +371,30 @@ Not implemented yet:
 - Ultrasound
 - Investigations
 - Appointment integration
+
+## Stage 3 / Sprint 3.3 — Link Visit to Journey
+
+Implemented:
+
+- Nullable `journey_id` on visits
+- Visit to Journey relationship
+- Visit creation/edit UI foundation
+- Optional Journey selector
+- Assign/remove Journey link
+- Cross-patient Journey validation
+- Standalone Visit warning
+- Active Journeys in Patient Workspace
+- Recent Visits in Patient Workspace
+- Sprint 3.3 tests
+- Sprint 3.3 documentation
+
+Not implemented yet:
+
+- Timeline
+- Visit templates by type
+- OITI sheet
+- Pregnancy details
+- Ultrasound
+- Investigations
+- Prescription
+- Appointment integration

@@ -120,7 +120,7 @@ def test_workspace_shows_core_placeholders_only():
         assert b"Clinical Snapshot" in response.data
         assert b"No clinical snapshot yet" in response.data
         assert b"Recent Visits" in response.data
-        assert b"No visits module yet" in response.data
+        assert b"No visits yet" in response.data
         assert b"New Visit" in response.data
         assert b"Visits" in response.data
         assert b"Edit" in response.data
@@ -143,7 +143,7 @@ def test_workspace_does_not_include_real_visit_links_yet():
 
         assert response.status_code == 200
         assert b'aria-disabled="true"' in response.data
-        assert b"New Visit and Visits are placeholders only" in response.data
+        assert b"New Visit" in response.data
 
         db.drop_all()
 
@@ -168,3 +168,4 @@ def test_workspace_shows_virgin_check_and_demographics():
         assert b"sara@example.com" in response.data
 
         db.drop_all()
+

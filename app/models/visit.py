@@ -42,6 +42,13 @@ class Visit(db.Model):
         index=True,
     )
 
+    journey_id = db.Column(
+        db.Integer,
+        db.ForeignKey("journeys.id"),
+        nullable=True,
+        index=True,
+    )
+
     visit_type = db.Column(db.String(40), nullable=False, index=True, default="general")
     status = db.Column(db.String(40), nullable=False, index=True, default="open")
 
@@ -101,6 +108,15 @@ class Visit(db.Model):
             cascade="all, delete-orphan",
         ),
     )
+
+    journey = db.relationship(
+        "Journey",
+        backref=db.backref(
+            "visits",
+            lazy="dynamic",
+        ),
+    )
+
     completed_by_user = db.relationship(
         "User",
         foreign_keys=[completed_by_user_id],
@@ -118,8 +134,12 @@ class Visit(db.Model):
     def is_open(self):
         return self.status == "open"
 
+    @property
+    def is_unassigned_to_journey(self):
+        return self.journey_id is None
+
     def __repr__(self):
-        return f"<Visit {self.uuid} patient={self.patient_id} type={self.visit_type} status={self.status}>"
+        return f"<Visit {self.uuid} patient={self.patient_id} journey={self.journey_id} type={self.visit_type} status={self.status}>"
 
 
 class VisitAuditLog(db.Model):

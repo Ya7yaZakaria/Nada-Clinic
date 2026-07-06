@@ -293,7 +293,7 @@ def test_journey_can_exist_without_visit():
         )
 
         assert journey.id is not None
-        assert not hasattr(journey, "visits")
+        assert journey.visits.count() == 0
 
         db.drop_all()
 
@@ -328,3 +328,4 @@ def test_get_active_and_latest_journeys():
         assert latest == second
 
         db.drop_all()
+

@@ -3,7 +3,9 @@ from flask_login import current_user, login_required
 
 from app.forms.patient_forms import MRNChangeForm, PatientForm
 from app.models import Patient
+from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
+from app.services.visit_service import VisitService
 from app.services.rbac_service import RBACService
 
 patients_bp = Blueprint("patients", __name__, url_prefix="/patients")
@@ -19,6 +21,8 @@ def index():
         "patients/index.html",
         patients=patients,
         PatientService=PatientService,
+        JourneyService=JourneyService,
+        VisitService=VisitService,
     )
 
 
@@ -35,6 +39,8 @@ def search():
         patients=patients,
         query=query,
         PatientService=PatientService,
+        JourneyService=JourneyService,
+        VisitService=VisitService,
     )
 
 
@@ -92,6 +98,8 @@ def detail(patient_uuid):
         "patients/detail.html",
         patient=patient,
         PatientService=PatientService,
+        JourneyService=JourneyService,
+        VisitService=VisitService,
     )
 
 
@@ -189,3 +197,4 @@ def deactivate(patient_uuid):
 
     flash("Patient deactivated.", "warning")
     return redirect(url_for("patients.detail", patient_uuid=patient.uuid))
+

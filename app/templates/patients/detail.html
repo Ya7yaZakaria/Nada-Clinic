@@ -8,15 +8,15 @@
 {% set display_name = PatientService.get_display_name(patient) %}
 {% set display_age = PatientService.calculate_display_age(patient) %}
 {% set display_address = PatientService.get_full_address(patient) %}
+{% set active_journeys = JourneyService.get_active_journeys(patient) %}
+{% set recent_visits = VisitService.get_patient_visits(patient, limit=5) %}
 
 <div class="clinic-card mb-3 patient-workspace-header">
     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
         <div class="flex-grow-1">
             <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                 <span class="badge text-bg-primary">MRN {{ patient.formatted_mrn }}</span>
-                <span class="badge text-bg-light border">
-                    {{ "Active" if patient.is_active else "Inactive" }}
-                </span>
+                <span class="badge text-bg-light border">{{ "Active" if patient.is_active else "Inactive" }}</span>
                 {% if patient.is_virgin %}
                     <span class="badge text-bg-info">Virgin</span>
                 {% endif %}
@@ -43,7 +43,7 @@
         </div>
 
         <div class="d-flex flex-wrap gap-2 align-items-start">
-            <a class="btn btn-primary disabled" href="#" aria-disabled="true">New Visit</a>
+            <a class="btn btn-primary" href="{{ url_for('visits.new', patient_uuid=patient.uuid) }}">New Visit</a>
             <a class="btn btn-outline-primary disabled" href="#" aria-disabled="true">Visits</a>
             <a class="btn btn-outline-secondary" href="{{ url_for('patients.edit', patient_uuid=patient.uuid) }}">Edit</a>
         </div>
@@ -53,25 +53,26 @@
 <div class="row g-3 mb-3">
     <div class="col-12 col-lg-4">
         <div class="clinic-card h-100">
-            <p class="section-kicker">Identity</p>
-            <h2 class="h5">Patient Header</h2>
+            <div class="d-flex justify-content-between gap-2 mb-2">
+                <div>
+                    <p class="section-kicker">Clinical Context</p>
+                    <h2 class="h5">Active Journeys</h2>
+                </div>
+                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('journeys.new', patient_uuid=patient.uuid) }}">New Journey</a>
+            </div>
 
-            <dl class="row mb-0">
-                <dt class="col-5">MRN</dt>
-                <dd class="col-7">{{ patient.formatted_mrn }}</dd>
-
-                <dt class="col-5">Name</dt>
-                <dd class="col-7">{{ display_name }}</dd>
-
-                <dt class="col-5">Age</dt>
-                <dd class="col-7">{{ display_age if display_age is not none else "—" }}</dd>
-
-                <dt class="col-5">Phone</dt>
-                <dd class="col-7">{{ patient.phone_primary }}</dd>
-
-                <dt class="col-5">Address</dt>
-                <dd class="col-7">{{ display_address if display_address else "—" }}</dd>
-            </dl>
+            {% if active_journeys %}
+                <div class="list-group list-group-flush">
+                    {% for journey in active_journeys %}
+                        <a class="list-group-item list-group-item-action" href="{{ url_for('journeys.detail', journey_uuid=journey.uuid) }}">
+                            <div class="fw-semibold">{{ JourneyService.get_type_label(journey.journey_type) }}</div>
+                            <div class="small text-muted">{{ journey.title }}</div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No active journeys.</p>
+            {% endif %}
         </div>
     </div>
 
@@ -79,13 +80,9 @@
         <div class="clinic-card h-100">
             <p class="section-kicker">Clinical</p>
             <h2 class="h5">Clinical Snapshot</h2>
-
             <div class="placeholder-box">
                 <p class="fw-semibold mb-1">No clinical snapshot yet.</p>
-                <p class="text-muted mb-0">
-                    This area will summarize active problems, risk flags, allergies,
-                    abnormal investigations, and key journey status after the clinical modules.
-                </p>
+                <p class="text-muted mb-0">This area will summarize active problems after clinical modules.</p>
             </div>
         </div>
     </div>
@@ -95,12 +92,28 @@
             <p class="section-kicker">Visits</p>
             <h2 class="h5">Recent Visits</h2>
 
-            <div class="placeholder-box">
-                <p class="fw-semibold mb-1">No visits module yet.</p>
-                <p class="text-muted mb-0">
-                    Recent visits will appear here after Sprint 3 Visit foundation.
-                </p>
-            </div>
+            {% if recent_visits %}
+                <div class="list-group list-group-flush">
+                    {% for visit in recent_visits %}
+                        <a class="list-group-item list-group-item-action" href="{{ url_for('visits.detail', visit_uuid=visit.uuid) }}">
+                            <div class="fw-semibold">
+                                {{ VisitService.get_visit_type_label(visit.visit_type) }}
+                                · {{ VisitService.get_status_label(visit.status) }}
+                            </div>
+                            {% if VisitService.has_unassigned_warning(visit) %}
+                                <div class="small text-warning">Unassigned Visit</div>
+                            {% else %}
+                                <div class="small text-muted">{{ visit.journey.title }}</div>
+                            {% endif %}
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="placeholder-box">
+                    <p class="fw-semibold mb-1">No visits yet.</p>
+                    <p class="text-muted mb-0">Create the first Visit from the New Visit button.</p>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -122,9 +135,7 @@
                 <dd class="col-7">{{ patient.date_of_birth or "—" }}</dd>
 
                 <dt class="col-5">Manual age</dt>
-                <dd class="col-7">
-                    {{ patient.age_years_at_registration if patient.age_years_at_registration is not none else "—" }}
-                </dd>
+                <dd class="col-7">{{ patient.age_years_at_registration if patient.age_years_at_registration is not none else "—" }}</dd>
 
                 <dt class="col-5">Marital status</dt>
                 <dd class="col-7">{{ patient.marital_status }}</dd>
@@ -150,20 +161,10 @@
             <h2 class="h5">Quick Actions</h2>
 
             <div class="d-grid gap-2">
-                <a class="btn btn-primary disabled" href="#" aria-disabled="true">
-                    New Visit
-                </a>
-                <a class="btn btn-outline-primary disabled" href="#" aria-disabled="true">
-                    Visits
-                </a>
-                <a class="btn btn-outline-secondary" href="{{ url_for('patients.edit', patient_uuid=patient.uuid) }}">
-                    Edit
-                </a>
+                <a class="btn btn-primary" href="{{ url_for('visits.new', patient_uuid=patient.uuid) }}">New Visit</a>
+                <a class="btn btn-outline-primary disabled" href="#" aria-disabled="true">Visits</a>
+                <a class="btn btn-outline-secondary" href="{{ url_for('patients.edit', patient_uuid=patient.uuid) }}">Edit</a>
             </div>
-
-            <p class="text-muted small mt-3 mb-0">
-                New Visit and Visits are placeholders only. No visit records are implemented in Stage 2.
-            </p>
         </div>
     </div>
 </div>

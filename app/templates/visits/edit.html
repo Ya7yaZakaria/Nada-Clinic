@@ -1,0 +1,18 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Edit Visit — Nada Clinic System{% endblock %}
+{% block page_title %}Edit Visit{% endblock %}
+{% block page_subtitle %}Update clinical encounter{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <p class="section-kicker">Visit {{ VisitService.get_visit_type_label(visit.visit_type) }}</p>
+    <h1 class="h4">{{ PatientService.get_display_name(visit.patient) }}</h1>
+</div>
+
+<div class="clinic-card">
+    <form method="post" novalidate>
+        {% include "visits/_form.html" %}
+    </form>
+</div>
+{% endblock %}

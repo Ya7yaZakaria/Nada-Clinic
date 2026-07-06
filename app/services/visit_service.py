@@ -1,7 +1,7 @@
 ﻿from datetime import datetime, timezone
 
 from app.extensions import db
-from app.models import Patient, Visit, VisitAuditLog
+from app.models import Journey, Patient, Visit, VisitAuditLog
 
 
 class VisitService:
@@ -40,6 +40,14 @@ class VisitService:
             raise ValueError(f"Invalid visit status: {status}")
 
     @staticmethod
+    def validate_journey_belongs_to_same_patient(patient, journey):
+        if journey is None:
+            return
+
+        if journey.patient_id != patient.id:
+            raise ValueError("Journey belongs to another patient.")
+
+    @staticmethod
     def create_visit(**data):
         VisitService.validate_visit_data(data)
 
@@ -52,8 +60,20 @@ class VisitService:
         if patient is None:
             raise ValueError("Patient not found.")
 
+        journey = data.get("journey")
+        journey_id = data.get("journey_id")
+
+        if journey is None and journey_id:
+            journey = db.session.get(Journey, journey_id)
+
+        if journey_id and journey is None:
+            raise ValueError("Journey not found.")
+
+        VisitService.validate_journey_belongs_to_same_patient(patient, journey)
+
         visit = Visit(
             patient_id=patient.id,
+            journey_id=journey.id if journey is not None else None,
             visit_type=data.get("visit_type") or "general",
             status=data.get("status") or "open",
             visit_date=data.get("visit_date") or datetime.now(timezone.utc),
@@ -100,9 +120,61 @@ class VisitService:
             if field in data:
                 setattr(visit, field, data[field])
 
+        if "journey_id" in data:
+            VisitService.assign_journey(visit, data["journey_id"], commit=False)
+
         db.session.commit()
 
         return visit
+
+    @staticmethod
+    def assign_journey(visit, journey_or_id, commit=True):
+        if visit.is_locked:
+            raise ValueError("Completed visit is locked. Reopen it before changing Journey.")
+
+        if journey_or_id in (None, "", 0, "0"):
+            visit.journey_id = None
+            if commit:
+                db.session.commit()
+            return visit
+
+        if isinstance(journey_or_id, Journey):
+            journey = journey_or_id
+        else:
+            journey = db.session.get(Journey, int(journey_or_id))
+
+        if journey is None:
+            raise ValueError("Journey not found.")
+
+        VisitService.validate_journey_belongs_to_same_patient(visit.patient, journey)
+
+        visit.journey_id = journey.id
+
+        if commit:
+            db.session.commit()
+
+        return visit
+
+    @staticmethod
+    def remove_journey(visit):
+        return VisitService.assign_journey(visit, None)
+
+    @staticmethod
+    def get_available_journeys(patient, include_closed=True):
+        query = Journey.query.filter_by(patient_id=patient.id)
+
+        if not include_closed:
+            query = query.filter_by(status="active")
+
+        return query.order_by(Journey.status.asc(), Journey.start_date.desc(), Journey.id.desc()).all()
+
+    @staticmethod
+    def has_unassigned_journey(visit):
+        return visit.journey_id is None
+
+    @staticmethod
+    def has_unassigned_warning(visit):
+        return VisitService.has_unassigned_journey(visit)
 
     @staticmethod
     def complete_visit(visit, actor_user=None, confirmed=False):
@@ -221,10 +293,6 @@ class VisitService:
             .order_by(Visit.visit_date.desc(), Visit.id.desc())
             .first()
         )
-
-    @staticmethod
-    def has_unassigned_journey(visit):
-        return True
 
     @staticmethod
     def get_visit_type_label(visit_type):

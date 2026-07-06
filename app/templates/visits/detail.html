@@ -1,0 +1,82 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Visit — Nada Clinic System{% endblock %}
+{% block page_title %}Visit{% endblock %}
+{% block page_subtitle %}Clinical encounter details{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <p class="section-kicker">
+                {{ VisitService.get_visit_type_label(visit.visit_type) }}
+                · {{ VisitService.get_status_label(visit.status) }}
+            </p>
+            <h1 class="h4">
+                <a href="{{ url_for('patients.detail', patient_uuid=visit.patient.uuid) }}">
+                    {{ PatientService.get_display_name(visit.patient) }}
+                </a>
+            </h1>
+
+            {% if VisitService.has_unassigned_warning(visit) %}
+                <div class="alert alert-warning mt-3 mb-0">
+                    This visit is not linked to any Journey.
+                </div>
+            {% else %}
+                <p class="mb-0 text-muted">
+                    Journey:
+                    <a href="{{ url_for('journeys.detail', journey_uuid=visit.journey.uuid) }}">
+                        {{ JourneyService.get_type_label(visit.journey.journey_type) }} — {{ visit.journey.title }}
+                    </a>
+                    ({{ JourneyService.get_status_label(visit.journey.status) }})
+                </p>
+            {% endif %}
+        </div>
+
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{{ url_for('visits.edit', visit_uuid=visit.uuid) }}">Edit</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-7">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Clinical Note</h2>
+            <dl class="row mb-0">
+                <dt class="col-4">Chief complaint</dt>
+                <dd class="col-8">{{ visit.chief_complaint or "—" }}</dd>
+
+                <dt class="col-4">History</dt>
+                <dd class="col-8">{{ visit.history or "—" }}</dd>
+
+                <dt class="col-4">Examination</dt>
+                <dd class="col-8">{{ visit.examination or "—" }}</dd>
+
+                <dt class="col-4">Assessment</dt>
+                <dd class="col-8">{{ visit.assessment or "—" }}</dd>
+
+                <dt class="col-4">Plan</dt>
+                <dd class="col-8">{{ visit.plan or "—" }}</dd>
+
+                <dt class="col-4">Follow-up</dt>
+                <dd class="col-8">{{ visit.follow_up_date or "—" }}</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Assign Journey</h2>
+            <form method="post" action="{{ url_for('visits.update_journey_link', visit_uuid=visit.uuid) }}">
+                {{ link_form.hidden_tag() }}
+
+                <label class="form-label" for="{{ link_form.journey_id.id }}">{{ link_form.journey_id.label.text }}</label>
+                {{ link_form.journey_id(class="form-select mb-3") }}
+
+                {{ link_form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
