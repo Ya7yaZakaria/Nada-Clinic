@@ -1,0 +1,73 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Settings — Nada Clinic System{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block page_subtitle %}Clinic and system personalization foundation{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <p class="section-kicker">Stage 1 / Sprint 1.3</p>
+    <h1 class="h4">Settings Foundation</h1>
+    <p class="text-muted mb-0">
+        Grouped settings for clinic identity, localization, appearance, workflow, printing, security, and system defaults.
+    </p>
+</div>
+
+<form method="post">
+    {{ form.hidden_tag() }}
+
+    {% for group_name, settings_list in grouped_settings.items() %}
+        <div class="clinic-card mb-3">
+            <h2 class="h5 text-capitalize mb-3">{{ group_name }}</h2>
+
+            <div class="row g-3">
+                {% for setting in settings_list %}
+                    {% set field_name = "setting__" ~ setting.key.replace(".", "__") %}
+
+                    <div class="col-12 col-lg-6">
+                        <label class="form-label" for="{{ field_name }}">
+                            {{ setting.label }}
+                        </label>
+
+                        {% if setting.value_type == "boolean" %}
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="{{ field_name }}"
+                                    name="{{ field_name }}"
+                                    {% if setting.cast_value() %}checked{% endif %}
+                                    {% if not setting.is_editable %}disabled{% endif %}
+                                >
+                                <label class="form-check-label" for="{{ field_name }}">
+                                    Enabled
+                                </label>
+                            </div>
+                        {% else %}
+                            <input
+                                class="form-control"
+                                id="{{ field_name }}"
+                                name="{{ field_name }}"
+                                value="{{ setting.value or '' }}"
+                                {% if not setting.is_editable %}disabled{% endif %}
+                            >
+                        {% endif %}
+
+                        {% if setting.description %}
+                            <div class="form-text">{{ setting.description }}</div>
+                        {% endif %}
+
+                        <div class="form-text text-muted">
+                            <code>{{ setting.key }}</code>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-primary" type="submit">Save settings</button>
+    </div>
+</form>
+{% endblock %}

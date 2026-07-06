@@ -11,9 +11,10 @@ Completed:
 - Stage 0 / Sprint 0.2 — UI Shell Foundation
 - Stage 0 / Sprint 0.3 — Migration and PWA Placeholder Closure
 - Stage 1 / Sprint 1.1 — Auth + Admin Seed
+- Stage 1 / Sprint 1.2 — Multi-role RBAC
 
 Current:
-- Stage 1 / Sprint 1.2 — Multi-role RBAC
+- Stage 1 / Sprint 1.3 — Settings Foundation
 
 ## Stack
 
@@ -36,7 +37,8 @@ Current:
 4. Run migrations.
 5. Seed first admin.
 6. Seed RBAC.
-7. Run the Flask app.
+7. Seed settings.
+8. Run the Flask app.
 
 Commands:
 
@@ -46,12 +48,14 @@ pip install -r requirements.txt
 flask db upgrade
 flask seed-admin
 flask seed-rbac
+flask seed-settings
 python run.py
 
 Open:
 
 http://127.0.0.1:5000/
 http://127.0.0.1:5000/health
+http://127.0.0.1:5000/admin/settings
 
 ## Tests
 
@@ -119,6 +123,24 @@ The first admin seed user receives:
 - Admin
 - Doctor
 
+## Settings
+
+Settings are grouped and stored in the database.
+
+Groups:
+
+- clinic
+- localization
+- appearance
+- workflow
+- printing
+- security
+- system
+
+Seed command:
+
+flask seed-settings
+
 ## Project Philosophy
 
 - Doctor-first
@@ -151,12 +173,15 @@ Implemented:
 - Permissions
 - Permission checks
 - 403 page
+- Settings table
+- Grouped settings
+- Admin settings page
+- Settings seed command
 - Tests
 - Sprint documentation
 
 Not implemented yet:
 - Audit
-- Settings UI
 - Patients
 - Appointments
 - Visits

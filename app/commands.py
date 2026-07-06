@@ -6,6 +6,7 @@ from app.extensions import db
 from app.models import User
 from app.services.auth_service import AuthService
 from app.services.rbac_service import RBACService
+from app.services.settings_service import SettingsService
 
 
 def register_commands(app):
@@ -60,3 +61,10 @@ def register_commands(app):
                 click.echo("RBAC seeded. Admin user not found yet.")
 
         click.echo("RBAC seeded.")
+
+    @app.cli.command("seed-settings")
+    def seed_settings():
+        """Seed default clinic/system settings."""
+
+        SettingsService.seed_defaults()
+        click.echo("Default settings seeded.")

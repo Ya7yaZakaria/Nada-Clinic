@@ -1,5 +1,29 @@
 ﻿# Changelog
 
+## 2026-07-06 — Stage 1 / Sprint 1.3 Settings Foundation
+
+### Added
+
+- Setting model.
+- Settings service.
+- Grouped default settings.
+- Admin-only settings page.
+- Settings update flow.
+- Public settings reader.
+- Settings seed command.
+- Settings tests.
+- Sprint 1.3 documentation.
+
+### Not Added Yet
+
+- Audit.
+- Patient CRUD.
+- Appointment CRUD.
+- Visit CRUD.
+- Real clinical modules.
+- AI features.
+# Changelog
+
 ## 2026-07-06 — Stage 1 / Sprint 1.2 Multi-role RBAC
 
 ### Added
@@ -109,4 +133,5 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+
 
