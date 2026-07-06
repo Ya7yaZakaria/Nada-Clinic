@@ -29,15 +29,21 @@ def create_app(config_name=None):
 def register_blueprints(app):
     """Register application blueprints."""
 
+    from app.routes.admin import admin_bp
     from app.routes.auth import auth_bp
     from app.routes.main import main_bp
 
     app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
     app.register_blueprint(main_bp)
 
 
 def register_error_handlers(app):
     """Register basic error pages."""
+
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        return render_template("errors/403.html"), 403
 
     @app.errorhandler(404)
     def not_found_error(error):

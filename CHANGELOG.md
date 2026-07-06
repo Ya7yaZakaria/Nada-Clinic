@@ -1,5 +1,35 @@
 ﻿# Changelog
 
+## 2026-07-06 — Stage 1 / Sprint 1.2 Multi-role RBAC
+
+### Added
+
+- Role model.
+- Permission model.
+- User-role association table.
+- Role-permission association table.
+- Multi-role user support.
+- RBAC service.
+- Permission decorator.
+- 403 access denied page.
+- Admin placeholder route.
+- Clinical placeholder route for RBAC testing only.
+- Reception placeholder route for RBAC testing only.
+- Role/permission seed command.
+- RBAC tests.
+- Sprint 1.2 documentation.
+
+### Not Added Yet
+
+- Audit.
+- Settings UI.
+- Patient CRUD.
+- Appointment CRUD.
+- Visit CRUD.
+- Real clinical modules.
+- AI features.
+# Changelog
+
 ## 2026-07-06 — Stage 1 / Sprint 1.1 Auth + Admin Seed
 
 ### Added
@@ -79,3 +109,4 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+

@@ -3,6 +3,7 @@
 from app import create_app
 from app.extensions import db
 from app.models import User
+from app.services.rbac_service import RBACService
 
 
 def make_app():
@@ -16,6 +17,9 @@ def login_test_user(client):
     user.set_password("12345678")
     db.session.add(user)
     db.session.commit()
+
+    RBACService.seed_roles_permissions()
+    RBACService.assign_role(user, "Doctor")
 
     client.post(
         "/auth/login",

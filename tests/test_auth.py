@@ -2,6 +2,7 @@
 from app.extensions import db
 from app.models import User
 from app.services.auth_service import AuthService
+from app.services.rbac_service import RBACService
 
 
 def make_app():
@@ -15,6 +16,10 @@ def create_test_user(email="doctor@example.com", phone="01000000000", password="
     user.set_password(password)
     db.session.add(user)
     db.session.commit()
+
+    RBACService.seed_roles_permissions()
+    RBACService.assign_role(user, "Doctor")
+
     return user
 
 

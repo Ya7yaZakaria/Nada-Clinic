@@ -5,6 +5,7 @@ import click
 from app.extensions import db
 from app.models import User
 from app.services.auth_service import AuthService
+from app.services.rbac_service import RBACService
 
 
 def register_commands(app):
@@ -42,3 +43,20 @@ def register_commands(app):
 
         db.session.commit()
         click.echo(f"Admin seed created: {user.email}")
+
+    @app.cli.command("seed-rbac")
+    def seed_rbac():
+        """Seed system roles, permissions, and first admin roles."""
+
+        RBACService.seed_roles_permissions()
+
+        admin_email = os.getenv("ADMIN_EMAIL")
+        if admin_email:
+            try:
+                user = RBACService.assign_admin_seed_roles(admin_email)
+                click.echo(f"RBAC seeded. Admin roles assigned to: {user.email}")
+                return
+            except ValueError:
+                click.echo("RBAC seeded. Admin user not found yet.")
+
+        click.echo("RBAC seeded.")

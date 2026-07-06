@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.extensions import db
+from app.models.role import user_roles
 
 
 class User(UserMixin, db.Model):
@@ -31,6 +32,12 @@ class User(UserMixin, db.Model):
         onupdate=lambda: datetime.now(timezone.utc),
     )
 
+    roles = db.relationship(
+        "Role",
+        secondary=user_roles,
+        back_populates="users",
+    )
+
     def get_id(self):
         return str(self.id)
 
@@ -46,3 +53,13 @@ class User(UserMixin, db.Model):
 
     def mark_login(self):
         self.last_login_at = datetime.now(timezone.utc)
+
+    def has_role(self, role_name):
+        return any(role.name == role_name for role in self.roles)
+
+    def has_permission(self, permission_name):
+        return any(
+            permission.name == permission_name
+            for role in self.roles
+            for permission in role.permissions
+        )

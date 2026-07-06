@@ -10,9 +10,10 @@ Completed:
 - Stage 0 / Sprint 0.1 — Flask Project Foundation
 - Stage 0 / Sprint 0.2 — UI Shell Foundation
 - Stage 0 / Sprint 0.3 — Migration and PWA Placeholder Closure
+- Stage 1 / Sprint 1.1 — Auth + Admin Seed
 
 Current:
-- Stage 1 / Sprint 1.1 — Auth + Admin Seed
+- Stage 1 / Sprint 1.2 — Multi-role RBAC
 
 ## Stack
 
@@ -34,7 +35,8 @@ Current:
 3. Create local `.env`.
 4. Run migrations.
 5. Seed first admin.
-6. Run the Flask app.
+6. Seed RBAC.
+7. Run the Flask app.
 
 Commands:
 
@@ -43,6 +45,7 @@ python -m venv .venv
 pip install -r requirements.txt
 flask db upgrade
 flask seed-admin
+flask seed-rbac
 python run.py
 
 Open:
@@ -83,6 +86,39 @@ ADMIN_PHONE
 
 Never commit `.env`.
 
+## RBAC
+
+RBAC supports multiple roles per user.
+
+Initial roles:
+
+- Admin
+- Doctor
+- Reception
+
+Initial permissions:
+
+- dashboard.view
+- patients.basic.view
+- patients.basic.create
+- appointments.view
+- appointments.manage
+- clinical.view
+- clinical.note.view
+- clinical.note.write
+- settings.view
+- settings.manage
+- admin.access
+
+Seed command:
+
+flask seed-rbac
+
+The first admin seed user receives:
+
+- Admin
+- Doctor
+
 ## Project Philosophy
 
 - Doctor-first
@@ -110,17 +146,19 @@ Implemented:
 - Login/logout
 - Password hashing
 - Admin seed command
+- Multi-role RBAC
+- Roles
+- Permissions
+- Permission checks
+- 403 page
 - Tests
 - Sprint documentation
 
 Not implemented yet:
-- RBAC
-- Roles
-- Permissions
 - Audit
+- Settings UI
 - Patients
 - Appointments
 - Visits
-- Clinical modules
-- Settings UI
+- Real clinical modules
 - AI layer
