@@ -1,5 +1,36 @@
 ﻿# Changelog
 
+## 2026-07-06 — Stage 1 / Sprint 1.1 Auth + Admin Seed
+
+### Added
+
+- User model.
+- Password hashing.
+- Email or phone login.
+- Login route.
+- Logout route.
+- Protected dashboard.
+- Admin seed command.
+- Login template.
+- Auth service.
+- Login form.
+- Auth tests.
+- User migration.
+- Sprint 1.1 documentation.
+
+### Not Added Yet
+
+- RBAC.
+- Roles.
+- Permissions.
+- Audit.
+- Patients.
+- Appointments.
+- Visits.
+- Clinical modules.
+- Settings UI.
+- AI features.
+
 ## 2026-07-06 — Stage 0 / Sprint 0.3 Migration and PWA Placeholder Closure
 
 ### Added
@@ -11,18 +42,6 @@
 - Base template service worker registration.
 - PWA placeholder tests.
 - Sprint 0.3 documentation.
-
-### Not Added Yet
-
-- Auth.
-- RBAC.
-- Audit models.
-- Patient models.
-- Appointment module.
-- Visit module.
-- Clinical modules.
-- Real offline caching.
-- AI features.
 
 ## 2026-07-06 — Stage 0 / Sprint 0.2 UI Shell Foundation
 
@@ -36,17 +55,6 @@
 - HTMX-ready main content area.
 - UI shell tests.
 - Sprint 0.2 documentation.
-
-### Not Added Yet
-
-- Auth.
-- RBAC.
-- Audit models.
-- Patient models.
-- Appointment module.
-- Visit module.
-- Clinical modules.
-- AI features.
 
 ## 2026-07-06 — Stage 0 / Sprint 0.1 Foundation
 
@@ -71,13 +79,3 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
-
-### Not Added Yet
-
-- Auth.
-- RBAC.
-- Audit models.
-- Patient models.
-- Clinical modules.
-- Appointment module.
-- AI features.

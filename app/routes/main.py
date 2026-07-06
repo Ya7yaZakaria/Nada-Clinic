@@ -1,11 +1,13 @@
 ﻿from flask import Blueprint, jsonify, render_template
+from flask_login import login_required
 
 main_bp = Blueprint("main", __name__)
 
 
 @main_bp.get("/")
+@login_required
 def index():
-    """Clinic foundation home page."""
+    """Clinic dashboard shell."""
 
     return render_template("index.html")
 
@@ -18,6 +20,6 @@ def health():
         {
             "status": "ok",
             "service": "Nada Clinic System",
-            "stage": "Sprint 0.1 Foundation",
+            "stage": "Stage 1 Auth Foundation",
         }
     ), 200

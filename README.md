@@ -4,12 +4,15 @@ Nada Clinic System is a doctor-first, patient-centered clinic operating system f
 
 ## Current Stage
 
-Stage 0 — Project Preparation
+Stage 1 — Core System Foundation
 
 Completed:
-- Sprint 0.1 — Flask Project Foundation
-- Sprint 0.2 — UI Shell Foundation
-- Sprint 0.3 — Migration and PWA Placeholder Closure
+- Stage 0 / Sprint 0.1 — Flask Project Foundation
+- Stage 0 / Sprint 0.2 — UI Shell Foundation
+- Stage 0 / Sprint 0.3 — Migration and PWA Placeholder Closure
+
+Current:
+- Stage 1 / Sprint 1.1 — Auth + Admin Seed
 
 ## Stack
 
@@ -28,13 +31,18 @@ Completed:
 
 1. Create and activate virtual environment.
 2. Install requirements.
-3. Run the Flask app.
+3. Create local `.env`.
+4. Run migrations.
+5. Seed first admin.
+6. Run the Flask app.
 
 Commands:
 
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+flask db upgrade
+flask seed-admin
 python run.py
 
 Open:
@@ -62,6 +70,19 @@ flask db heads
 flask db migrate -m "message"
 flask db upgrade
 
+## Admin Seed
+
+The first admin seed user is created locally from `.env`.
+
+Required local variables:
+
+ADMIN_EMAIL
+ADMIN_PASSWORD
+ADMIN_NAME
+ADMIN_PHONE
+
+Never commit `.env`.
+
 ## Project Philosophy
 
 - Doctor-first
@@ -74,8 +95,6 @@ flask db upgrade
 
 ## Current Scope
 
-Stage 0 foundation only.
-
 Implemented:
 - Flask foundation
 - Base routing
@@ -87,15 +106,21 @@ Implemented:
 - Migration setup
 - PWA placeholder manifest
 - PWA placeholder service worker
+- User model
+- Login/logout
+- Password hashing
+- Admin seed command
 - Tests
 - Sprint documentation
 
 Not implemented yet:
-- Auth
 - RBAC
+- Roles
+- Permissions
 - Audit
 - Patients
 - Appointments
 - Visits
 - Clinical modules
+- Settings UI
 - AI layer

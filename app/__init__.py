@@ -2,6 +2,7 @@
 
 from flask import Flask, render_template
 
+from app.commands import register_commands
 from app.config import config_by_name
 from app.extensions import init_extensions
 
@@ -15,8 +16,12 @@ def create_app(config_name=None):
     app.config.from_object(config_by_name.get(config_name, config_by_name["development"]))
 
     init_extensions(app)
+
+    from app import models  # noqa: F401
+
     register_blueprints(app)
     register_error_handlers(app)
+    register_commands(app)
 
     return app
 
@@ -24,8 +29,10 @@ def create_app(config_name=None):
 def register_blueprints(app):
     """Register application blueprints."""
 
+    from app.routes.auth import auth_bp
     from app.routes.main import main_bp
 
+    app.register_blueprint(auth_bp)
     app.register_blueprint(main_bp)
 
 

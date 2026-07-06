@@ -1,34 +1,100 @@
 ﻿from app import create_app
+from app.extensions import db
+from app.models import User
+
+
+def make_app():
+    app = create_app("testing")
+    app.config.update(SERVER_NAME="localhost")
+    return app
+
+
+def create_test_user():
+    user = User(
+        email="doctor@example.com",
+        phone="01000000000",
+        name="Test Doctor",
+    )
+    user.set_password("12345678")
+    db.session.add(user)
+    db.session.commit()
+    return user
 
 
 def test_health_endpoint_returns_ok():
-    app = create_app("testing")
+    app = make_app()
 
-    with app.test_client() as client:
-        response = client.get("/health")
+    with app.app_context():
+        db.create_all()
 
-    assert response.status_code == 200
-    assert response.get_json()["status"] == "ok"
+        with app.test_client() as client:
+            response = client.get("/health")
 
+        assert response.status_code == 200
+        assert response.get_json()["status"] == "ok"
 
-def test_index_page_renders():
-    app = create_app("testing")
-
-    with app.test_client() as client:
-        response = client.get("/")
-
-    assert response.status_code == 200
-    assert b"Nada Clinic System" in response.data
+        db.drop_all()
 
 
-def test_ui_shell_contains_foundation_navigation():
-    app = create_app("testing")
+def test_index_redirects_anonymous_user_to_login():
+    app = make_app()
 
-    with app.test_client() as client:
-        response = client.get("/")
+    with app.app_context():
+        db.create_all()
 
-    assert response.status_code == 200
-    assert b"Today Clinic" in response.data
-    assert b"Patient Workspace" in response.data
-    assert b"Appointments" in response.data
-    assert b"Investigations" in response.data
+        with app.test_client() as client:
+            response = client.get("/")
+
+        assert response.status_code == 302
+        assert "/auth/login" in response.headers["Location"]
+
+        db.drop_all()
+
+
+def test_index_page_renders_for_logged_in_user():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        create_test_user()
+
+        with app.test_client() as client:
+            client.post(
+                "/auth/login",
+                data={
+                    "login_identifier": "doctor@example.com",
+                    "password": "12345678",
+                },
+            )
+            response = client.get("/")
+
+        assert response.status_code == 200
+        assert b"Nada Clinic System" in response.data
+
+        db.drop_all()
+
+
+def test_ui_shell_contains_foundation_navigation_for_logged_in_user():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        create_test_user()
+
+        with app.test_client() as client:
+            client.post(
+                "/auth/login",
+                data={
+                    "login_identifier": "doctor@example.com",
+                    "password": "12345678",
+                },
+            )
+            response = client.get("/")
+
+        assert response.status_code == 200
+        assert b"Today Clinic" in response.data
+        assert b"Patient Workspace" in response.data
+        assert b"Appointments" in response.data
+        assert b"Investigations" in response.data
+
+        db.drop_all()

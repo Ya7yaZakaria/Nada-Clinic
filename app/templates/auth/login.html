@@ -1,0 +1,43 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Login — Nada Clinic System{% endblock %}
+{% block page_title %}Login{% endblock %}
+{% block page_subtitle %}Secure access to Nada Clinic System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+        <div class="clinic-card">
+            <p class="section-kicker">Stage 1 / Sprint 1.1</p>
+            <h1 class="h4 mb-3">Login to Clinic OS</h1>
+
+            <form method="post" novalidate>
+                {{ form.hidden_tag() }}
+
+                <div class="mb-3">
+                    {{ form.login_identifier.label(class="form-label") }}
+                    {{ form.login_identifier(class="form-control", placeholder="Email or phone") }}
+                    {% for error in form.login_identifier.errors %}
+                        <div class="form-text text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-control", placeholder="Password") }}
+                    {% for error in form.password.errors %}
+                        <div class="form-text text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-check mb-3">
+                    {{ form.remember_me(class="form-check-input") }}
+                    {{ form.remember_me.label(class="form-check-label") }}
+                </div>
+
+                {{ form.submit(class="btn btn-primary w-100") }}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

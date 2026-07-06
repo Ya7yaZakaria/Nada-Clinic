@@ -1,4 +1,3 @@
-﻿"""Database models package.
+﻿from app.models.user import User
 
-Clinical models will be added in later sprints.
-"""
+__all__ = ["User"]

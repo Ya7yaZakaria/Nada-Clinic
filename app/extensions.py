@@ -22,5 +22,9 @@ def init_extensions(app):
 
     @login_manager.user_loader
     def load_user(user_id):
-        """Temporary user loader until Auth/RBAC sprint adds real User model."""
-        return None
+        from app.models import User
+
+        if not user_id:
+            return None
+
+        return db.session.get(User, int(user_id))
