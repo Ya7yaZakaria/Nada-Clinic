@@ -1,5 +1,34 @@
 ﻿# Changelog
 
+## 2026-07-07 — Stage 3 / Sprint 3.2 Journey Module
+
+### Added
+
+- Journey model.
+- Journey service.
+- Journey forms.
+- Journey routes.
+- Journey templates.
+- Journey outcomes by type.
+- Lost to follow-up outcome.
+- Flexible end date parsing for YYYY, YYYY-MM, and YYYY-MM-DD.
+- Journey close/reopen workflow.
+- Journey tests.
+- Sprint 3.2 documentation.
+
+### Not Added Yet
+
+- Visit linkage.
+- Timeline.
+- Partner.
+- Pregnancy details.
+- Infertility cycle details.
+- OITI sheet.
+- Ultrasound.
+- Investigations.
+- Appointment integration.
+# Changelog
+
 ## 2026-07-07 — Stage 3 / Sprint 3.1 Visit Model & Migration
 
 ### Added
@@ -275,6 +304,7 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+
 
 
 

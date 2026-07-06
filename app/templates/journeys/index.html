@@ -1,0 +1,25 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Journeys — Nada Clinic System{% endblock %}
+{% block page_title %}Journeys{% endblock %}
+{% block page_subtitle %}Clinical context for patient care{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex justify-content-between gap-3">
+        <div>
+            <p class="section-kicker">Patient {{ patient.formatted_mrn }}</p>
+            <h1 class="h4">{{ PatientService.get_display_name(patient) }}</h1>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('journeys.new', patient_uuid=patient.uuid) }}">New journey</a>
+    </div>
+</div>
+
+<div class="clinic-card">
+    {% if journeys %}
+        {% include "journeys/_journey_list.html" %}
+    {% else %}
+        <p class="text-muted mb-0">No journeys yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

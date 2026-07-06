@@ -343,3 +343,31 @@ Not implemented yet:
 - Investigations
 - Ultrasound
 - Appointment integration
+
+## Stage 3 / Sprint 3.2 — Journey Module
+
+Implemented:
+
+- Journey model
+- Journey service
+- Journey forms
+- Journey routes
+- Journey templates
+- Outcomes by journey type
+- Lost to follow-up outcome
+- Flexible end date: YYYY, YYYY-MM, or YYYY-MM-DD
+- Close/reopen journey workflow
+- Journey tests
+- Sprint 3.2 documentation
+
+Not implemented yet:
+
+- Visit linkage
+- Timeline
+- Partner
+- Pregnancy details
+- Infertility cycle details
+- OITI sheet
+- Ultrasound
+- Investigations
+- Appointment integration

@@ -1,0 +1,105 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Journey — Nada Clinic System{% endblock %}
+{% block page_title %}Journey{% endblock %}
+{% block page_subtitle %}Clinical context details{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <p class="section-kicker">
+                {{ JourneyService.get_type_label(journey.journey_type) }}
+                · {{ JourneyService.get_status_label(journey.status) }}
+            </p>
+            <h1 class="h4">{{ journey.title }}</h1>
+            <p class="text-muted mb-0">
+                Patient:
+                <a href="{{ url_for('patients.detail', patient_uuid=journey.patient.uuid) }}">
+                    {{ PatientService.get_display_name(journey.patient) }}
+                </a>
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{{ url_for('journeys.edit', journey_uuid=journey.uuid) }}">Edit</a>
+            <a class="btn btn-outline-primary" href="{{ url_for('journeys.patient_journeys', patient_uuid=journey.patient.uuid) }}">All journeys</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Details</h2>
+            <dl class="row mb-0">
+                <dt class="col-5">Type</dt>
+                <dd class="col-7">{{ JourneyService.get_type_label(journey.journey_type) }}</dd>
+
+                <dt class="col-5">Status</dt>
+                <dd class="col-7">{{ JourneyService.get_status_label(journey.status) }}</dd>
+
+                <dt class="col-5">Start</dt>
+                <dd class="col-7">{{ journey.start_date }}</dd>
+
+                <dt class="col-5">End</dt>
+                <dd class="col-7">
+                    {{ JourneyService.format_flexible_date(journey.end_date, journey.end_date_precision) if journey.end_date else "—" }}
+                </dd>
+
+                <dt class="col-5">Outcome</dt>
+                <dd class="col-7">{{ JourneyService.get_outcome_label(journey.outcome) if journey.outcome else "—" }}</dd>
+
+                <dt class="col-5">Outcome note</dt>
+                <dd class="col-7">{{ journey.outcome_note or "—" }}</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Description</h2>
+            <p class="text-muted">{{ journey.description or "No description." }}</p>
+
+            {% if journey.status == "active" %}
+                <hr>
+                <h3 class="h6">Close journey</h3>
+                <form method="post" action="{{ url_for('journeys.close', journey_uuid=journey.uuid) }}">
+                    {{ close_form.hidden_tag() }}
+
+                    <label class="form-label" for="{{ close_form.end_date.id }}">{{ close_form.end_date.label.text }}</label>
+                    {{ close_form.end_date(class="form-control mb-2", placeholder="YYYY, YYYY-MM, or YYYY-MM-DD") }}
+
+                    <label class="form-label" for="{{ close_form.outcome.id }}">{{ close_form.outcome.label.text }}</label>
+                    {{ close_form.outcome(class="form-select mb-2") }}
+
+                    <label class="form-label" for="{{ close_form.outcome_note.id }}">{{ close_form.outcome_note.label.text }}</label>
+                    {{ close_form.outcome_note(class="form-control mb-2", rows="2") }}
+
+                    <div class="form-check mb-3">
+                        {{ close_form.confirm_close(class="form-check-input") }}
+                        <label class="form-check-label" for="{{ close_form.confirm_close.id }}">
+                            {{ close_form.confirm_close.label.text }}
+                        </label>
+                    </div>
+
+                    {{ close_form.submit(class="btn btn-warning") }}
+                </form>
+            {% else %}
+                <hr>
+                <h3 class="h6">Reopen journey</h3>
+                <form method="post" action="{{ url_for('journeys.reopen', journey_uuid=journey.uuid) }}">
+                    {{ reopen_form.hidden_tag() }}
+                    <div class="form-check mb-3">
+                        {{ reopen_form.confirm_reopen(class="form-check-input") }}
+                        <label class="form-check-label" for="{{ reopen_form.confirm_reopen.id }}">
+                            {{ reopen_form.confirm_reopen.label.text }}
+                        </label>
+                    </div>
+                    {{ reopen_form.submit(class="btn btn-success") }}
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

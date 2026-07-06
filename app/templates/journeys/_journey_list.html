@@ -1,0 +1,23 @@
+﻿<div class="list-group list-group-flush">
+    {% for journey in journeys %}
+        <a class="list-group-item list-group-item-action" href="{{ url_for('journeys.detail', journey_uuid=journey.uuid) }}">
+            <div class="d-flex justify-content-between gap-3">
+                <div>
+                    <div class="fw-semibold">
+                        {{ JourneyService.get_type_label(journey.journey_type) }} — {{ journey.title }}
+                    </div>
+                    <div class="small text-muted">
+                        Status: {{ JourneyService.get_status_label(journey.status) }}
+                        · Start: {{ journey.start_date }}
+                        {% if journey.end_date %}
+                            · End: {{ JourneyService.format_flexible_date(journey.end_date, journey.end_date_precision) }}
+                        {% endif %}
+                    </div>
+                </div>
+                <span class="badge {% if journey.status == 'active' %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+                    {{ journey.status }}
+                </span>
+            </div>
+        </a>
+    {% endfor %}
+</div>

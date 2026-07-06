@@ -1,0 +1,38 @@
+﻿{{ form.hidden_tag() }}
+
+<div class="row g-3">
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.journey_type.id }}">{{ form.journey_type.label.text }}</label>
+        {{ form.journey_type(class="form-select") }}
+        {% for error in form.journey_type.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-12 col-lg-8">
+        <label class="form-label" for="{{ form.title.id }}">{{ form.title.label.text }}</label>
+        {{ form.title(class="form-control") }}
+        {% for error in form.title.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.start_date.id }}">{{ form.start_date.label.text }}</label>
+        {{ form.start_date(class="form-control", placeholder="YYYY, YYYY-MM, or YYYY-MM-DD") }}
+        <div class="form-text">Accepts year only, year-month, or full date.</div>
+        {% for error in form.start_date.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="{{ form.description.id }}">{{ form.description.label.text }}</label>
+        {{ form.description(class="form-control", rows="4") }}
+    </div>
+</div>
+
+<div class="d-flex justify-content-end gap-2 mt-4">
+    <a class="btn btn-outline-secondary" href="{{ url_for('patients.detail', patient_uuid=patient.uuid if patient else journey.patient.uuid) }}">Cancel</a>
+    {{ form.submit(class="btn btn-primary") }}
+</div>

@@ -31,12 +31,14 @@ def register_blueprints(app):
 
     from app.routes.admin import admin_bp
     from app.routes.auth import auth_bp
+    from app.routes.journeys import journeys_bp
     from app.routes.main import main_bp
     from app.routes.patients import patients_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(patients_bp)
+    app.register_blueprint(journeys_bp)
     app.register_blueprint(main_bp)
 
 

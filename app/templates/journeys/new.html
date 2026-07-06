@@ -1,0 +1,13 @@
+﻿{% extends "base.html" %}
+
+{% block title %}New Journey — Nada Clinic System{% endblock %}
+{% block page_title %}New Journey{% endblock %}
+{% block page_subtitle %}Create clinical context{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <form method="post" novalidate>
+        {% include "journeys/_form.html" %}
+    </form>
+</div>
+{% endblock %}
