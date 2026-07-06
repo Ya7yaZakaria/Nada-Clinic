@@ -1,0 +1,13 @@
+﻿{% extends "base.html" %}
+
+{% block title %}New Patient — Nada Clinic System{% endblock %}
+{% block page_title %}New Patient{% endblock %}
+{% block page_subtitle %}Register a patient in under one minute{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <form method="post" novalidate>
+        {% include "patients/_form.html" %}
+    </form>
+</div>
+{% endblock %}

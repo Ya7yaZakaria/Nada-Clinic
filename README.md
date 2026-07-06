@@ -217,3 +217,37 @@ Not implemented yet:
 - Appointments
 - Clinical notes
 - Audit
+
+## Stage 2 / Sprint 2.2 — Patient CRUD
+
+Implemented:
+
+- Patients blueprint
+- Patient form
+- MRN change form
+- Patient list
+- Patient creation
+- Patient edit
+- Patient detail/workspace shell
+- Admin-only MRN edit with warning confirmation
+- Duplicate phone warning
+- Patient CRUD tests
+- Sprint 2.2 documentation
+
+Routes:
+
+- GET /patients/
+- GET /patients/new
+- POST /patients/new
+- GET /patients/<uuid>
+- GET /patients/<uuid>/edit
+- POST /patients/<uuid>/edit
+- POST /patients/<uuid>/mrn
+
+Not implemented yet:
+
+- Patient live search
+- Appointments
+- Visits
+- Clinical notes
+- Timeline

@@ -24,7 +24,7 @@
             <nav class="sidebar-nav">
                 <a class="sidebar-link active" href="{{ url_for('main.index') }}">Dashboard</a>
                 <a class="sidebar-link disabled" href="#">Today Clinic</a>
-                <a class="sidebar-link disabled" href="#">Patients</a>
+                <a class="sidebar-link" href="{{ url_for('patients.index') }}">Patients</a>
                 <a class="sidebar-link disabled" href="#">Appointments</a>
                 <a class="sidebar-link disabled" href="#">Visits</a>
                 <a class="sidebar-link disabled" href="#">Investigations</a>
@@ -34,7 +34,7 @@
 
             <div class="sidebar-footer">
                 <span class="status-dot"></span>
-                Stage 1 Settings
+                Stage 2 Patients
             </div>
         </aside>
 
@@ -78,7 +78,7 @@
                 <nav class="sidebar-nav">
                     <a class="sidebar-link active" href="{{ url_for('main.index') }}">Dashboard</a>
                     <a class="sidebar-link disabled" href="#">Today Clinic</a>
-                    <a class="sidebar-link disabled" href="#">Patients</a>
+                    <a class="sidebar-link" href="{{ url_for('patients.index') }}">Patients</a>
                     <a class="sidebar-link disabled" href="#">Appointments</a>
                     <a class="sidebar-link disabled" href="#">Visits</a>
                     <a class="sidebar-link disabled" href="#">Investigations</a>
@@ -118,6 +118,7 @@
     </script>
 </body>
 </html>
+
 
 
 

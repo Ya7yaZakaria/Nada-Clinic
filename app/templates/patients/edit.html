@@ -1,0 +1,64 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Edit Patient — Nada Clinic System{% endblock %}
+{% block page_title %}Edit Patient{% endblock %}
+{% block page_subtitle %}Update patient identity and contact details{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex justify-content-between gap-3">
+        <div>
+            <p class="section-kicker">MRN {{ patient.formatted_mrn }}</p>
+            <h1 class="h4 mb-0">{{ PatientService.get_display_name(patient) }}</h1>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">Back to patient</a>
+    </div>
+</div>
+
+<div class="clinic-card mb-3">
+    <form method="post" novalidate>
+        {% include "patients/_form.html" %}
+    </form>
+</div>
+
+{% if can_edit_mrn %}
+    <div class="clinic-card border-warning">
+        <h2 class="h5">Admin MRN Change</h2>
+        <p class="text-warning mb-3">
+            Warning: changing the medical file number can affect paper-file matching and future references.
+        </p>
+
+        <form method="post" action="{{ url_for('patients.change_mrn', patient_uuid=patient.uuid) }}">
+            {{ mrn_form.hidden_tag() }}
+
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-lg-4">
+                    <label class="form-label" for="{{ mrn_form.medical_file_number.id }}">
+                        {{ mrn_form.medical_file_number.label.text }}
+                    </label>
+                    {{ mrn_form.medical_file_number(class="form-control") }}
+                    {% for error in mrn_form.medical_file_number.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-12 col-lg-5">
+                    <div class="form-check">
+                        {{ mrn_form.confirm_mrn_change(class="form-check-input") }}
+                        <label class="form-check-label" for="{{ mrn_form.confirm_mrn_change.id }}">
+                            {{ mrn_form.confirm_mrn_change.label.text }}
+                        </label>
+                    </div>
+                    {% for error in mrn_form.confirm_mrn_change.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-12 col-lg-3">
+                    {{ mrn_form.submit(class="btn btn-warning w-100") }}
+                </div>
+            </div>
+        </form>
+    </div>
+{% endif %}
+{% endblock %}

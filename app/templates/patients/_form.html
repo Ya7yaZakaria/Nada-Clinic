@@ -1,0 +1,104 @@
+﻿{{ form.hidden_tag() }}
+
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <label class="form-label" for="{{ form.name_ar.id }}">{{ form.name_ar.label.text }}</label>
+        {{ form.name_ar(class="form-control", dir="rtl") }}
+        {% for error in form.name_ar.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <label class="form-label" for="{{ form.name_en.id }}">{{ form.name_en.label.text }}</label>
+        {{ form.name_en(class="form-control") }}
+        {% for error in form.name_en.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <label class="form-label" for="{{ form.phone_primary.id }}">{{ form.phone_primary.label.text }}</label>
+        {{ form.phone_primary(class="form-control") }}
+        {% for error in form.phone_primary.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+        <div class="form-text">Duplicates are allowed, but the system will show a warning.</div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <label class="form-label" for="{{ form.phone_secondary.id }}">{{ form.phone_secondary.label.text }}</label>
+        {{ form.phone_secondary(class="form-control") }}
+        {% for error in form.phone_secondary.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.date_of_birth.id }}">{{ form.date_of_birth.label.text }}</label>
+        {{ form.date_of_birth(class="form-control") }}
+        {% for error in form.date_of_birth.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+        <div class="form-text">Use DOB when known.</div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.age_years_at_registration.id }}">{{ form.age_years_at_registration.label.text }}</label>
+        {{ form.age_years_at_registration(class="form-control") }}
+        {% for error in form.age_years_at_registration.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+        <div class="form-text">Required if DOB is unknown.</div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.marital_status.id }}">{{ form.marital_status.label.text }}</label>
+        {{ form.marital_status(class="form-select") }}
+        {% for error in form.marital_status.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="form-check mt-4">
+            {{ form.is_virgin(class="form-check-input") }}
+            <label class="form-check-label" for="{{ form.is_virgin.id }}">
+                {{ form.is_virgin.label.text }}
+            </label>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.occupation.id }}">{{ form.occupation.label.text }}</label>
+        {{ form.occupation(class="form-control") }}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.email.id }}">{{ form.email.label.text }}</label>
+        {{ form.email(class="form-control") }}
+        {% for error in form.email.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.governorate.id }}">{{ form.governorate.label.text }}</label>
+        {{ form.governorate(class="form-control") }}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.city.id }}">{{ form.city.label.text }}</label>
+        {{ form.city(class="form-control") }}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <label class="form-label" for="{{ form.street.id }}">{{ form.street.label.text }}</label>
+        {{ form.street(class="form-control") }}
+    </div>
+</div>
+
+<div class="d-flex gap-2 justify-content-end mt-4">
+    <a class="btn btn-outline-secondary" href="{{ url_for('patients.index') }}">Cancel</a>
+    {{ form.submit(class="btn btn-primary") }}
+</div>

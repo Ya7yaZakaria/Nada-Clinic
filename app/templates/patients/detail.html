@@ -1,0 +1,90 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Patient Workspace — Nada Clinic System{% endblock %}
+{% block page_title %}Patient Workspace{% endblock %}
+{% block page_subtitle %}Core identity shell before clinical modules{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <p class="section-kicker">MRN {{ patient.formatted_mrn }}</p>
+            <h1 class="h3 mb-2">{{ PatientService.get_display_name(patient) }}</h1>
+
+            <div class="d-flex flex-wrap gap-3 text-muted">
+                <span>
+                    Age:
+                    {% set age = PatientService.calculate_display_age(patient) %}
+                    {{ age if age is not none else "—" }}
+                </span>
+                <span>Phone: {{ patient.phone_primary }}</span>
+                <span>
+                    Address:
+                    {{ PatientService.get_full_address(patient) if PatientService.get_full_address(patient) else "—" }}
+                </span>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 align-items-start">
+            <a class="btn btn-primary disabled" href="#">New Visit</a>
+            <a class="btn btn-outline-primary disabled" href="#">Visits</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('patients.edit', patient_uuid=patient.uuid) }}">Edit</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Demographics</h2>
+            <dl class="row mb-0">
+                <dt class="col-5">Arabic name</dt>
+                <dd class="col-7" dir="rtl">{{ patient.name_ar }}</dd>
+
+                <dt class="col-5">English name</dt>
+                <dd class="col-7">{{ patient.name_en }}</dd>
+
+                <dt class="col-5">DOB</dt>
+                <dd class="col-7">{{ patient.date_of_birth or "—" }}</dd>
+
+                <dt class="col-5">Manual age</dt>
+                <dd class="col-7">{{ patient.age_years_at_registration if patient.age_years_at_registration is not none else "—" }}</dd>
+
+                <dt class="col-5">Marital status</dt>
+                <dd class="col-7">{{ patient.marital_status }}</dd>
+
+                <dt class="col-5">Virgin</dt>
+                <dd class="col-7">{{ "Yes" if patient.is_virgin else "No" }}</dd>
+
+                <dt class="col-5">Occupation</dt>
+                <dd class="col-7">{{ patient.occupation or "—" }}</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Clinical Snapshot</h2>
+            <p class="text-muted mb-0">Placeholder. Clinical snapshot starts after Visit/Journey modules.</p>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Recent Visits</h2>
+            <p class="text-muted mb-0">Placeholder. Visit implementation is not part of Sprint 2.2.</p>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Quick Actions</h2>
+            <div class="d-flex gap-2 flex-wrap">
+                <a class="btn btn-primary disabled" href="#">New Visit</a>
+                <a class="btn btn-outline-primary disabled" href="#">Visits</a>
+                <a class="btn btn-outline-secondary" href="{{ url_for('patients.edit', patient_uuid=patient.uuid) }}">Edit</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

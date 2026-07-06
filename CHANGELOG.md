@@ -1,5 +1,33 @@
 ﻿# Changelog
 
+## 2026-07-07 — Stage 2 / Sprint 2.2 Patient CRUD
+
+### Added
+
+- Patients blueprint.
+- Patient registration form.
+- Patient edit form.
+- MRN change form.
+- Patient list page.
+- New patient page.
+- Patient detail/workspace shell.
+- Patient edit page.
+- Admin-only MRN change route with warning confirmation.
+- Duplicate phone warning.
+- Patient CRUD tests.
+- Sprint 2.2 documentation.
+
+### Not Added Yet
+
+- Patient live search.
+- Appointments.
+- Visits.
+- Clinical notes.
+- Timeline.
+- Documents.
+- Partner.
+# Changelog
+
 ## 2026-07-07 — Stage 2 / Sprint 2.1 Patient Model & Migration
 
 ### Added
@@ -162,6 +190,7 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+
 
 
 
