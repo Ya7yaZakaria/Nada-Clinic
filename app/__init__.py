@@ -1,0 +1,41 @@
+﻿import os
+
+from flask import Flask, render_template
+
+from app.config import config_by_name
+from app.extensions import init_extensions
+
+
+def create_app(config_name=None):
+    """Application factory for Nada Clinic System."""
+
+    app = Flask(__name__)
+
+    config_name = config_name or os.getenv("FLASK_ENV", "development")
+    app.config.from_object(config_by_name.get(config_name, config_by_name["development"]))
+
+    init_extensions(app)
+    register_blueprints(app)
+    register_error_handlers(app)
+
+    return app
+
+
+def register_blueprints(app):
+    """Register application blueprints."""
+
+    from app.routes.main import main_bp
+
+    app.register_blueprint(main_bp)
+
+
+def register_error_handlers(app):
+    """Register basic error pages."""
+
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return render_template("errors/404.html"), 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        return render_template("errors/500.html"), 500

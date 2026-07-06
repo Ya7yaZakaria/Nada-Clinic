@@ -1,0 +1,44 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Nada Clinic System — Foundation{% endblock %}
+
+{% block content %}
+<section class="clinic-hero rounded-4 p-4 p-md-5">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <p class="text-uppercase small fw-semibold text-muted mb-2">
+                Sprint 0.1 Foundation
+            </p>
+
+            <h1 class="display-6 fw-bold mb-3">
+                Nada Clinic System
+            </h1>
+
+            <p class="lead mb-4">
+                A doctor-first, patient-centered clinic operating system for OB/GYN workflows.
+            </p>
+
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge rounded-pill text-bg-primary">Flask</span>
+                <span class="badge rounded-pill text-bg-secondary">SQLAlchemy</span>
+                <span class="badge rounded-pill text-bg-secondary">Alembic</span>
+                <span class="badge rounded-pill text-bg-secondary">Bootstrap 5</span>
+                <span class="badge rounded-pill text-bg-secondary">HTMX</span>
+                <span class="badge rounded-pill text-bg-secondary">Alpine.js</span>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5 fw-semibold">Current Stage</h2>
+                    <p class="mb-2">Foundation shell created.</p>
+                    <p class="small text-muted mb-0">
+                        Clinical modules will start after Auth/RBAC foundation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
