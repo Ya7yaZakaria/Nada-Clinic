@@ -1,5 +1,32 @@
 ﻿# Changelog
 
+## 2026-07-07 — Stage 3 / Sprint 3.4 Timeline Foundation
+
+### Added
+
+- Generated TimelineService.
+- Patient Workspace timeline section.
+- Journey started timeline events.
+- Journey closed timeline events.
+- Visit timeline events.
+- Visit completed timeline events.
+- Visit reopened timeline events.
+- Unassigned Visit marker.
+- Timeline tests.
+- Sprint 3.4 documentation.
+
+### Not Added Yet
+
+- Timeline table.
+- Manual timeline events.
+- Timeline filters.
+- Prescription events.
+- Investigation events.
+- Ultrasound events.
+- Appointment events.
+- Surgery events.
+# Changelog
+
 ## 2026-07-07 — Stage 3 / Sprint 3.3 Link Visit to Journey
 
 ### Added
@@ -333,6 +360,7 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+
 
 
 

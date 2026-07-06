@@ -1,0 +1,43 @@
+﻿<div class="clinic-card h-100">
+    <div class="d-flex justify-content-between gap-2 mb-2">
+        <div>
+            <p class="section-kicker">Story</p>
+            <h2 class="h5">Timeline</h2>
+        </div>
+    </div>
+
+    {% if timeline_events %}
+        <div class="list-group list-group-flush">
+            {% for event in timeline_events %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between gap-3">
+                        <div>
+                            <div class="fw-semibold">
+                                {{ event.label }} — {{ event.title }}
+                            </div>
+
+                            <div class="small text-muted">
+                                {{ event.source }}
+                                · {{ event.subtitle }}
+                                {% if event.is_unassigned %}
+                                    · <span class="text-warning">Unassigned Visit</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="small text-muted text-end">
+                            {{ event.date.date() if event.date.__class__.__name__ == "datetime" else event.date }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="placeholder-box">
+            <p class="fw-semibold mb-1">No timeline events yet.</p>
+            <p class="text-muted mb-0">
+                Timeline will be generated automatically from Journeys and Visits.
+            </p>
+        </div>
+    {% endif %}
+</div>

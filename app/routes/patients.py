@@ -5,8 +5,9 @@ from app.forms.patient_forms import MRNChangeForm, PatientForm
 from app.models import Patient
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
-from app.services.visit_service import VisitService
 from app.services.rbac_service import RBACService
+from app.services.timeline_service import TimelineService
+from app.services.visit_service import VisitService
 
 patients_bp = Blueprint("patients", __name__, url_prefix="/patients")
 
@@ -21,8 +22,6 @@ def index():
         "patients/index.html",
         patients=patients,
         PatientService=PatientService,
-        JourneyService=JourneyService,
-        VisitService=VisitService,
     )
 
 
@@ -31,7 +30,6 @@ def index():
 @RBACService.require_permission("patients.basic.view")
 def search():
     query = request.args.get("q", "")
-
     patients = PatientService.search_patients(query, limit=20)
 
     return render_template(
@@ -39,8 +37,6 @@ def search():
         patients=patients,
         query=query,
         PatientService=PatientService,
-        JourneyService=JourneyService,
-        VisitService=VisitService,
     )
 
 
@@ -100,6 +96,8 @@ def detail(patient_uuid):
         PatientService=PatientService,
         JourneyService=JourneyService,
         VisitService=VisitService,
+        TimelineService=TimelineService,
+        timeline_events=TimelineService.get_patient_timeline(patient),
     )
 
 
@@ -108,7 +106,6 @@ def detail(patient_uuid):
 @RBACService.require_permission("patients.basic.view")
 def edit(patient_uuid):
     patient = Patient.query.filter_by(uuid=patient_uuid).first_or_404()
-
     form = PatientForm(obj=patient)
 
     if form.validate_on_submit():
@@ -197,4 +194,3 @@ def deactivate(patient_uuid):
 
     flash("Patient deactivated.", "warning")
     return redirect(url_for("patients.detail", patient_uuid=patient.uuid))
-

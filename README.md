@@ -398,3 +398,29 @@ Not implemented yet:
 - Investigations
 - Prescription
 - Appointment integration
+
+## Stage 3 / Sprint 3.4 — Timeline Foundation
+
+Implemented:
+
+- Generated TimelineService
+- Patient Workspace timeline section
+- Journey started events
+- Journey closed events
+- Visit events
+- Visit completed events
+- Visit reopened events
+- Unassigned Visit marker
+- Timeline tests
+- Sprint 3.4 documentation
+
+Not implemented:
+
+- Timeline table
+- Manual timeline events
+- Timeline filters
+- Prescription events
+- Investigation events
+- Ultrasound events
+- Appointment events
+- Surgery events
