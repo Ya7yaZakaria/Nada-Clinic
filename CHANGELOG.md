@@ -1,5 +1,36 @@
 ﻿# Changelog
 
+## 2026-07-07 — Stage 3 / Sprint 3.1 Visit Model & Migration
+
+### Added
+
+- Visit model.
+- VisitAuditLog model.
+- Visit service.
+- Visit type/status validation.
+- Structured clinical note fields.
+- Complete Visit service with confirmation.
+- Reopen Visit service with confirmation.
+- Doctor/Admin-only reopen rule.
+- Minimal visit audit logs for complete/reopen.
+- Visit model tests.
+- Visit migration.
+- Sprint 3.1 documentation.
+
+### Not Added Yet
+
+- Visit UI.
+- Journey model.
+- Link Visit to Journey.
+- Timeline.
+- OITI sheet.
+- Specialized Visit templates.
+- Prescription.
+- Investigations.
+- Ultrasound.
+- Appointment integration.
+# Changelog
+
 ## 2026-07-07 — Stage 2 / Sprint 2.4 Patient Workspace v1
 
 ### Added
@@ -244,6 +275,7 @@
 - README baseline.
 - `.env.example`.
 - `.gitignore`.
+
 
 
 

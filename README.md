@@ -313,3 +313,33 @@ Not implemented yet:
 - Investigations
 - Documents
 - Partner
+
+## Stage 3 / Sprint 3.1 — Visit Model & Migration
+
+Implemented:
+
+- Visit model
+- VisitAuditLog model
+- Visit service
+- Visit belongs to Patient
+- Structured clinical note fields
+- Visit type/status validation
+- Complete Visit with confirmation
+- Reopen Visit with confirmation
+- Doctor/Admin-only reopen
+- Minimal visit audit logs for complete/reopen
+- Visit model tests
+- Sprint 3.1 documentation
+
+Not implemented yet:
+
+- Visit UI
+- Journey model
+- Link Visit to Journey
+- Timeline
+- OITI sheet
+- Specialized Visit templates
+- Prescription
+- Investigations
+- Ultrasound
+- Appointment integration
