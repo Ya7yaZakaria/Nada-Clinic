@@ -1,43 +1,74 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}Nada Clinic System — Foundation{% endblock %}
+{% block title %}Nada Clinic System — UI Shell{% endblock %}
+{% block page_title %}Dashboard Shell{% endblock %}
+{% block page_subtitle %}Stage 0 — UI Shell Foundation{% endblock %}
 
 {% block content %}
-<section class="clinic-hero rounded-4 p-4 p-md-5">
-    <div class="row align-items-center g-4">
-        <div class="col-lg-8">
-            <p class="text-uppercase small fw-semibold text-muted mb-2">
-                Sprint 0.1 Foundation
+<section class="row g-3 mb-4">
+    <div class="col-12 col-xl-8">
+        <div class="clinic-card hero-card">
+            <p class="section-kicker">Stage 0 / Sprint 0.2</p>
+            <h1>Clinic OS shell is ready.</h1>
+            <p>
+                This is the visual foundation for the future Patient Workspace, Today Clinic,
+                appointments, visits, investigations, and reports.
             </p>
 
-            <h1 class="display-6 fw-bold mb-3">
-                Nada Clinic System
-            </h1>
-
-            <p class="lead mb-4">
-                A doctor-first, patient-centered clinic operating system for OB/GYN workflows.
-            </p>
-
-            <div class="d-flex flex-wrap gap-2">
-                <span class="badge rounded-pill text-bg-primary">Flask</span>
-                <span class="badge rounded-pill text-bg-secondary">SQLAlchemy</span>
-                <span class="badge rounded-pill text-bg-secondary">Alembic</span>
-                <span class="badge rounded-pill text-bg-secondary">Bootstrap 5</span>
-                <span class="badge rounded-pill text-bg-secondary">HTMX</span>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+                <span class="badge rounded-pill text-bg-primary">Bootstrap 5</span>
+                <span class="badge rounded-pill text-bg-secondary">HTMX-ready</span>
                 <span class="badge rounded-pill text-bg-secondary">Alpine.js</span>
+                <span class="badge rounded-pill text-bg-secondary">Mobile-ready</span>
             </div>
         </div>
+    </div>
 
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <h2 class="h5 fw-semibold">Current Stage</h2>
-                    <p class="mb-2">Foundation shell created.</p>
-                    <p class="small text-muted mb-0">
-                        Clinical modules will start after Auth/RBAC foundation.
-                    </p>
-                </div>
-            </div>
+    <div class="col-12 col-xl-4">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Current Status</p>
+            <h2 class="h5">Foundation only</h2>
+            <p class="text-muted mb-0">
+                No patient data, auth, RBAC, or clinical modules are implemented yet.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="clinic-card module-card">
+            <div class="module-icon">TC</div>
+            <h3>Today Clinic</h3>
+            <p>Placeholder for arrived patients and clinic flow.</p>
+            <span class="module-status">Coming later</span>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="clinic-card module-card">
+            <div class="module-icon">PW</div>
+            <h3>Patient Workspace</h3>
+            <p>Main future workspace rooted around the patient record.</p>
+            <span class="module-status">Coming later</span>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="clinic-card module-card">
+            <div class="module-icon">V</div>
+            <h3>Visits</h3>
+            <p>Future clinical encounter area for OB/GYN workflows.</p>
+            <span class="module-status">Coming later</span>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="clinic-card module-card">
+            <div class="module-icon">I</div>
+            <h3>Investigations</h3>
+            <p>Future area for ordered, pending, resulted, and reviewed tests.</p>
+            <span class="module-status">Coming later</span>
         </div>
     </div>
 </section>

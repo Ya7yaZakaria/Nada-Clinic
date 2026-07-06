@@ -1,19 +1,235 @@
 ﻿:root {
-    --clinic-bg: #f7fafb;
+    --clinic-bg: #f6f9fa;
+    --clinic-surface: #ffffff;
     --clinic-ink: #17252a;
     --clinic-muted: #6c757d;
+    --clinic-border: rgba(23, 37, 42, 0.08);
+    --clinic-primary: #0f766e;
+    --clinic-primary-soft: #e6f4f2;
+    --clinic-sidebar: #102a2f;
+}
+
+[x-cloak] {
+    display: none !important;
 }
 
 body {
+    margin: 0;
     background: var(--clinic-bg);
     color: var(--clinic-ink);
 }
 
-.clinic-hero {
-    background: linear-gradient(135deg, #ffffff 0%, #eef7f8 100%);
-    border: 1px solid rgba(0, 0, 0, 0.06);
+.clinic-shell {
+    min-height: 100vh;
+    display: flex;
 }
 
-.navbar-brand {
-    letter-spacing: -0.02em;
+.clinic-sidebar {
+    width: 280px;
+    min-height: 100vh;
+    background: var(--clinic-sidebar);
+    color: white;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.brand-mark {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.14);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 1.25rem;
+}
+
+.brand-title {
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.brand-subtitle {
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.85rem;
+}
+
+.sidebar-nav {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.sidebar-link {
+    color: rgba(255, 255, 255, 0.78);
+    text-decoration: none;
+    padding: 0.75rem 0.85rem;
+    border-radius: 0.9rem;
+    display: block;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+    color: white;
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.sidebar-link.disabled {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+}
+
+.status-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    background: #22c55e;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 0.35rem;
+}
+
+.clinic-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.clinic-topbar {
+    min-height: 72px;
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid var(--clinic-border);
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(10px);
+}
+
+.topbar-title {
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.topbar-subtitle {
+    color: var(--clinic-muted);
+    font-size: 0.9rem;
+}
+
+.topbar-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: end;
+}
+
+.clinic-content {
+    padding: 1.25rem;
+}
+
+.clinic-card {
+    background: var(--clinic-surface);
+    border: 1px solid var(--clinic-border);
+    border-radius: 1.25rem;
+    padding: 1.25rem;
+    box-shadow: 0 12px 30px rgba(16, 42, 47, 0.05);
+}
+
+.hero-card {
+    background: linear-gradient(135deg, #ffffff 0%, #e9f7f5 100%);
+}
+
+.hero-card h1 {
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.75rem;
+}
+
+.section-kicker {
+    color: var(--clinic-primary);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+}
+
+.module-card {
+    height: 100%;
+}
+
+.module-card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-top: 0.75rem;
+}
+
+.module-card p {
+    color: var(--clinic-muted);
+    font-size: 0.92rem;
+}
+
+.module-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 15px;
+    display: grid;
+    place-items: center;
+    background: var(--clinic-primary-soft);
+    color: var(--clinic-primary);
+    font-weight: 800;
+}
+
+.module-status {
+    font-size: 0.8rem;
+    color: var(--clinic-muted);
+}
+
+.mobile-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 50;
+}
+
+.mobile-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(82vw, 320px);
+    background: var(--clinic-sidebar);
+    color: white;
+    padding: 1rem;
+    z-index: 60;
+}
+
+@media (max-width: 576px) {
+    .clinic-topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .topbar-actions {
+        justify-content: flex-start;
+    }
+
+    .clinic-content {
+        padding: 1rem;
+    }
 }

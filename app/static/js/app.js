@@ -1,1 +1,1 @@
-﻿console.log("Nada Clinic System foundation loaded.");
+﻿console.log("Nada Clinic System UI shell loaded.");

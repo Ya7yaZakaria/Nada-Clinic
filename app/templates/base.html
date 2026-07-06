@@ -8,25 +8,83 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg border-bottom bg-white">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-semibold" href="{{ url_for('main.index') }}">
-                Nada Clinic System
-            </a>
-            <span class="badge text-bg-light border">Clinic 2 Foundation</span>
-        </div>
-    </nav>
+<body x-data="{ sidebarOpen: false }">
+    <div class="clinic-shell">
+        <aside class="clinic-sidebar d-none d-lg-flex flex-column">
+            <div class="sidebar-brand">
+                <div class="brand-mark">N</div>
+                <div>
+                    <div class="brand-title">Nada Clinic</div>
+                    <div class="brand-subtitle">Clinic OS</div>
+                </div>
+            </div>
 
-    <main class="container-fluid py-4">
-        {% block content %}{% endblock %}
-    </main>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link active" href="{{ url_for('main.index') }}">Dashboard</a>
+                <a class="sidebar-link disabled" href="#">Today Clinic</a>
+                <a class="sidebar-link disabled" href="#">Patients</a>
+                <a class="sidebar-link disabled" href="#">Appointments</a>
+                <a class="sidebar-link disabled" href="#">Visits</a>
+                <a class="sidebar-link disabled" href="#">Investigations</a>
+                <a class="sidebar-link disabled" href="#">Reports</a>
+                <a class="sidebar-link disabled" href="#">Settings</a>
+            </nav>
 
-    <footer class="border-top py-3 small text-muted">
-        <div class="container-fluid">
-            Doctor-first. Patient-centered. Timeline-driven. AI-ready.
+            <div class="sidebar-footer">
+                <span class="status-dot"></span>
+                Stage 0 Foundation
+            </div>
+        </aside>
+
+        <div class="clinic-main">
+            <header class="clinic-topbar">
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary d-lg-none" type="button" @click="sidebarOpen = true">
+                        Menu
+                    </button>
+
+                    <div>
+                        <div class="topbar-title">{% block page_title %}Clinic Foundation{% endblock %}</div>
+                        <div class="topbar-subtitle">{% block page_subtitle %}Doctor-first patient workspace shell{% endblock %}</div>
+                    </div>
+                </div>
+
+                <div class="topbar-actions">
+                    <span class="badge text-bg-light border">HTMX-ready</span>
+                    <span class="badge text-bg-light border">AI-ready later</span>
+                </div>
+            </header>
+
+            <div class="mobile-sidebar-backdrop" x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"></div>
+
+            <aside class="mobile-sidebar d-lg-none" x-show="sidebarOpen" x-cloak>
+                <div class="sidebar-brand">
+                    <div class="brand-mark">N</div>
+                    <div>
+                        <div class="brand-title">Nada Clinic</div>
+                        <div class="brand-subtitle">Clinic OS</div>
+                    </div>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a class="sidebar-link active" href="{{ url_for('main.index') }}">Dashboard</a>
+                    <a class="sidebar-link disabled" href="#">Today Clinic</a>
+                    <a class="sidebar-link disabled" href="#">Patients</a>
+                    <a class="sidebar-link disabled" href="#">Appointments</a>
+                    <a class="sidebar-link disabled" href="#">Visits</a>
+                    <a class="sidebar-link disabled" href="#">Investigations</a>
+                </nav>
+
+                <button class="btn btn-sm btn-outline-secondary mt-3" type="button" @click="sidebarOpen = false">
+                    Close
+                </button>
+            </aside>
+
+            <main class="clinic-content" id="clinic-content">
+                {% block content %}{% endblock %}
+            </main>
         </div>
-    </footer>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
