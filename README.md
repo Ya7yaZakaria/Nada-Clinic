@@ -424,3 +424,7 @@ Not implemented:
 - Ultrasound events
 - Appointment events
 - Surgery events
+
+
+## Stage 4 — Appointment & Today's Clinic
+Sprint 4.1 adds the Appointment database foundation, workflow service, emergency unscheduled support, end-of-day no-show conversion, and date counters.

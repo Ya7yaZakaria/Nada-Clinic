@@ -18,3 +18,5 @@ __all__ = [
     "role_permissions",
     "user_roles",
 ]
+
+from app.models.appointment import Appointment

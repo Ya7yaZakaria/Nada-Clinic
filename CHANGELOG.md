@@ -370,3 +370,15 @@
 
 
 
+
+
+## 2026-07-07 — Sprint 4.1 Appointment Model & Migration
+
+### Added
+- Appointment model.
+- Appointment service.
+- Appointment workflow validation.
+- Emergency unscheduled appointment support.
+- End-of-day no-show conversion.
+- Appointment counters for clinic day.
+- Sprint 4.1 tests and documentation.
