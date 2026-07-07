@@ -19,6 +19,12 @@
         </div>
 
         <div class="d-flex flex-wrap gap-2 align-items-start">
+            {% if appointment.status == "booked" %}
+                <form method="post" action="{{ url_for('appointments.arrive', appointment_uuid=appointment.uuid) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-success" type="submit">Arrived</button>
+                </form>
+            {% endif %}
             <a class="btn btn-sm btn-outline-primary" href="{{ url_for('appointments.detail', appointment_uuid=appointment.uuid) }}">Details</a>
             <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('appointments.edit', appointment_uuid=appointment.uuid) }}">Edit</a>
             <a class="btn btn-sm btn-primary" href="{{ url_for('patients.detail', patient_uuid=appointment.patient.uuid) }}">Workspace</a>

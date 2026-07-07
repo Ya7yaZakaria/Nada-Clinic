@@ -68,3 +68,31 @@ class AppointmentForm(FlaskForm):
 
 class AppointmentPatientSearchForm(FlaskForm):
     q = StringField("Patient search", validators=[Optional(), Length(max=120)])
+
+
+class AppointmentCancelForm(FlaskForm):
+    reason = TextAreaField(
+        "Cancel reason",
+        validators=[Optional(), Length(max=1000)],
+    )
+    submit = SubmitField("Cancel appointment")
+
+
+class AppointmentRescheduleForm(FlaskForm):
+    appointment_date = DateField(
+        "New appointment date",
+        validators=[DataRequired()],
+        format="%Y-%m-%d",
+    )
+
+    appointment_time = TimeField(
+        "New appointment time",
+        validators=[Optional()],
+        format="%H:%M",
+    )
+
+    submit = SubmitField("Reschedule appointment")
+
+
+class AppointmentArriveForm(FlaskForm):
+    submit = SubmitField("Mark arrived")

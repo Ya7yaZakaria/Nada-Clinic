@@ -2,9 +2,15 @@
 from datetime import date, timedelta
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 
-from app.forms.appointment_forms import AppointmentForm
+from app.extensions import db
+from app.forms.appointment_forms import (
+    AppointmentArriveForm,
+    AppointmentCancelForm,
+    AppointmentForm,
+    AppointmentRescheduleForm,
+)
 from app.models import Patient
 from app.models.appointment import Appointment
 from app.services.appointment_service import AppointmentService
@@ -51,7 +57,7 @@ def _get_patient_from_form(form):
     if not patient_id:
         return None
 
-    return Patient.query.get(int(patient_id))
+    return db.session.get(Patient, int(patient_id))
 
 
 @appointments_bp.get("/")
@@ -173,6 +179,9 @@ def detail(appointment_uuid):
     return render_template(
         "appointments/detail.html",
         appointment=appointment,
+        arrive_form=AppointmentArriveForm(),
+        cancel_form=AppointmentCancelForm(),
+        reschedule_form=AppointmentRescheduleForm(),
         AppointmentService=AppointmentService,
         PatientService=PatientService,
     )
@@ -212,4 +221,95 @@ def edit(appointment_uuid):
         "appointments/edit.html",
         form=form,
         appointment=appointment,
+    )
+
+
+@appointments_bp.post("/<appointment_uuid>/arrive")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def arrive(appointment_uuid):
+    appointment = Appointment.query.filter_by(uuid=appointment_uuid).first_or_404()
+
+    AppointmentService.mark_arrived(appointment)
+    flash("Patient marked as arrived / waiting.", "success")
+    return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
+
+
+@appointments_bp.post("/<appointment_uuid>/cancel")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def cancel(appointment_uuid):
+    appointment = Appointment.query.filter_by(uuid=appointment_uuid).first_or_404()
+    form = AppointmentCancelForm()
+
+    if not form.validate_on_submit():
+        flash("Cancel request was invalid.", "danger")
+        return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
+
+    AppointmentService.cancel_appointment(appointment, reason=form.reason.data)
+    flash("Appointment cancelled.", "warning")
+    return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
+
+
+@appointments_bp.post("/<appointment_uuid>/reschedule")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def reschedule(appointment_uuid):
+    appointment = Appointment.query.filter_by(uuid=appointment_uuid).first_or_404()
+    form = AppointmentRescheduleForm()
+
+    if not form.validate_on_submit():
+        flash("Reschedule request was invalid.", "danger")
+        return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
+
+    new_appointment = AppointmentService.reschedule_appointment(
+        appointment,
+        new_date=form.appointment_date.data,
+        new_time=form.appointment_time.data,
+        updated_by_user_id=current_user.id,
+    )
+
+    flash("Appointment rescheduled.", "success")
+    return redirect(url_for("appointments.detail", appointment_uuid=new_appointment.uuid))
+
+
+@appointments_bp.route("/emergency/new", methods=["GET", "POST"])
+@login_required
+@RBACService.require_permission("appointments.manage")
+def emergency_new():
+    patient_query = request.args.get("q", "")
+    patients = PatientService.search_patients(patient_query, limit=10) if patient_query else []
+    form = AppointmentForm()
+
+    if request.method == "GET":
+        form.appointment_type.data = Appointment.TYPE_EMERGENCY
+        form.source.data = Appointment.SOURCE_EMERGENCY_UNSCHEDULED
+        form.appointment_date.data = date.today()
+
+    if form.validate_on_submit():
+        patient = _get_patient_from_form(form)
+
+        if not patient:
+            flash("Please select a patient.", "danger")
+            return render_template(
+                "appointments/emergency_new.html",
+                form=form,
+                patients=patients,
+                patient_query=patient_query,
+            )
+
+        appointment = AppointmentService.create_emergency_unscheduled(
+            patient_id=patient.id,
+            notes=form.notes.data,
+            created_by_user_id=current_user.id,
+        )
+
+        flash("Emergency patient added to waiting queue.", "success")
+        return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
+
+    return render_template(
+        "appointments/emergency_new.html",
+        form=form,
+        patients=patients,
+        patient_query=patient_query,
     )

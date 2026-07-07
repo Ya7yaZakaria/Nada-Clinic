@@ -5,7 +5,7 @@
 {% block page_subtitle %}Booking record overview{% endblock %}
 
 {% block content %}
-<div class="clinic-card">
+<div class="clinic-card mb-3">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
         <div>
             <div class="d-flex flex-wrap gap-2 mb-2">
@@ -23,6 +23,12 @@
         </div>
 
         <div class="d-flex flex-wrap gap-2 align-items-start">
+            {% if appointment.status == "booked" %}
+                <form method="post" action="{{ url_for('appointments.arrive', appointment_uuid=appointment.uuid) }}">
+                    {{ arrive_form.hidden_tag() }}
+                    <button class="btn btn-success" type="submit">Mark Arrived</button>
+                </form>
+            {% endif %}
             <a class="btn btn-primary" href="{{ url_for('patients.detail', patient_uuid=appointment.patient.uuid) }}">Open Workspace</a>
             <a class="btn btn-outline-secondary" href="{{ url_for('appointments.edit', appointment_uuid=appointment.uuid) }}">Edit</a>
             <a class="btn btn-outline-primary" href="{{ url_for('appointments.calendar', date=appointment.appointment_date.isoformat()) }}">Calendar</a>
@@ -37,6 +43,53 @@
 
         <dt class="col-sm-3">Notes</dt>
         <dd class="col-sm-9">{{ appointment.notes or "—" }}</dd>
+
+        <dt class="col-sm-3">Arrived at</dt>
+        <dd class="col-sm-9">{{ appointment.arrived_at or "—" }}</dd>
+
+        <dt class="col-sm-3">Cancelled at</dt>
+        <dd class="col-sm-9">{{ appointment.cancelled_at or "—" }}</dd>
+
+        <dt class="col-sm-3">Cancel reason</dt>
+        <dd class="col-sm-9">{{ appointment.cancel_reason or "—" }}</dd>
+
+        <dt class="col-sm-3">Rescheduled at</dt>
+        <dd class="col-sm-9">{{ appointment.rescheduled_at or "—" }}</dd>
     </dl>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Reception Workflow</p>
+            <h2 class="h5">Cancel Appointment</h2>
+
+            <form method="post" action="{{ url_for('appointments.cancel', appointment_uuid=appointment.uuid) }}">
+                {{ cancel_form.hidden_tag() }}
+                {{ cancel_form.reason.label(class="form-label") }}
+                {{ cancel_form.reason(class="form-control mb-3", rows="3") }}
+                {{ cancel_form.submit(class="btn btn-warning") }}
+            </form>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Reception Workflow</p>
+            <h2 class="h5">Reschedule Appointment</h2>
+
+            <form method="post" action="{{ url_for('appointments.reschedule', appointment_uuid=appointment.uuid) }}">
+                {{ reschedule_form.hidden_tag() }}
+
+                {{ reschedule_form.appointment_date.label(class="form-label") }}
+                {{ reschedule_form.appointment_date(class="form-control mb-3") }}
+
+                {{ reschedule_form.appointment_time.label(class="form-label") }}
+                {{ reschedule_form.appointment_time(class="form-control mb-3") }}
+
+                {{ reschedule_form.submit(class="btn btn-outline-primary") }}
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}

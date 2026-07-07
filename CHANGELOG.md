@@ -393,3 +393,17 @@
 - Patient appointment history page.
 - Appointment CRUD/calendar tests.
 - Sprint 4.2 documentation.
+
+## 2026-07-07 — Sprint 4.3 Arrival / Waiting Queue
+### Added
+- Mark appointment arrived route.
+- Cancel appointment route.
+- Reschedule appointment route.
+- Emergency unscheduled appointment route.
+- Waiting queue service.
+- Appointment workflow tests.
+- Sprint 4.3 documentation.
+
+### Confirmed
+- Appointment workflow does not create Visit automatically.
+- Patient Workspace remains doctor-first.

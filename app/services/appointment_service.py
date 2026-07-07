@@ -91,7 +91,13 @@ class AppointmentService:
 
     @classmethod
     def update_appointment(cls, appointment, **kwargs):
-        for key in ("appointment_date", "appointment_time", "duration_minutes", "notes", "updated_by_user_id"):
+        for key in (
+            "appointment_date",
+            "appointment_time",
+            "duration_minutes",
+            "notes",
+            "updated_by_user_id",
+        ):
             if key in kwargs:
                 setattr(appointment, key, kwargs[key])
 
@@ -256,6 +262,19 @@ class AppointmentService:
                 counters["emergency"] += 1
 
         return counters
+
+    @staticmethod
+    def get_waiting_queue(clinic_date=None):
+        clinic_date = clinic_date or date.today()
+
+        return Appointment.query.filter_by(
+            appointment_date=clinic_date,
+            status=Appointment.STATUS_ARRIVED,
+        ).order_by(
+            Appointment.arrived_at.asc().nullslast(),
+            Appointment.appointment_time.asc().nullslast(),
+            Appointment.created_at.asc(),
+        ).all()
 
     @staticmethod
     def get_status_label(status):

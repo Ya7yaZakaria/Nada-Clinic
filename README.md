@@ -443,3 +443,6 @@ Adds Appointment CRUD routes, AppointmentForm, calendar month/week/day views, pa
 - Before changing an existing button, route, template section, status, or workflow meaning, stop and ask for approval.
 - Prefer adding new module entry points over modifying unrelated module behavior.
 - If a sprint touches files outside its declared scope, explain why before coding.
+
+## Sprint 4.3 — Arrival / Waiting Queue
+Adds reception workflow actions for marking appointments arrived, cancellation, rescheduling, emergency unscheduled appointments, and waiting queue service support.
