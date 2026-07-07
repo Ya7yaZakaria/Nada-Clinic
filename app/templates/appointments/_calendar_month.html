@@ -1,0 +1,37 @@
+﻿<div class="clinic-card">
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                    <th>Sun</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in month_weeks %}
+                    <tr>
+                        {% for day in week %}
+                            {% set count = month_counts.get(day, 0) %}
+                            <td class="{% if day.month != selected_date.month %}text-muted bg-light{% endif %} {% if day == today %}border-primary{% endif %}" style="min-width: 120px; height: 95px;">
+                                <div class="d-flex justify-content-between">
+                                    <a class="fw-semibold text-decoration-none" href="{{ url_for('appointments.calendar', date=day.isoformat(), view='day') }}">{{ day.day }}</a>
+                                    {% if count %}
+                                        <span class="badge text-bg-primary">{{ count }}</span>
+                                    {% endif %}
+                                </div>
+                                {% if day == selected_date %}
+                                    <div class="small text-primary mt-2">Selected</div>
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

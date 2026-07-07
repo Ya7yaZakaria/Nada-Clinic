@@ -1,0 +1,10 @@
+﻿<div class="clinic-card">
+    <div class="d-flex justify-content-between mb-3">
+        <h2 class="h5 mb-0">Day view</h2>
+        <span class="text-muted">{{ selected_date }}</span>
+    </div>
+
+    {% with appointments=selected_day_appointments %}
+        {% include "appointments/_day_appointments.html" %}
+    {% endwith %}
+</div>

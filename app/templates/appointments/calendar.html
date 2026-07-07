@@ -1,0 +1,51 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Appointment Calendar — Nada Clinic System{% endblock %}
+{% block page_title %}Appointment Calendar{% endblock %}
+{% block page_subtitle %}Month, week, and day appointment overview{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-xl-row justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-1">{{ month_name }} {{ selected_date.year }}</h1>
+        <p class="text-muted mb-0">Selected day: {{ selected_date }}</p>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary" href="{{ url_for('appointments.calendar', date=previous_month_date.isoformat(), view='month') }}">Previous month</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('appointments.calendar', date=today.isoformat(), view=view) }}">Today</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('appointments.calendar', date=next_month_date.isoformat(), view='month') }}">Next month</a>
+        <a class="btn btn-primary" href="{{ url_for('appointments.new') }}">Book Appointment</a>
+    </div>
+</div>
+
+<div class="mb-3">
+    <div class="btn-group">
+        <a class="btn btn-sm {{ 'btn-primary' if view == 'month' else 'btn-outline-primary' }}" href="{{ url_for('appointments.calendar', date=selected_date.isoformat(), view='month') }}">Month</a>
+        <a class="btn btn-sm {{ 'btn-primary' if view == 'week' else 'btn-outline-primary' }}" href="{{ url_for('appointments.calendar', date=selected_date.isoformat(), view='week') }}">Week</a>
+        <a class="btn btn-sm {{ 'btn-primary' if view == 'day' else 'btn-outline-primary' }}" href="{{ url_for('appointments.calendar', date=selected_date.isoformat(), view='day') }}">Day</a>
+    </div>
+</div>
+
+{% if view == "week" %}
+    {% include "appointments/_calendar_week.html" %}
+{% elif view == "day" %}
+    {% include "appointments/_calendar_day.html" %}
+{% else %}
+    {% include "appointments/_calendar_month.html" %}
+{% endif %}
+
+<div class="clinic-card mt-3">
+    <div class="d-flex justify-content-between gap-2 mb-2">
+        <div>
+            <p class="section-kicker">Selected Day</p>
+            <h2 class="h5">Appointments on {{ selected_date }}</h2>
+        </div>
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('appointments.index', date=selected_date.isoformat()) }}">Open list</a>
+    </div>
+
+    {% with appointments=selected_day_appointments %}
+        {% include "appointments/_day_appointments.html" %}
+    {% endwith %}
+</div>
+{% endblock %}

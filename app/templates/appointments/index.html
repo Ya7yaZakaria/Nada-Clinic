@@ -1,0 +1,33 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Appointments — Nada Clinic System{% endblock %}
+{% block page_title %}Appointments{% endblock %}
+{% block page_subtitle %}Daily booking list and quick appointment access{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-1">Appointments for {{ selected_date }}</h1>
+        <p class="text-muted mb-0">All appointment statuses remain visible.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary" href="{{ url_for('appointments.calendar', date=selected_date.isoformat()) }}">Calendar</a>
+        <a class="btn btn-primary" href="{{ url_for('appointments.new') }}">Book Appointment</a>
+    </div>
+</div>
+
+<div class="clinic-card">
+    {% if appointments %}
+        <div class="list-group list-group-flush">
+            {% for appointment in appointments %}
+                {% include "appointments/_appointment_card.html" %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="placeholder-box">
+            <p class="fw-semibold mb-1">No appointments for this date.</p>
+            <p class="text-muted mb-0">Book the first appointment from the button above.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -15,3 +15,4 @@ __all__ = [
     "VisitForm",
     "VisitJourneyLinkForm",
 ]
+

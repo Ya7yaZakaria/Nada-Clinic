@@ -1,8 +1,11 @@
 ﻿from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
+from app.forms.appointment_forms import AppointmentForm
+
 from app.forms.patient_forms import MRNChangeForm, PatientForm
 from app.models import Patient
+from app.services.appointment_service import AppointmentService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
 from app.services.rbac_service import RBACService
@@ -194,3 +197,52 @@ def deactivate(patient_uuid):
 
     flash("Patient deactivated.", "warning")
     return redirect(url_for("patients.detail", patient_uuid=patient.uuid))
+
+@patients_bp.route("/<patient_uuid>/appointments/new", methods=["GET", "POST"])
+@login_required
+@RBACService.require_permission("appointments.manage")
+def new_appointment(patient_uuid):
+    patient = Patient.query.filter_by(uuid=patient_uuid).first_or_404()
+    form = AppointmentForm()
+
+    if request.method == "GET":
+        form.patient_id.data = str(patient.id)
+
+    if form.validate_on_submit():
+        appointment = AppointmentService.create_appointment(
+            patient_id=patient.id,
+            appointment_date=form.appointment_date.data,
+            appointment_time=form.appointment_time.data,
+            duration_minutes=form.duration_minutes.data,
+            appointment_type=form.appointment_type.data,
+            source=form.source.data,
+            notes=form.notes.data,
+        )
+
+        flash("Appointment booked.", "success")
+        return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
+
+    return render_template(
+        "appointments/new.html",
+        form=form,
+        patient=patient,
+        patients=[],
+        patient_query="",
+    )
+
+
+@patients_bp.get("/<patient_uuid>/appointments")
+@login_required
+@RBACService.require_permission("appointments.view")
+def appointments(patient_uuid):
+    patient = Patient.query.filter_by(uuid=patient_uuid).first_or_404()
+    patient_appointments = AppointmentService.get_patient_appointments(patient.id)
+
+    return render_template(
+        "appointments/patient_appointments.html",
+        patient=patient,
+        appointments=patient_appointments,
+        AppointmentService=AppointmentService,
+        PatientService=PatientService,
+    )
+

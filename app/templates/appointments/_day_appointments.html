@@ -1,0 +1,9 @@
+﻿{% if appointments %}
+    <div class="list-group list-group-flush">
+        {% for appointment in appointments %}
+            {% include "appointments/_appointment_card.html" %}
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted mb-0">No appointments for this day.</p>
+{% endif %}

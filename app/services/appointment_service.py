@@ -210,6 +210,27 @@ class AppointmentService:
         return cls.get_appointments_for_date(date.today())
 
     @staticmethod
+    def get_appointments_between_dates(start_date, end_date):
+        return Appointment.query.filter(
+            Appointment.appointment_date >= start_date,
+            Appointment.appointment_date <= end_date,
+        ).order_by(
+            Appointment.appointment_date.asc(),
+            Appointment.appointment_time.asc().nullslast(),
+            Appointment.created_at.asc(),
+        ).all()
+
+    @classmethod
+    def get_calendar_counts(cls, start_date, end_date):
+        appointments = cls.get_appointments_between_dates(start_date, end_date)
+        counts = {}
+
+        for appointment in appointments:
+            counts[appointment.appointment_date] = counts.get(appointment.appointment_date, 0) + 1
+
+        return counts
+
+    @staticmethod
     def get_total_booked_for_date(clinic_date):
         return Appointment.query.filter_by(appointment_date=clinic_date).count()
 
@@ -247,5 +268,3 @@ class AppointmentService:
     @staticmethod
     def get_source_label(source):
         return AppointmentService.SOURCE_LABELS.get(source, source)
-
-

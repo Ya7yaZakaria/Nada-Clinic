@@ -382,3 +382,14 @@
 - End-of-day no-show conversion.
 - Appointment counters for clinic day.
 - Sprint 4.1 tests and documentation.
+
+
+## 2026-07-07 — Sprint 4.2 Appointment Booking + Calendar View
+### Added
+- Appointment booking routes and forms.
+- Appointment list and detail pages.
+- Calendar month/week/day views.
+- Patient appointment booking route.
+- Patient appointment history page.
+- Appointment CRUD/calendar tests.
+- Sprint 4.2 documentation.

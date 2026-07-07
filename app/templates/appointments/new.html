@@ -1,0 +1,10 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Book Appointment — Nada Clinic System{% endblock %}
+{% block page_title %}Book Appointment{% endblock %}
+{% block page_subtitle %}Create a booking record without creating a Visit{% endblock %}
+
+{% block content %}
+{% set PatientService = PatientService if PatientService is defined else none %}
+{% include "appointments/_form.html" %}
+{% endblock %}

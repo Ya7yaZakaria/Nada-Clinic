@@ -1,0 +1,27 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Patient Appointments — Nada Clinic System{% endblock %}
+{% block page_title %}Patient Appointments{% endblock %}
+{% block page_subtitle %}Booking history for this patient{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-1">{{ PatientService.get_display_name(patient) }}</h1>
+        <p class="text-muted mb-0">MRN {{ patient.formatted_mrn }}</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('patients.new_appointment', patient_uuid=patient.uuid) }}">Book Appointment</a>
+</div>
+
+<div class="clinic-card">
+    {% if appointments %}
+        <div class="list-group list-group-flush">
+            {% for appointment in appointments %}
+                {% include "appointments/_appointment_card.html" %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted mb-0">No appointments for this patient.</p>
+    {% endif %}
+</div>
+{% endblock %}

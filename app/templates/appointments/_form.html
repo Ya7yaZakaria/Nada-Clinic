@@ -1,0 +1,72 @@
+﻿<form method="post">
+    {{ form.hidden_tag() }}
+
+    {% if patient %}
+        {{ form.patient_id(value=patient.id) }}
+        <div class="alert alert-info">
+            Booking for <strong>{{ PatientService.get_display_name(patient) if PatientService is defined else patient.name_en }}</strong>
+            · MRN {{ patient.formatted_mrn }}
+        </div>
+    {% else %}
+        <div class="clinic-card mb-3">
+            <label class="form-label">Find patient</label>
+            <div class="input-group">
+                <input class="form-control" name="q" value="{{ patient_query or '' }}" placeholder="Search by name or phone">
+                <button class="btn btn-outline-secondary" type="submit" formmethod="get">Search</button>
+            </div>
+
+            {% if patients %}
+                <div class="list-group mt-3">
+                    {% for candidate in patients %}
+                        <label class="list-group-item">
+                            <input class="form-check-input me-2" type="radio" name="patient_id" value="{{ candidate.id }}" {% if form.patient_id.data|string == candidate.id|string %}checked{% endif %}>
+                            {{ candidate.name_en }} · {{ candidate.name_ar }} · MRN {{ candidate.formatted_mrn }} · {{ candidate.phone_primary }}
+                        </label>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.patient_id(class="form-control", placeholder="Patient ID") }}
+                <div class="form-text">Search first, or enter Patient ID during testing.</div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="clinic-card">
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                {{ form.appointment_date.label(class="form-label") }}
+                {{ form.appointment_date(class="form-control") }}
+            </div>
+
+            <div class="col-12 col-md-4">
+                {{ form.appointment_time.label(class="form-label") }}
+                {{ form.appointment_time(class="form-control") }}
+            </div>
+
+            <div class="col-12 col-md-4">
+                {{ form.duration_minutes.label(class="form-label") }}
+                {{ form.duration_minutes(class="form-control") }}
+            </div>
+
+            <div class="col-12 col-md-6">
+                {{ form.appointment_type.label(class="form-label") }}
+                {{ form.appointment_type(class="form-select") }}
+            </div>
+
+            <div class="col-12 col-md-6">
+                {{ form.source.label(class="form-label") }}
+                {{ form.source(class="form-select") }}
+            </div>
+
+            <div class="col-12">
+                {{ form.notes.label(class="form-label") }}
+                {{ form.notes(class="form-control", rows="3") }}
+            </div>
+        </div>
+
+        <div class="mt-3">
+            {{ form.submit(class="btn btn-primary") }}
+            <a class="btn btn-outline-secondary" href="{{ url_for('appointments.calendar') }}">Cancel</a>
+        </div>
+    </div>
+</form>

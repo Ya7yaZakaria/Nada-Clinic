@@ -428,3 +428,18 @@ Not implemented:
 
 ## Stage 4 — Appointment & Today's Clinic
 Sprint 4.1 adds the Appointment database foundation, workflow service, emergency unscheduled support, end-of-day no-show conversion, and date counters.
+
+
+## Sprint 4.2 — Appointment Booking + Calendar View
+Adds Appointment CRUD routes, AppointmentForm, calendar month/week/day views, patient appointment list, sidebar link, tests, and documentation.
+
+## Workflow Safety Rules
+
+- Do not replace or remove existing workflow actions unless explicitly approved.
+- Patient Workspace is doctor-first.
+- Patient Workspace must keep clinical actions focused on Visits, Journeys, Timeline, and Patient clinical context.
+- Appointment booking is reception/secretary workflow, not doctor Patient Workspace workflow.
+- Adding appointment features must not replace existing Visit buttons or placeholders.
+- Before changing an existing button, route, template section, status, or workflow meaning, stop and ask for approval.
+- Prefer adding new module entry points over modifying unrelated module behavior.
+- If a sprint touches files outside its declared scope, explain why before coding.
