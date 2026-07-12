@@ -1,4 +1,4 @@
-﻿from app import create_app
+from app import create_app
 from app.extensions import db
 from app.models import User
 from app.models.drug_dictionary import DrugCategory
@@ -155,7 +155,7 @@ def test_reception_is_blocked_from_drug_settings_permission():
         db.drop_all()
 
 
-def test_dictionary_tables_exist_without_drug_model():
+def test_dictionary_and_drug_tables_exist_after_drug_model():
     app = make_app()
 
     with app.app_context():
@@ -167,6 +167,6 @@ def test_dictionary_tables_exist_without_drug_model():
         assert "drug_forms" in tables
         assert "drug_routes" in tables
         assert "drug_safety_statuses" in tables
-        assert "drugs" not in tables
+        assert "drugs" in tables
 
         db.drop_all()

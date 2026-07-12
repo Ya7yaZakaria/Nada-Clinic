@@ -1,4 +1,5 @@
 from app.models.drug_dictionary import DrugCategory, DrugForm, DrugRoute, DrugSafetyStatus
+from app.models.drug import Drug
 from app.models.journey import Journey
 from app.models.patient import Patient
 from app.models.permission import Permission
@@ -8,6 +9,7 @@ from app.models.user import User
 from app.models.visit import Visit, VisitAuditLog
 
 __all__ = [
+    "Drug",
     "DrugSafetyStatus",
     "DrugRoute",
     "DrugForm",

@@ -512,3 +512,27 @@
 ### Verification
 - 195 tests passed.
 - Migration current/head: `20260712_0051`.
+
+## 2026-07-12 — Sprint 5.2A Drug Database Backend Foundation
+### Added
+- Drug model.
+- DrugService.
+- Drugs migration `20260712_0052_add_drugs`.
+- Relationships from drugs to categories, forms, routes, and safety statuses.
+- Duplicate prevention for `trade_name + form_id + strength`.
+- Drug model tests.
+- Drug service tests.
+
+### Changed
+- Updated old dictionary test now that the Drug model exists.
+
+### Confirmed
+- Drug database backend exists.
+- Drug UI was not added.
+- Prescription model was not added.
+- Prescription UI was not added.
+- Print engine was not added.
+
+### Verification
+- 210 tests passed.
+- Migration current/head: `20260712_0052`.

@@ -38,3 +38,15 @@
 - Verified: 195 passed, 225 warnings, migration head 20260712_0051.
 - No Drug model, Prescription model, or print engine added yet.
 - Next action: Sprint 5.2 Drug Database Foundation.
+
+## 2026-07-12 — Sprint 5.2A Drug Database Backend Foundation Completed
+- Added Drug model.
+- Added DrugService.
+- Added migration `20260712_0052_add_drugs`.
+- Drug links to category, form, route, pregnancy safety status, and lactation safety status.
+- Added duplicate prevention for trade name + form + strength.
+- Added active drug listing and search by trade/generic/strength.
+- Updated old dictionary test because Drug model now exists.
+- Verified: 210 passed, 225 warnings, migration head 20260712_0052.
+- No Drug UI, Prescription model, Prescription UI, presets, or print engine added yet.
+- Next action: Sprint 5.2B Drug Database UI.

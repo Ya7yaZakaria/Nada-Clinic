@@ -461,3 +461,6 @@ Sprint 5.1A adds backend foundations for editable, AI-ready medication dictionar
 
 ## Sprint 5.1B — Drug Settings UI
 Sprint 5.1B adds the Drug Settings UI for managing medication dictionaries. Authorized Doctor/Admin users can open Drug Settings, seed defaults, create/edit dictionary items, and deactivate/reactivate them. Reception remains blocked from medication-related settings. No Drug model, Prescription model, or print engine was added.
+
+## Sprint 5.2A — Drug Database Backend Foundation
+Sprint 5.2A adds the backend foundation for the clinic drug database. It introduces the Drug model, DrugService, drugs migration, duplicate prevention by trade name + form + strength, relationships to medication dictionaries, and backend tests. No Drug UI, Prescription model, Prescription UI, presets, or print engine was added.
