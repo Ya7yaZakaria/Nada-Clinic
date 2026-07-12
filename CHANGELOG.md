@@ -565,3 +565,32 @@
 - 217 tests passed.
 - Warnings cleaned.
 - Migration current/head: `20260712_0052`.
+
+## 2026-07-13 — Sprint 5.3A Prescription Backend Foundation
+### Added
+- Prescription model.
+- PrescriptionItem model.
+- PrescriptionService.
+- Prescription permissions:
+  - prescriptions.view
+  - prescriptions.manage
+- Alembic migration 20260713_0053.
+- Prescription model tests.
+- Prescription service tests.
+- Sprint 5.3A documentation.
+
+### Confirmed
+- Prescription belongs to Visit.
+- Prescription belongs to the same Patient as Visit.
+- One Visit has one Prescription initially.
+- PrescriptionItem uses active Drug from Drug Database.
+- Dose, frequency, duration, and Arabic instructions are structured.
+- Reception is blocked from prescription permissions.
+- No Appointment-linked prescription added.
+- No Prescription UI added.
+- No presets added.
+- No print engine added.
+
+### Verification
+- 231 tests passed.
+- Migration current/head: `20260713_0053`.

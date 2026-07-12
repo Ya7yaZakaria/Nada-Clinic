@@ -65,3 +65,19 @@
 - Migration remains 20260712_0052 head.
 - No Prescription model, Prescription UI, presets, or print engine added yet.
 - Next action: Sprint 5.3A Prescription Backend Foundation inside Visit.
+
+## 2026-07-13 — Sprint 5.3A Prescription Backend Foundation Completed
+- Added Prescription model.
+- Added PrescriptionItem model.
+- Added PrescriptionService.
+- Added prescriptions.view and prescriptions.manage permissions.
+- Added migration 20260713_0053_add_prescriptions.
+- Confirmed Prescription belongs to Visit, not Appointment.
+- Confirmed one Prescription per Visit initially.
+- Confirmed PrescriptionItem uses active Drug from Drug Database.
+- Confirmed structured dose/frequency/duration/instructions_ar fields.
+- Confirmed Reception is blocked from prescription permissions.
+- Confirmed full suite after migration: 231 passed.
+- Migration current/head: 20260713_0053.
+- No Prescription UI, presets, or print engine added yet.
+- Next action: Sprint 5.4A Prescription UI Inside Visit.

@@ -467,3 +467,6 @@ Sprint 5.2A adds the backend foundation for the clinic drug database. It introdu
 
 ## Sprint 5.2B — Drug Database UI
 Sprint 5.2B adds the Drug Database UI. Authorized Doctor/Admin users can list, search, create, edit, deactivate, and reactivate clinic drugs using structured dictionary dropdowns. Reception remains blocked. This sprint also cleans the Appointment timestamp warning by replacing deprecated `datetime.utcnow` defaults with timezone-aware UTC callables. No Prescription model, Prescription UI, presets, or print engine was added.
+
+## Sprint 5.3A — Prescription Backend Foundation
+Sprint 5.3A adds the backend foundation for structured prescriptions inside Visits. It introduces Prescription and PrescriptionItem models, a PrescriptionService, prescription permissions, and migration 20260713_0053. Prescriptions belong to Visits, not Appointments. One Visit has one Prescription initially. This sprint does not add Prescription UI, presets, or printing.

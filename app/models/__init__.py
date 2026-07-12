@@ -2,6 +2,7 @@ from app.models.drug_dictionary import DrugCategory, DrugForm, DrugRoute, DrugSa
 from app.models.drug import Drug
 from app.models.journey import Journey
 from app.models.patient import Patient
+from app.models.prescription import Prescription, PrescriptionItem
 from app.models.permission import Permission
 from app.models.role import Role, role_permissions, user_roles
 from app.models.setting import Setting
@@ -16,6 +17,8 @@ __all__ = [
     "DrugCategory",
     "Journey",
     "Patient",
+    "PrescriptionItem",
+    "Prescription",
     "Permission",
     "Role",
     "Setting",
