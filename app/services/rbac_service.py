@@ -1,4 +1,4 @@
-﻿from functools import wraps
+from functools import wraps
 
 from flask import abort
 from flask_login import current_user
@@ -22,6 +22,7 @@ class RBACService:
         "settings.view": "View settings",
         "settings.manage": "Manage settings",
         "admin.access": "Access admin area",
+        "drug_settings.manage": "Manage drug dictionaries and medication settings",
     }
 
     ROLE_PERMISSION_MATRIX = {
@@ -33,6 +34,7 @@ class RBACService:
             "clinical.view",
             "clinical.note.view",
             "clinical.note.write",
+            "drug_settings.manage",
         ],
         "Reception": [
             "dashboard.view",

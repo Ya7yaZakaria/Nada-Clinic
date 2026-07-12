@@ -463,3 +463,26 @@
 - 175 tests passed.
 - Migration head clean: ecf98d78d1b4.
 - Git working tree clean before freeze documentation.
+
+## 2026-07-12 — Sprint 5.1A Drug Dictionaries Backend Foundation
+### Added
+- DrugCategory model.
+- DrugForm model.
+- DrugRoute model.
+- DrugSafetyStatus model.
+- DrugDictionaryService.
+- Default medication dictionary seed method.
+- `drug_settings.manage` permission.
+- Alembic migration `20260712_0051_add_drug_dictionaries`.
+- Drug dictionary model and CRUD/service tests.
+
+### Confirmed
+- Admin and Doctor can manage drug settings.
+- Reception is blocked from drug settings.
+- No Drug model added yet.
+- No Prescription model added yet.
+- No UI or print engine added yet.
+
+### Verification
+- 187 tests passed.
+- Migration current/head: `20260712_0051`.

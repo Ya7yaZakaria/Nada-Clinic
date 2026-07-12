@@ -10,3 +10,16 @@
 - Verification: 175 passed, 225 warnings, migration head ecf98d78d1b4, working tree clean.
 - Last accepted commit before freeze docs: cb7b70c.
 - Next stage candidate: Stage 5 Prescription / Printing.
+
+## 2026-07-12 — Sprint 5.1A Drug Dictionaries Backend Foundation Completed
+- Added AI-ready medication dictionary backend foundation.
+- Added DrugCategory, DrugForm, DrugRoute, and DrugSafetyStatus models.
+- Added DrugDictionaryService with default seed lists and active dictionary helpers.
+- Added `drug_settings.manage` permission.
+- Admin and Doctor can manage drug settings.
+- Reception remains blocked from treatment-related settings.
+- Added migration `20260712_0051_add_drug_dictionaries`.
+- Added model/service tests for drug dictionaries.
+- Verified: 187 passed, 225 warnings, migration head 20260712_0051.
+- No Drug model, Prescription model, UI, routes, or print engine added yet.
+- Next action: Sprint 5.1B Drug Settings UI or Sprint 5.2 Drug Database Foundation.
