@@ -20,8 +20,6 @@ from app.services.visit_service import VisitService
 visits_bp = Blueprint("visits", __name__)
 
 
-
-
 def _choice_label(item):
     if getattr(item, "name_ar", None):
         return f"{item.name_en} / {item.name_ar}"
@@ -29,8 +27,8 @@ def _choice_label(item):
 
 
 def _drug_choice_label(drug):
-    form_name = drug.form.name_en if drug.form else "?"
-    return f"{drug.trade_name} {drug.strength} ? {drug.generic_name} ({form_name})"
+    form_name = drug.form.name_en if drug.form else "-"
+    return f"{drug.trade_name} {drug.strength} - {drug.generic_name} ({form_name})"
 
 
 def _populate_prescription_item_form(form):
