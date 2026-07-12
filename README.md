@@ -470,3 +470,6 @@ Sprint 5.2B adds the Drug Database UI. Authorized Doctor/Admin users can list, s
 
 ## Sprint 5.3A — Prescription Backend Foundation
 Sprint 5.3A adds the backend foundation for structured prescriptions inside Visits. It introduces Prescription and PrescriptionItem models, a PrescriptionService, prescription permissions, and migration 20260713_0053. Prescriptions belong to Visits, not Appointments. One Visit has one Prescription initially. This sprint does not add Prescription UI, presets, or printing.
+
+## Sprint 5.4A — Prescription UI Inside Visit
+Sprint 5.4A adds structured prescription management inside the Visit detail page. Doctors can add, edit, and remove medication items using active drugs from the Drug Database. Reception remains blocked from clinical visit and prescription workflows. This sprint does not add print, presets, diagnosis, or AI prescribing.

@@ -81,3 +81,17 @@
 - Migration current/head: 20260713_0053.
 - No Prescription UI, presets, or print engine added yet.
 - Next action: Sprint 5.4A Prescription UI Inside Visit.
+
+## 2026-07-13 — Sprint 5.4A Prescription UI Inside Visit Completed
+- Added Prescription UI section inside Visit detail.
+- Added PrescriptionItemForm.
+- Added add/edit/remove medication item routes.
+- Added medication item edit template.
+- Added tests/test_prescription_ui.py.
+- Confirmed Doctor can manage structured prescription items from Visit detail.
+- Confirmed Reception is blocked from Visit detail and prescription workflows under current RBAC.
+- Confirmed active drugs are used for medication selection.
+- Confirmed no print engine, presets, diagnosis, or new migration added.
+- Verification: 237 passed.
+- Migration current/head: 20260713_0053.
+- Next action: Sprint 5.5 Prescription Presets, or optional 5.4B UI cleanup/partial extraction.

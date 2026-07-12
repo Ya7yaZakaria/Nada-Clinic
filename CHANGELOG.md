@@ -594,3 +594,33 @@
 ### Verification
 - 231 tests passed.
 - Migration current/head: `20260713_0053`.
+
+## 2026-07-13 — Sprint 5.4A Prescription UI Inside Visit
+### Added
+- Prescription section inside Visit detail.
+- PrescriptionItemForm.
+- Add medication item route.
+- Edit medication item route.
+- Remove medication item route.
+- Medication item edit template.
+- Prescription UI tests.
+- Sprint 5.4A documentation.
+
+### Confirmed
+- Doctor can see Prescription section inside Visit detail.
+- Doctor can add structured medication items.
+- Doctor can edit structured medication items.
+- Doctor can remove medication items.
+- Reception is blocked from clinical Visit detail and prescription workflows.
+- Active drugs are used for medication selection.
+- Route override uses active routes.
+- No print engine added.
+- No presets added.
+- No diagnosis added.
+- No migration required.
+
+### Verification
+- Prescription UI tests: 6 passed.
+- Prescription model/service/UI tests: 20 passed.
+- Full suite: 237 passed.
+- Migration current/head: `20260713_0053`.

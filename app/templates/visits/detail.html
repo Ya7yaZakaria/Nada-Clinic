@@ -1,8 +1,395 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Visit — Nada Clinic System{% endblock %}
-{% block page_title %}Visit{% endblock %}
-{% block page_subtitle %}Clinical encounter details{% endblock %}
+{% block title %}Visit — Nada Clinic System
+{% if can_view_prescription %}
+<div class="clinic-card mt-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Prescription</p>
+            <h2 class="h5 mb-0">Structured prescription</h2>
+        </div>
+        {% if prescription %}
+            <span class="badge text-bg-light align-self-start">Items: {{ prescription_items|length }}</span>
+        {% else %}
+            <span class="badge text-bg-warning align-self-start">No prescription yet</span>
+        {% endif %}
+    </div>
+
+    {% if prescription_items %}
+        <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Drug</th>
+                        <th>Dose</th>
+                        <th>Frequency</th>
+                        <th>Duration</th>
+                        <th>Arabic instructions</th>
+                        {% if can_manage_prescription %}
+                            <th class="text-end">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in prescription_items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.drug.trade_name }}</strong>
+                                <div class="small text-muted">
+                                    {{ item.drug.generic_name }} ? {{ item.drug.strength }}
+                                    {% if item.route %}
+                                        ? {{ item.route.name_en }}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>{{ item.dose }}</td>
+                            <td>{{ item.frequency }}</td>
+                            <td>{{ item.duration }}</td>
+                            <td dir="rtl" class="text-end">{{ item.instructions_ar }}</td>
+                            {% if can_manage_prescription %}
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{{ url_for('visits.edit_prescription_item', item_uuid=item.uuid) }}">
+                                        Edit
+                                    </a>
+                                    <form method="post"
+                                          action="{{ url_for('visits.remove_prescription_item', item_uuid=item.uuid) }}"
+                                          class="d-inline">
+                                        {{ prescription_item_form.hidden_tag() }}
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-3">No medications added yet.</p>
+    {% endif %}
+
+    {% if can_manage_prescription and prescription_item_form %}
+        <hr>
+        <h3 class="h6">Add medication</h3>
+        <form method="post" action="{{ url_for('visits.add_prescription_item', visit_uuid=visit.uuid) }}">
+            {{ prescription_item_form.hidden_tag() }}
+
+            <div class="row g-2">
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.drug_id.id }}">
+                        {{ prescription_item_form.drug_id.label.text }}
+                    </label>
+                    {{ prescription_item_form.drug_id(class="form-select") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.dose.id }}">
+                        {{ prescription_item_form.dose.label.text }}
+                    </label>
+                    {{ prescription_item_form.dose(class="form-control", placeholder="e.g. 1 tablet") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.frequency.id }}">
+                        {{ prescription_item_form.frequency.label.text }}
+                    </label>
+                    {{ prescription_item_form.frequency(class="form-control", placeholder="e.g. Every 12 hours") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.duration.id }}">
+                        {{ prescription_item_form.duration.label.text }}
+                    </label>
+                    {{ prescription_item_form.duration(class="form-control", placeholder="e.g. 5 days") }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.route_id.id }}">
+                        {{ prescription_item_form.route_id.label.text }}
+                    </label>
+                    {{ prescription_item_form.route_id(class="form-select") }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.instructions_ar.id }}">
+                        {{ prescription_item_form.instructions_ar.label.text }}
+                    </label>
+                    {{ prescription_item_form.instructions_ar(class="form-control", rows="2", dir="rtl", placeholder="????: ??? ?? ?? ???? ???? ? ???? ??? ?????") }}
+                </div>
+            </div>
+
+            <div class="mt-3">
+                {{ prescription_item_form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+{% block page_title %}Visit
+{% if can_view_prescription %}
+<div class="clinic-card mt-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Prescription</p>
+            <h2 class="h5 mb-0">Structured prescription</h2>
+        </div>
+        {% if prescription %}
+            <span class="badge text-bg-light align-self-start">Items: {{ prescription_items|length }}</span>
+        {% else %}
+            <span class="badge text-bg-warning align-self-start">No prescription yet</span>
+        {% endif %}
+    </div>
+
+    {% if prescription_items %}
+        <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Drug</th>
+                        <th>Dose</th>
+                        <th>Frequency</th>
+                        <th>Duration</th>
+                        <th>Arabic instructions</th>
+                        {% if can_manage_prescription %}
+                            <th class="text-end">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in prescription_items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.drug.trade_name }}</strong>
+                                <div class="small text-muted">
+                                    {{ item.drug.generic_name }} ? {{ item.drug.strength }}
+                                    {% if item.route %}
+                                        ? {{ item.route.name_en }}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>{{ item.dose }}</td>
+                            <td>{{ item.frequency }}</td>
+                            <td>{{ item.duration }}</td>
+                            <td dir="rtl" class="text-end">{{ item.instructions_ar }}</td>
+                            {% if can_manage_prescription %}
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{{ url_for('visits.edit_prescription_item', item_uuid=item.uuid) }}">
+                                        Edit
+                                    </a>
+                                    <form method="post"
+                                          action="{{ url_for('visits.remove_prescription_item', item_uuid=item.uuid) }}"
+                                          class="d-inline">
+                                        {{ prescription_item_form.hidden_tag() }}
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-3">No medications added yet.</p>
+    {% endif %}
+
+    {% if can_manage_prescription and prescription_item_form %}
+        <hr>
+        <h3 class="h6">Add medication</h3>
+        <form method="post" action="{{ url_for('visits.add_prescription_item', visit_uuid=visit.uuid) }}">
+            {{ prescription_item_form.hidden_tag() }}
+
+            <div class="row g-2">
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.drug_id.id }}">
+                        {{ prescription_item_form.drug_id.label.text }}
+                    </label>
+                    {{ prescription_item_form.drug_id(class="form-select") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.dose.id }}">
+                        {{ prescription_item_form.dose.label.text }}
+                    </label>
+                    {{ prescription_item_form.dose(class="form-control", placeholder="e.g. 1 tablet") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.frequency.id }}">
+                        {{ prescription_item_form.frequency.label.text }}
+                    </label>
+                    {{ prescription_item_form.frequency(class="form-control", placeholder="e.g. Every 12 hours") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.duration.id }}">
+                        {{ prescription_item_form.duration.label.text }}
+                    </label>
+                    {{ prescription_item_form.duration(class="form-control", placeholder="e.g. 5 days") }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.route_id.id }}">
+                        {{ prescription_item_form.route_id.label.text }}
+                    </label>
+                    {{ prescription_item_form.route_id(class="form-select") }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.instructions_ar.id }}">
+                        {{ prescription_item_form.instructions_ar.label.text }}
+                    </label>
+                    {{ prescription_item_form.instructions_ar(class="form-control", rows="2", dir="rtl", placeholder="????: ??? ?? ?? ???? ???? ? ???? ??? ?????") }}
+                </div>
+            </div>
+
+            <div class="mt-3">
+                {{ prescription_item_form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+{% block page_subtitle %}Clinical encounter details
+{% if can_view_prescription %}
+<div class="clinic-card mt-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Prescription</p>
+            <h2 class="h5 mb-0">Structured prescription</h2>
+        </div>
+        {% if prescription %}
+            <span class="badge text-bg-light align-self-start">Items: {{ prescription_items|length }}</span>
+        {% else %}
+            <span class="badge text-bg-warning align-self-start">No prescription yet</span>
+        {% endif %}
+    </div>
+
+    {% if prescription_items %}
+        <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Drug</th>
+                        <th>Dose</th>
+                        <th>Frequency</th>
+                        <th>Duration</th>
+                        <th>Arabic instructions</th>
+                        {% if can_manage_prescription %}
+                            <th class="text-end">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in prescription_items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.drug.trade_name }}</strong>
+                                <div class="small text-muted">
+                                    {{ item.drug.generic_name }} ? {{ item.drug.strength }}
+                                    {% if item.route %}
+                                        ? {{ item.route.name_en }}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>{{ item.dose }}</td>
+                            <td>{{ item.frequency }}</td>
+                            <td>{{ item.duration }}</td>
+                            <td dir="rtl" class="text-end">{{ item.instructions_ar }}</td>
+                            {% if can_manage_prescription %}
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{{ url_for('visits.edit_prescription_item', item_uuid=item.uuid) }}">
+                                        Edit
+                                    </a>
+                                    <form method="post"
+                                          action="{{ url_for('visits.remove_prescription_item', item_uuid=item.uuid) }}"
+                                          class="d-inline">
+                                        {{ prescription_item_form.hidden_tag() }}
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-3">No medications added yet.</p>
+    {% endif %}
+
+    {% if can_manage_prescription and prescription_item_form %}
+        <hr>
+        <h3 class="h6">Add medication</h3>
+        <form method="post" action="{{ url_for('visits.add_prescription_item', visit_uuid=visit.uuid) }}">
+            {{ prescription_item_form.hidden_tag() }}
+
+            <div class="row g-2">
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.drug_id.id }}">
+                        {{ prescription_item_form.drug_id.label.text }}
+                    </label>
+                    {{ prescription_item_form.drug_id(class="form-select") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.dose.id }}">
+                        {{ prescription_item_form.dose.label.text }}
+                    </label>
+                    {{ prescription_item_form.dose(class="form-control", placeholder="e.g. 1 tablet") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.frequency.id }}">
+                        {{ prescription_item_form.frequency.label.text }}
+                    </label>
+                    {{ prescription_item_form.frequency(class="form-control", placeholder="e.g. Every 12 hours") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.duration.id }}">
+                        {{ prescription_item_form.duration.label.text }}
+                    </label>
+                    {{ prescription_item_form.duration(class="form-control", placeholder="e.g. 5 days") }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.route_id.id }}">
+                        {{ prescription_item_form.route_id.label.text }}
+                    </label>
+                    {{ prescription_item_form.route_id(class="form-select") }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.instructions_ar.id }}">
+                        {{ prescription_item_form.instructions_ar.label.text }}
+                    </label>
+                    {{ prescription_item_form.instructions_ar(class="form-control", rows="2", dir="rtl", placeholder="????: ??? ?? ?? ???? ???? ? ???? ??? ?????") }}
+                </div>
+            </div>
+
+            <div class="mt-3">
+                {{ prescription_item_form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
 
 {% block content %}
 <div class="clinic-card mb-3">
@@ -79,4 +466,133 @@
         </div>
     </div>
 </div>
+
+{% if can_view_prescription %}
+<div class="clinic-card mt-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Prescription</p>
+            <h2 class="h5 mb-0">Structured prescription</h2>
+        </div>
+        {% if prescription %}
+            <span class="badge text-bg-light align-self-start">Items: {{ prescription_items|length }}</span>
+        {% else %}
+            <span class="badge text-bg-warning align-self-start">No prescription yet</span>
+        {% endif %}
+    </div>
+
+    {% if prescription_items %}
+        <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Drug</th>
+                        <th>Dose</th>
+                        <th>Frequency</th>
+                        <th>Duration</th>
+                        <th>Arabic instructions</th>
+                        {% if can_manage_prescription %}
+                            <th class="text-end">Actions</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in prescription_items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.drug.trade_name }}</strong>
+                                <div class="small text-muted">
+                                    {{ item.drug.generic_name }} ? {{ item.drug.strength }}
+                                    {% if item.route %}
+                                        ? {{ item.route.name_en }}
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>{{ item.dose }}</td>
+                            <td>{{ item.frequency }}</td>
+                            <td>{{ item.duration }}</td>
+                            <td dir="rtl" class="text-end">{{ item.instructions_ar }}</td>
+                            {% if can_manage_prescription %}
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       href="{{ url_for('visits.edit_prescription_item', item_uuid=item.uuid) }}">
+                                        Edit
+                                    </a>
+                                    <form method="post"
+                                          action="{{ url_for('visits.remove_prescription_item', item_uuid=item.uuid) }}"
+                                          class="d-inline">
+                                        {{ prescription_item_form.hidden_tag() }}
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">
+                                            Remove
+                                        </button>
+                                    </form>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-3">No medications added yet.</p>
+    {% endif %}
+
+    {% if can_manage_prescription and prescription_item_form %}
+        <hr>
+        <h3 class="h6">Add medication</h3>
+        <form method="post" action="{{ url_for('visits.add_prescription_item', visit_uuid=visit.uuid) }}">
+            {{ prescription_item_form.hidden_tag() }}
+
+            <div class="row g-2">
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.drug_id.id }}">
+                        {{ prescription_item_form.drug_id.label.text }}
+                    </label>
+                    {{ prescription_item_form.drug_id(class="form-select") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.dose.id }}">
+                        {{ prescription_item_form.dose.label.text }}
+                    </label>
+                    {{ prescription_item_form.dose(class="form-control", placeholder="e.g. 1 tablet") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.frequency.id }}">
+                        {{ prescription_item_form.frequency.label.text }}
+                    </label>
+                    {{ prescription_item_form.frequency(class="form-control", placeholder="e.g. Every 12 hours") }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label" for="{{ prescription_item_form.duration.id }}">
+                        {{ prescription_item_form.duration.label.text }}
+                    </label>
+                    {{ prescription_item_form.duration(class="form-control", placeholder="e.g. 5 days") }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.route_id.id }}">
+                        {{ prescription_item_form.route_id.label.text }}
+                    </label>
+                    {{ prescription_item_form.route_id(class="form-select") }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label" for="{{ prescription_item_form.instructions_ar.id }}">
+                        {{ prescription_item_form.instructions_ar.label.text }}
+                    </label>
+                    {{ prescription_item_form.instructions_ar(class="form-control", rows="2", dir="rtl", placeholder="????: ??? ?? ?? ???? ???? ? ???? ??? ?????") }}
+                </div>
+            </div>
+
+            <div class="mt-3">
+                {{ prescription_item_form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    {% endif %}
+</div>
+{% endif %}
+
 {% endblock %}
