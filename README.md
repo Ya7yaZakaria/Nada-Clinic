@@ -473,3 +473,7 @@ Sprint 5.3A adds the backend foundation for structured prescriptions inside Visi
 
 ## Sprint 5.4A — Prescription UI Inside Visit
 Sprint 5.4A adds structured prescription management inside the Visit detail page. Doctors can add, edit, and remove medication items using active drugs from the Drug Database. Reception remains blocked from clinical visit and prescription workflows. This sprint does not add print, presets, diagnosis, or AI prescribing.
+
+Sprint 5.5A — Prescription Presets Backend Foundation
+
+Sprint 5.5A adds backend support for reusable global prescription presets. Presets contain structured medication items and can be applied to an existing prescription to create editable prescription items. This sprint does not add preset UI, print, diagnosis-linked presets, or AI prescribing.

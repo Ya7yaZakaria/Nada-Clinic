@@ -624,3 +624,23 @@
 - Prescription model/service/UI tests: 20 passed.
 - Full suite: 237 passed.
 - Migration current/head: `20260713_0053`.
+
+2026-07-13 — Sprint 5.5A Prescription Presets Backend Foundation
+Added
+PrescriptionPreset model.
+PrescriptionPresetItem model.
+PrescriptionPresetService.
+Preset creation, update, activation/deactivation, item management, and application to prescription.
+prescription_presets.manage permission.
+Migration 20260713_0054_add_prescription_presets.
+Preset model and service tests.
+Sprint 5.5A documentation.
+Confirmed
+Presets are global.
+Preset items are structured.
+Applying a preset creates editable PrescriptionItem rows.
+Doctor/Admin can manage presets.
+Reception remains blocked.
+No preset UI added.
+No print engine added.
+No diagnosis-linked preset behavior added.

@@ -3,6 +3,7 @@ from app.models.drug import Drug
 from app.models.journey import Journey
 from app.models.patient import Patient
 from app.models.prescription import Prescription, PrescriptionItem
+from app.models.prescription_preset import PrescriptionPreset, PrescriptionPresetItem
 from app.models.permission import Permission
 from app.models.role import Role, role_permissions, user_roles
 from app.models.setting import Setting
@@ -19,6 +20,8 @@ __all__ = [
     "Patient",
     "PrescriptionItem",
     "Prescription",
+    "PrescriptionPreset",
+    "PrescriptionPresetItem",
     "Permission",
     "Role",
     "Setting",

@@ -95,3 +95,12 @@
 - Verification: 237 passed.
 - Migration current/head: 20260713_0053.
 - Next action: Sprint 5.5 Prescription Presets, or optional 5.4B UI cleanup/partial extraction.
+
+2026-07-13 — Sprint 5.5A Prescription Presets Backend Foundation
+Added PrescriptionPreset and PrescriptionPresetItem backend design.
+Added PrescriptionPresetService for preset CRUD, item management, and applying presets to prescriptions.
+Added prescription_presets.manage permission for Doctor/Admin.
+Kept Reception blocked from preset management.
+Added migration 20260713_0054_add_prescription_presets.
+Added model/service tests.
+No UI, print, diagnosis-linked presets, or AI prescribing added.

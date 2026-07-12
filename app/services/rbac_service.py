@@ -25,6 +25,7 @@ class RBACService:
         "drug_settings.manage": "Manage drug dictionaries and medication settings",
         "prescriptions.view": "View prescriptions",
         "prescriptions.manage": "Manage prescriptions",
+        "prescription_presets.manage": "Manage prescription presets",
     }
 
     ROLE_PERMISSION_MATRIX = {
@@ -39,6 +40,7 @@ class RBACService:
             "drug_settings.manage",
             "prescriptions.manage",
             "prescriptions.view",
+            "prescription_presets.manage",
         ],
         "Reception": [
             "dashboard.view",
