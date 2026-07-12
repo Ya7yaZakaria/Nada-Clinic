@@ -28,13 +28,38 @@ def index():
     return redirect(url_for("today_clinic.day", clinic_date=date.today().isoformat()))
 
 
+@today_clinic_bp.get("/previous")
+@login_required
+@RBACService.require_permission("appointments.view")
+def previous():
+    previous_days = AppointmentService.get_previous_clinic_days()
+
+    return render_template(
+        "clinic/previous.html",
+        previous_days=previous_days,
+        AppointmentService=AppointmentService,
+    )
+
+
 @today_clinic_bp.get("/day/<clinic_date>")
 @login_required
 @RBACService.require_permission("appointments.view")
 def day(clinic_date):
     selected_date = _parse_clinic_date(clinic_date)
-    clinic_day = AppointmentService.get_clinic_day(selected_date)
 
+    if selected_date < date.today():
+        clinic_day = AppointmentService.get_day_summary(selected_date)
+        return render_template(
+            "clinic/past_day.html",
+            clinic_day=clinic_day,
+            selected_date=selected_date,
+            AppointmentService=AppointmentService,
+            JourneyService=JourneyService,
+            PatientService=PatientService,
+            VisitService=VisitService,
+        )
+
+    clinic_day = AppointmentService.get_clinic_day(selected_date)
     return render_template(
         "clinic/today.html",
         clinic_day=clinic_day,

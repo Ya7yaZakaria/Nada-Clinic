@@ -1,0 +1,46 @@
+﻿<div class="clinic-card h-100">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+        <div>
+            <p class="section-kicker">Clinic Day</p>
+            <h2 class="h5 mb-0">{{ day.clinic_date }}</h2>
+        </div>
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('today_clinic.day', clinic_date=day.clinic_date.isoformat()) }}">Open Day</a>
+    </div>
+
+    <div class="row g-2 mb-2">
+        <div class="col-6 col-lg-4">
+            <div class="small text-muted">Total</div>
+            <div class="fw-semibold">{{ day.counters.total_booked_today }}</div>
+        </div>
+        <div class="col-6 col-lg-4">
+            <div class="small text-muted">Completed</div>
+            <div class="fw-semibold">{{ day.counters.completed }}</div>
+        </div>
+        <div class="col-6 col-lg-4">
+            <div class="small text-muted">No-show</div>
+            <div class="fw-semibold">{{ day.counters.no_show }}</div>
+        </div>
+        <div class="col-6 col-lg-4">
+            <div class="small text-muted">Cancelled</div>
+            <div class="fw-semibold">{{ day.counters.cancelled }}</div>
+        </div>
+        <div class="col-6 col-lg-4">
+            <div class="small text-muted">Rescheduled</div>
+            <div class="fw-semibold">{{ day.counters.rescheduled }}</div>
+        </div>
+        <div class="col-6 col-lg-4">
+            <div class="small text-muted">Unfinished</div>
+            <div class="fw-semibold">{{ day.unfinished|length }}</div>
+        </div>
+    </div>
+
+    {% if day.unfinished %}
+        <div class="alert alert-warning py-2 mb-0">
+            {{ day.unfinished|length }} unfinished appointment(s): booked or arrived but not completed.
+        </div>
+    {% else %}
+        <div class="alert alert-success py-2 mb-0">
+            No unfinished appointments recorded.
+        </div>
+    {% endif %}
+</div>

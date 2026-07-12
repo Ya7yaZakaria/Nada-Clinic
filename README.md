@@ -449,3 +449,6 @@ Adds reception workflow actions for marking appointments arrived, cancellation, 
 
 ## Sprint 4.4 — Today’s Clinic Dashboard
 Adds Today’s Clinic dashboard, day counters, waiting queue, full day appointment list, patient preview cards, active journey badges, last visit display, pending flags placeholder, appointment completion action, and end-of-day close workflow.
+
+## Sprint 4.5 — Previous Days Clinic
+Adds previous clinic days review, past day summaries, unfinished work visibility, no-show history review, and generated appointment-based previous-day views without a separate clinic-day table.

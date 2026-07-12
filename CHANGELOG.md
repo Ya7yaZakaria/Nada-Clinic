@@ -428,3 +428,20 @@
 - Today’s Clinic does not create Visit automatically.
 - Appointment remains visible after status changes.
 - End-of-day close converts remaining booked appointments to no-show.
+
+## 2026-07-12 — Sprint 4.5 Previous Days Clinic
+### Added
+- Previous clinic days route.
+- Past clinic day summary route behavior.
+- Previous day summary cards.
+- No-show history review.
+- Arrived-but-not-completed review.
+- Completed appointment review.
+- Cancelled/rescheduled appointment review.
+- Unfinished work placeholder.
+- Sprint 4.5 tests and documentation.
+
+### Confirmed
+- Previous Days Clinic is generated from appointments.
+- No separate clinic-day table was added.
+- Today’s Clinic remains focused on the selected current day.

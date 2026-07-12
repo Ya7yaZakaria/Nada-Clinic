@@ -351,6 +351,49 @@ class AppointmentService:
     def get_today_clinic(cls):
         return cls.get_clinic_day(date.today())
 
+
+    @classmethod
+    def get_unfinished_for_date(cls, clinic_date):
+        return Appointment.query.filter(
+            Appointment.appointment_date == clinic_date,
+            Appointment.status.in_([
+                Appointment.STATUS_BOOKED,
+                Appointment.STATUS_ARRIVED,
+            ]),
+        ).order_by(
+            Appointment.status.asc(),
+            Appointment.appointment_time.asc().nullslast(),
+            Appointment.created_at.asc(),
+        ).all()
+
+    @classmethod
+    def get_day_summary(cls, clinic_date):
+        clinic_day = cls.get_clinic_day(clinic_date)
+
+        clinic_day["unfinished"] = cls.get_unfinished_for_date(clinic_date)
+        clinic_day["arrived_not_completed"] = cls.get_waiting_queue(clinic_date)
+        clinic_day["is_previous_day"] = clinic_date < date.today()
+
+        return clinic_day
+
+    @classmethod
+    def get_previous_clinic_days(cls, limit=30):
+        rows = (
+            db.session.query(Appointment.appointment_date)
+            .filter(Appointment.appointment_date < date.today())
+            .distinct()
+            .order_by(Appointment.appointment_date.desc())
+            .limit(limit)
+            .all()
+        )
+
+        summaries = []
+        for row in rows:
+            clinic_date = row[0]
+            summaries.append(cls.get_day_summary(clinic_date))
+
+        return summaries
+
     @staticmethod
     def get_status_label(status):
         return AppointmentService.STATUS_LABELS.get(status, status)

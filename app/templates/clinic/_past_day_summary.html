@@ -1,0 +1,38 @@
+﻿<div class="row g-2 mb-3">
+    <div class="col-6 col-lg">
+        <div class="clinic-card h-100">
+            <div class="small text-muted">Total</div>
+            <div class="h4 mb-0">{{ clinic_day.counters.total_booked_today }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="clinic-card h-100">
+            <div class="small text-muted">Completed</div>
+            <div class="h4 mb-0">{{ clinic_day.counters.completed }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="clinic-card h-100">
+            <div class="small text-muted">No-show</div>
+            <div class="h4 mb-0">{{ clinic_day.counters.no_show }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="clinic-card h-100">
+            <div class="small text-muted">Cancelled</div>
+            <div class="h4 mb-0">{{ clinic_day.counters.cancelled }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="clinic-card h-100">
+            <div class="small text-muted">Rescheduled</div>
+            <div class="h4 mb-0">{{ clinic_day.counters.rescheduled }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="clinic-card h-100">
+            <div class="small text-muted">Unfinished</div>
+            <div class="h4 mb-0">{{ clinic_day.unfinished|length }}</div>
+        </div>
+    </div>
+</div>

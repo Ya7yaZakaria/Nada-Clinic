@@ -1,0 +1,98 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Clinic Day Summary — Nada Clinic System{% endblock %}
+{% block page_title %}Clinic Day Summary{% endblock %}
+{% block page_subtitle %}Past clinic day review and unfinished work{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+    <div>
+        <p class="section-kicker">Past Clinic Day</p>
+        <h1 class="h4 mb-0">{{ selected_date }}</h1>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-primary" href="{{ url_for('today_clinic.previous') }}">Previous Days</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('today_clinic.index') }}">Today’s Clinic</a>
+    </div>
+</div>
+
+{% include "clinic/_past_day_summary.html" %}
+
+<div class="row g-3">
+    <div class="col-12 col-xl-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Arrived but not completed</h2>
+            {% if clinic_day.arrived_not_completed %}
+                <div class="list-group list-group-flush">
+                    {% for appointment in clinic_day.arrived_not_completed %}
+                        {% include "clinic/_appointment_card.html" %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No arrived unfinished appointments.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">No-show</h2>
+            {% if clinic_day.no_show %}
+                <div class="list-group list-group-flush">
+                    {% for appointment in clinic_day.no_show %}
+                        {% include "clinic/_appointment_card.html" %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No no-show appointments.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Completed</h2>
+            {% if clinic_day.completed %}
+                <div class="list-group list-group-flush">
+                    {% for appointment in clinic_day.completed %}
+                        {% include "clinic/_appointment_card.html" %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No completed appointments.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Cancelled / Rescheduled</h2>
+
+            {% if clinic_day.cancelled or clinic_day.rescheduled %}
+                <div class="list-group list-group-flush">
+                    {% for appointment in clinic_day.cancelled %}
+                        {% include "clinic/_appointment_card.html" %}
+                    {% endfor %}
+                    {% for appointment in clinic_day.rescheduled %}
+                        {% include "clinic/_appointment_card.html" %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No cancelled or rescheduled appointments.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="clinic-card">
+            <h2 class="h5">Unfinished Work Placeholder</h2>
+            {% if clinic_day.unfinished %}
+                <p class="text-muted mb-0">Future sprint can convert this section into follow-up tasks, reminders, or audit review.</p>
+            {% else %}
+                <p class="text-muted mb-0">No unfinished work detected for this day.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
