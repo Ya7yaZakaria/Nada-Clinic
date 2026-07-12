@@ -5,11 +5,21 @@
             <p class="section-kicker">Prescription</p>
             <h2 class="h5 mb-0">Structured prescription</h2>
         </div>
-        {% if prescription %}
-            <span class="badge text-bg-light align-self-start">Items: {{ prescription_items|length }}</span>
-        {% else %}
-            <span class="badge text-bg-warning align-self-start">No prescription yet</span>
-        {% endif %}
+        <div class="d-flex gap-2 align-items-start flex-wrap">
+            {% if prescription %}
+                <span class="badge text-bg-light align-self-start">Items: {{ prescription_items|length }}</span>
+                {% if prescription_items %}
+                    <a class="btn btn-sm btn-outline-primary"
+                       href="{{ url_for('visits.print_prescription', visit_uuid=visit.uuid) }}"
+                       target="_blank"
+                       rel="noopener">
+                        Print
+                    </a>
+                {% endif %}
+            {% else %}
+                <span class="badge text-bg-warning align-self-start">No prescription yet</span>
+            {% endif %}
+        </div>
     </div>
 
 

@@ -1,0 +1,247 @@
+﻿<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <title>طباعة الروشتة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        :root {
+            --ink: #111827;
+            --muted: #6b7280;
+            --border: #d1d5db;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f3f4f6;
+            color: var(--ink);
+            font-family: Arial, "Tahoma", sans-serif;
+            font-size: 14px;
+        }
+
+        .print-toolbar {
+            padding: 12px;
+            text-align: center;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .print-toolbar button {
+            border: 1px solid #0f766e;
+            background: #0f766e;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .rx-page {
+            width: 148mm;
+            min-height: 210mm;
+            margin: 16px auto;
+            background: white;
+            padding: 14mm;
+            border: 1px solid var(--border);
+        }
+
+        .rx-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+
+        .clinic-name {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .clinic-subtitle {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .rx-title {
+            text-align: left;
+            direction: ltr;
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f766e;
+        }
+
+        .patient-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+            border: 1px solid var(--border);
+            padding: 10px;
+            margin-bottom: 16px;
+        }
+
+        .label {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .value {
+            font-weight: 700;
+        }
+
+        .med-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .med-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+
+        .med-top {
+            direction: ltr;
+            text-align: left;
+            display: flex;
+            gap: 8px;
+            align-items: baseline;
+            justify-content: flex-start;
+        }
+
+        .med-number {
+            font-weight: 800;
+            color: #0f766e;
+        }
+
+        .trade-name {
+            font-size: 18px;
+            font-weight: 800;
+        }
+
+        .med-meta {
+            direction: ltr;
+            text-align: left;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .med-instructions {
+            margin-top: 6px;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .rx-footer {
+            margin-top: 22px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 11px;
+            text-align: center;
+        }
+
+        @page {
+            size: A5;
+            margin: 0;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .print-toolbar {
+                display: none;
+            }
+
+            .rx-page {
+                width: auto;
+                min-height: auto;
+                margin: 0;
+                border: none;
+                padding: 12mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-toolbar">
+        <button type="button" onclick="window.print()">طباعة</button>
+    </div>
+
+    <main class="rx-page">
+        <header class="rx-header">
+            <div>
+                <div class="clinic-name">Nada Clinic</div>
+                <div class="clinic-subtitle">Women Health Clinic</div>
+            </div>
+            <div class="rx-title">Rx</div>
+        </header>
+
+        <section class="patient-grid">
+            <div>
+                <div class="label">اسم المريضة</div>
+                <div class="value">{{ visit.patient.name_ar or visit.patient.name_en }}</div>
+            </div>
+            <div>
+                <div class="label">رقم الملف</div>
+                <div class="value" dir="ltr">{{ visit.patient.formatted_mrn }}</div>
+            </div>
+            <div>
+                <div class="label">التاريخ</div>
+                <div class="value" dir="ltr">{{ prescription.created_at.strftime("%Y-%m-%d") }}</div>
+            </div>
+        </section>
+
+        <section>
+            <div class="label">الأدوية</div>
+
+            <div class="med-list">
+                {% for item in prescription_items %}
+                    <div class="med-item">
+                        <div class="med-top">
+                            <span class="med-number">{{ loop.index }}.</span>
+                            <span class="trade-name">{{ item.drug.trade_name }}</span>
+                            <span>{{ item.drug.strength }}</span>
+                        </div>
+
+                        <div class="med-meta">
+                            {{ item.drug.generic_name }}
+                            {% if item.drug.form %}
+                                · {{ item.drug.form.name_en }}
+                            {% endif %}
+                            {% if item.route %}
+                                · {{ item.route.name_en }}
+                            {% endif %}
+                        </div>
+
+                        <div class="med-instructions">
+                            {{ item.instructions_ar }}
+                            <br>
+                            <span dir="ltr">{{ item.dose }}</span>
+                            —
+                            <span dir="ltr">{{ item.frequency }}</span>
+                            —
+                            <span dir="ltr">{{ item.duration }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <footer class="rx-footer">
+            هذه الروشتة صادرة من نظام العيادة. لا تحتوي هذه النسخة على تشخيص.
+        </footer>
+    </main>
+</body>
+</html>

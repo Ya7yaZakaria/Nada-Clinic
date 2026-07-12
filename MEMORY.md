@@ -120,3 +120,10 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Prescription is created automatically if missing.
 - Added UI tests for apply preset flow, Reception blocking, and empty preset error.
 - No migration, print engine, AI prescribing, diagnosis-linked suggestions, or locking added.
+
+## 2026-07-13 — Sprint 5.6 Prescription Print Engine v1
+- Added standalone prescription print page from Visit.
+- Added Print button when prescription has medication items.
+- Print page includes patient name, MRN, date, and medication lines.
+- Kept diagnosis, doctor identity, print locking, print history, PDF generation, and migration out of scope.
+- Reception print access remains blocked.

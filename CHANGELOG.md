@@ -679,3 +679,20 @@ No diagnosis-linked preset behavior added.
 - No print engine added.
 - No migration added.
 - No AI or diagnosis-linked behavior added.
+
+## 2026-07-13 — Sprint 5.6 Prescription Print Engine v1
+### Added
+- Prescription print route from Visit.
+- Standalone prescription print template.
+- Print button inside Visit prescription card when medications exist.
+- Browser print layout with patient name, MRN, date, and medication lines.
+- UI tests for print page, print button, empty prescription redirect, and Reception blocking.
+- Sprint 5.6 documentation.
+
+### Confirmed
+- No diagnosis printed.
+- No doctor identity printed.
+- No print lock added.
+- No print history added.
+- Reception print access remains blocked.
+- No migration added.

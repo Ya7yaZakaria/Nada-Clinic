@@ -483,3 +483,6 @@ Sprint 5.5B adds Doctor/Admin UI for managing reusable prescription presets, inc
 
 ## Sprint 5.5C — Apply Prescription Preset Inside Visit UI
 Sprint 5.5C adds an apply-preset control inside the Visit prescription card. Doctor/Admin users can apply an active prescription preset to create editable prescription medication lines. This sprint does not add print, prescription locking, diagnosis-linked suggestions, AI prescribing, or a migration.
+
+## Sprint 5.6 — Prescription Print Engine v1
+Sprint 5.6 adds a standalone browser print page for Visit prescriptions. The print page includes patient name, MRN, date, and structured medication lines. It does not add diagnosis, doctor identity, print locking, print history, PDF generation, or a migration.

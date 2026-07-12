@@ -336,6 +336,31 @@ def apply_prescription_preset(visit_uuid):
     return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
 
 
+@visits_bp.get("/visits/<visit_uuid>/prescription/print")
+@login_required
+@RBACService.require_permission("prescriptions.view")
+def print_prescription(visit_uuid):
+    visit = Visit.query.filter_by(uuid=visit_uuid).first_or_404()
+    prescription = PrescriptionService.get_prescription_for_visit(visit)
+
+    if not prescription:
+        flash("No prescription exists for this visit.", "warning")
+        return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    prescription_items = PrescriptionService.list_items(prescription)
+    if not prescription_items:
+        flash("Prescription has no medications to print.", "warning")
+        return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    return render_template(
+        "visits/prescription_print.html",
+        visit=visit,
+        prescription=prescription,
+        prescription_items=prescription_items,
+        PatientService=PatientService,
+    )
+
+
 @visits_bp.route("/prescription-items/<item_uuid>/edit", methods=["GET", "POST"])
 @login_required
 @RBACService.require_permission("prescriptions.manage")
