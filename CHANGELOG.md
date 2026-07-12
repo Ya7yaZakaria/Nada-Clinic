@@ -644,3 +644,20 @@ Reception remains blocked.
 No preset UI added.
 No print engine added.
 No diagnosis-linked preset behavior added.
+
+## 2026-07-13 — Sprint 5.5B Prescription Presets Management UI
+### Added
+- Prescription presets management blueprint.
+- Preset list, create, edit, activate, and deactivate UI.
+- Preset detail page with structured medication items.
+- Add, edit, and remove preset medication item UI.
+- Sidebar link for Prescription Presets.
+- UI tests for preset management access and workflows.
+- Sprint 5.5B documentation.
+
+### Confirmed
+- Doctor/Admin can manage presets.
+- Reception remains blocked.
+- No apply-to-visit UI added.
+- No print engine added.
+- No migration added.

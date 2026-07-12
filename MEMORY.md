@@ -104,3 +104,11 @@ Kept Reception blocked from preset management.
 Added migration 20260713_0054_add_prescription_presets.
 Added model/service tests.
 No UI, print, diagnosis-linked presets, or AI prescribing added.
+
+## 2026-07-13 — Sprint 5.5B Prescription Presets Management UI
+- Added Doctor/Admin UI for prescription preset management.
+- Added preset list/create/edit/toggle workflows.
+- Added preset detail page with medication item add/edit/remove.
+- Added sidebar link for Prescription Presets.
+- Added UI tests for preset workflows and Reception blocking.
+- No apply-to-visit UI, print engine, migration, diagnosis-linked presets, or AI prescribing added.

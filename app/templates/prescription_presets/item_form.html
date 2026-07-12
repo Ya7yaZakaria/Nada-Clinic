@@ -1,0 +1,62 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Edit preset medication{% endblock %}
+{% block page_title %}Edit preset medication{% endblock %}
+{% block page_subtitle %}Structured prescription preset item{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <div class="d-flex justify-content-between gap-3 mb-3">
+        <div>
+            <p class="section-kicker">Prescription Preset</p>
+            <h1 class="h5 mb-0">{{ preset.name }}</h1>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('prescription_presets.detail', preset_uuid=preset.uuid) }}">
+            Back to Preset
+        </a>
+    </div>
+
+    <form method="post">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-3">
+            <div class="col-12">
+                {{ form.drug_id.label(class="form-label") }}
+                {{ form.drug_id(class="form-select") }}
+            </div>
+
+            <div class="col-12 col-md-4">
+                {{ form.dose.label(class="form-label") }}
+                {{ form.dose(class="form-control") }}
+            </div>
+
+            <div class="col-12 col-md-4">
+                {{ form.frequency.label(class="form-label") }}
+                {{ form.frequency(class="form-control") }}
+            </div>
+
+            <div class="col-12 col-md-4">
+                {{ form.duration.label(class="form-label") }}
+                {{ form.duration(class="form-control") }}
+            </div>
+
+            <div class="col-12">
+                {{ form.route_id.label(class="form-label") }}
+                {{ form.route_id(class="form-select") }}
+            </div>
+
+            <div class="col-12">
+                {{ form.instructions_ar.label(class="form-label") }}
+                {{ form.instructions_ar(class="form-control", rows="3", dir="rtl") }}
+            </div>
+        </div>
+
+        <div class="mt-3">
+            {{ form.submit(class="btn btn-primary") }}
+            <a class="btn btn-outline-secondary" href="{{ url_for('prescription_presets.detail', preset_uuid=preset.uuid) }}">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

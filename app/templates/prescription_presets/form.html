@@ -1,0 +1,47 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ "New Preset" if mode == "new" else "Edit Preset" }}{% endblock %}
+{% block page_title %}{{ "New Preset" if mode == "new" else "Edit Preset" }}{% endblock %}
+{% block page_subtitle %}Prescription preset management{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {{ form.hidden_tag() }}
+
+            <div class="row g-3">
+                <div class="col-12 col-lg-6">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control", placeholder="e.g. Sinusitis") }}
+                    {% for error in form.name.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-12">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control", rows="3", placeholder="Optional doctor-facing description") }}
+                    {% for error in form.description.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                {% if mode == "edit" %}
+                    <div class="col-12">
+                        <div class="form-check">
+                            {{ form.is_active(class="form-check-input") }}
+                            {{ form.is_active.label(class="form-check-label") }}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                {{ form.submit(class="btn btn-primary") }}
+                <a class="btn btn-outline-secondary" href="{{ url_for('prescription_presets.index') }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

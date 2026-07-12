@@ -1,0 +1,72 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Prescription Presets{% endblock %}
+{% block page_title %}Prescription Presets{% endblock %}
+{% block page_subtitle %}Reusable structured medication sets{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-1">Prescription Presets</h1>
+        <p class="text-muted mb-0">Manage reusable global prescription templates.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('prescription_presets.new') }}">Add Preset</a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Items</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for preset in presets %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('prescription_presets.detail', preset_uuid=preset.uuid) }}">
+                                <strong>{{ preset.name }}</strong>
+                            </a>
+                        </td>
+                        <td>{{ preset.description or "—" }}</td>
+                        <td>{{ preset.items.count() }}</td>
+                        <td>
+                            {% if preset.is_active %}
+                                <span class="badge text-bg-success">Active</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('prescription_presets.edit', preset_uuid=preset.uuid) }}">Edit</a>
+
+                            {% if preset.is_active %}
+                                <form method="post" action="{{ url_for('prescription_presets.deactivate', preset_uuid=preset.uuid) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-sm btn-outline-warning" type="submit">Deactivate</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{{ url_for('prescription_presets.reactivate', preset_uuid=preset.uuid) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-sm btn-outline-success" type="submit">Reactivate</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-muted text-center py-4">
+                            No prescription presets yet.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
