@@ -294,7 +294,7 @@ def test_doctor_sees_apply_preset_form_in_visit_detail():
             dose="1 tablet",
             frequency="Every 24 hours",
             duration="5 days",
-            instructions_ar="??? ??? ?????? ???? ? ????",
+            instructions_ar="Arabic preset instructions",
         )
 
         client = app.test_client()
@@ -327,7 +327,7 @@ def test_doctor_can_apply_prescription_preset_from_visit_detail():
             dose="1 tablet",
             frequency="Every 24 hours",
             duration="5 days",
-            instructions_ar="??? ??? ?????? ???? ? ????",
+            instructions_ar="Arabic preset instructions",
         )
 
         client = app.test_client()
@@ -351,7 +351,7 @@ def test_doctor_can_apply_prescription_preset_from_visit_detail():
         assert len(items) == 1
         assert items[0].drug == drug
         assert items[0].dose == "1 tablet"
-        assert items[0].instructions_ar == "??? ??? ?????? ???? ? ????"
+        assert items[0].instructions_ar == "Arabic preset instructions"
 
         db.drop_all()
 
@@ -374,7 +374,7 @@ def test_reception_cannot_apply_prescription_preset():
             dose="1 tablet",
             frequency="Every 24 hours",
             duration="5 days",
-            instructions_ar="???????",
+            instructions_ar="Arabic instructions",
         )
 
         client = app.test_client()
@@ -545,5 +545,61 @@ def test_reception_cannot_open_prescription_print_page():
         response = client.get(f"/visits/{visit.uuid}/prescription/print")
 
         assert response.status_code == 403
+
+        db.drop_all()
+
+
+
+def test_stage_5_freeze_print_page_excludes_doctor_identity_and_safety_notes():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        SettingsService.seed_defaults()
+        create_user("doctor-freeze-print@example.com", "01099110015", "Doctor")
+        patient = create_patient(phone_primary="01099110115")
+        visit = create_visit(patient)
+        drug, route = create_drug()
+        prescription = PrescriptionService.create_prescription(visit=visit)
+        PrescriptionService.add_item(
+            prescription=prescription,
+            drug=drug,
+            dose="1 tablet",
+            frequency="Every 24 hours",
+            duration="5 days",
+            instructions_ar="Arabic instructions",
+            route=route,
+        )
+
+        client = app.test_client()
+        login(client, "doctor-freeze-print@example.com")
+
+        response = client.get(f"/visits/{visit.uuid}/prescription/print")
+        body = response.data.lower()
+
+        assert response.status_code == 200
+        assert b"doctor" not in body
+        assert b"diagnosis" not in body
+        assert b"safety" not in body
+
+        db.drop_all()
+
+
+def test_stage_5_freeze_visit_prescription_nav_has_single_mobile_presets_link():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        SettingsService.seed_defaults()
+        create_user("doctor-freeze-nav@example.com", "01099110016", "Doctor")
+
+        client = app.test_client()
+        login(client, "doctor-freeze-nav@example.com")
+
+        response = client.get("/")
+
+        assert response.status_code == 200
+        assert response.data.count(b"Prescription Presets") == 2
+        assert b"Stage 5 Prescriptions" in response.data
 
         db.drop_all()

@@ -696,3 +696,20 @@ No diagnosis-linked preset behavior added.
 - No print history added.
 - Reception print access remains blocked.
 - No migration added.
+
+## 2026-07-13 — Sprint 5.7 Prescription Module Freeze Review
+### Changed
+- Fixed duplicate mobile sidebar Prescription Presets link.
+- Updated sidebar footer from Stage 4 Appointments to Stage 5 Prescriptions.
+- Cleaned mojibake strings in prescription UI tests.
+- Added final prescription freeze regression checks.
+- Added Sprint 5.7 freeze documentation.
+
+### Confirmed
+- Stage 5 prescription foundation remains stable.
+- No new database migration added.
+- No diagnosis printed.
+- No doctor identity printed.
+- No safety notes printed.
+- Reception remains blocked from treatment workflow.
+- No print locking, print history, PDF generation, or AI prescribing added.

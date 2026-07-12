@@ -127,3 +127,12 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Print page includes patient name, MRN, date, and medication lines.
 - Kept diagnosis, doctor identity, print locking, print history, PDF generation, and migration out of scope.
 - Reception print access remains blocked.
+
+## 2026-07-13 — Sprint 5.7 Prescription Module Freeze Review
+- Performed Stage 5 Prescription + Printing cleanup/freeze review.
+- Fixed duplicate mobile sidebar Prescription Presets link.
+- Updated sidebar footer to Stage 5 Prescriptions.
+- Cleaned mojibake strings in prescription UI tests.
+- Added final freeze regression checks for print content and navigation.
+- Confirmed no migration, print locking, print history, doctor identity, diagnosis printing, PDF generation, or AI prescribing added.
+- Next action after verification: close Stage 5 and prepare Stage 6 Investigations.

@@ -486,3 +486,6 @@ Sprint 5.5C adds an apply-preset control inside the Visit prescription card. Doc
 
 ## Sprint 5.6 — Prescription Print Engine v1
 Sprint 5.6 adds a standalone browser print page for Visit prescriptions. The print page includes patient name, MRN, date, and structured medication lines. It does not add diagnosis, doctor identity, print locking, print history, PDF generation, or a migration.
+
+## Sprint 5.7 — Prescription Module Freeze Review
+Sprint 5.7 closes the Stage 5 prescription foundation with a cleanup and freeze review. It fixes duplicate mobile navigation for Prescription Presets, updates the stale sidebar stage label, cleans prescription UI test strings, adds final regression checks, and confirms no migration or unrelated prescription features are introduced.
