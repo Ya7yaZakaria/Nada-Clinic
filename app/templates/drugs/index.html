@@ -1,0 +1,89 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Drugs{% endblock %}
+{% block page_title %}Drug Database{% endblock %}
+{% block page_subtitle %}Structured clinic medication database{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-1">Drug Database</h1>
+        <p class="text-muted mb-0">Search and manage clinic medication records.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('drugs.new') }}">Add Drug</a>
+</div>
+
+<form method="get" class="card card-body shadow-sm mb-3">
+    <div class="row g-2">
+        <div class="col-md-10">
+            <input class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search trade name, generic name, or strength">
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Trade</th>
+                    <th>Generic</th>
+                    <th>Strength</th>
+                    <th>Form</th>
+                    <th>Category</th>
+                    <th>Route</th>
+                    <th>Pregnancy</th>
+                    <th>Lactation</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for drug in drugs %}
+                    <tr>
+                        <td><strong>{{ drug.trade_name }}</strong></td>
+                        <td>{{ drug.generic_name }}</td>
+                        <td>{{ drug.strength }}</td>
+                        <td>{{ drug.form.name_en if drug.form else "—" }}</td>
+                        <td>{{ drug.category.name_en if drug.category else "—" }}</td>
+                        <td>{{ drug.route.name_en if drug.route else "—" }}</td>
+                        <td>{{ drug.pregnancy_status.name_en if drug.pregnancy_status else "—" }}</td>
+                        <td>{{ drug.lactation_status.name_en if drug.lactation_status else "—" }}</td>
+                        <td>
+                            {% if drug.is_active %}
+                                <span class="badge text-bg-success">Active</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('drugs.edit', drug_uuid=drug.uuid) }}">Edit</a>
+
+                            {% if drug.is_active %}
+                                <form method="post" action="{{ url_for('drugs.deactivate', drug_uuid=drug.uuid) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-sm btn-outline-warning" type="submit">Deactivate</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{{ url_for('drugs.reactivate', drug_uuid=drug.uuid) }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-sm btn-outline-success" type="submit">Reactivate</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="10" class="text-muted text-center py-4">
+                            No active drugs found. Add a drug or adjust your search.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

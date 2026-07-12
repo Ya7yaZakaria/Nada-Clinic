@@ -1,7 +1,10 @@
-﻿from sqlalchemy import or_
+from sqlalchemy import or_
 
 from app.extensions import db
 from app.models.drug import Drug
+
+
+_UNSET = object()
 
 
 class DrugService:
@@ -96,11 +99,11 @@ class DrugService:
         trade_name=None,
         strength=None,
         form=None,
-        category=None,
-        route=None,
-        pregnancy_status=None,
+        category=_UNSET,
+        route=_UNSET,
+        pregnancy_status=_UNSET,
         pregnancy_note=None,
-        lactation_status=None,
+        lactation_status=_UNSET,
         lactation_note=None,
         doctor_notes=None,
         is_active=None,
@@ -131,19 +134,19 @@ class DrugService:
         drug.strength = next_strength
         drug.form = next_form
 
-        if category is not None:
+        if category is not _UNSET:
             drug.category = category
 
-        if route is not None:
+        if route is not _UNSET:
             drug.route = route
 
-        if pregnancy_status is not None:
+        if pregnancy_status is not _UNSET:
             drug.pregnancy_status = pregnancy_status
 
         if pregnancy_note is not None:
             drug.pregnancy_note = cls._clean(pregnancy_note) or None
 
-        if lactation_status is not None:
+        if lactation_status is not _UNSET:
             drug.lactation_status = lactation_status
 
         if lactation_note is not None:

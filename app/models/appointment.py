@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 from datetime import UTC, datetime
 
 from app.extensions import db
@@ -72,8 +72,8 @@ class Appointment(db.Model):
     rescheduled_from_id = db.Column(db.Integer, db.ForeignKey("appointments.id"), nullable=True)
     rescheduled_to_id = db.Column(db.Integer, db.ForeignKey("appointments.id"), nullable=True)
 
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC))
+    updated_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     patient = db.relationship("Patient", backref=db.backref("appointments", lazy="dynamic"))
     created_by_user = db.relationship("User", foreign_keys=[created_by_user_id])

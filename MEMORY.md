@@ -50,3 +50,18 @@
 - Verified: 210 passed, 225 warnings, migration head 20260712_0052.
 - No Drug UI, Prescription model, Prescription UI, presets, or print engine added yet.
 - Next action: Sprint 5.2B Drug Database UI.
+
+## 2026-07-13 — Sprint 5.2B Drug Database UI Completed
+- Added Drug Database UI.
+- Added DrugForm.
+- Added drugs blueprint and routes.
+- Added drug list/search/create/edit/deactivate/reactivate templates.
+- Added sidebar link.
+- Added UI tests for drug database workflows.
+- Confirmed Doctor/Admin can manage drugs.
+- Confirmed Reception is blocked.
+- Confirmed full suite: 217 passed.
+- Cleaned appointment timestamp warnings by replacing deprecated datetime.utcnow defaults with timezone-aware UTC callables.
+- Migration remains 20260712_0052 head.
+- No Prescription model, Prescription UI, presets, or print engine added yet.
+- Next action: Sprint 5.3A Prescription Backend Foundation inside Visit.

@@ -1,4 +1,5 @@
 from app.forms.drug_dictionary_forms import DrugDictionaryForm, DrugSafetyStatusForm
+from app.forms.drug_forms import DrugForm
 from app.forms.appointment_forms import (
     AppointmentArriveForm,
     AppointmentCancelForm,
@@ -13,6 +14,7 @@ from app.forms.settings_forms import SettingsUpdateForm
 from app.forms.visit_forms import VisitForm, VisitJourneyLinkForm
 
 __all__ = [
+    "DrugForm",
     "DrugSafetyStatusForm",
     "DrugDictionaryForm",
     "AppointmentArriveForm",

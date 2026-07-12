@@ -1,0 +1,107 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ "New Drug" if mode == "new" else "Edit Drug" }}{% endblock %}
+{% block page_title %}{{ "New Drug" if mode == "new" else "Edit Drug" }}{% endblock %}
+{% block page_subtitle %}Structured medication record{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {{ form.hidden_tag() }}
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    {{ form.trade_name.label(class="form-label") }}
+                    {{ form.trade_name(class="form-control", placeholder="Tavanic") }}
+                    {% for error in form.trade_name.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.generic_name.label(class="form-label") }}
+                    {{ form.generic_name(class="form-control", placeholder="Levofloxacin") }}
+                    {% for error in form.generic_name.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.strength.label(class="form-label") }}
+                    {{ form.strength(class="form-control", placeholder="500 mg") }}
+                    {% for error in form.strength.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.form_id.label(class="form-label") }}
+                    {{ form.form_id(class="form-select") }}
+                    {% for error in form.form_id.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.category_id.label(class="form-label") }}
+                    {{ form.category_id(class="form-select") }}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.route_id.label(class="form-label") }}
+                    {{ form.route_id(class="form-select") }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.pregnancy_status_id.label(class="form-label") }}
+                    {{ form.pregnancy_status_id(class="form-select") }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.lactation_status_id.label(class="form-label") }}
+                    {{ form.lactation_status_id(class="form-select") }}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.pregnancy_note.label(class="form-label") }}
+                    {{ form.pregnancy_note(class="form-control", rows="3") }}
+                    {% for error in form.pregnancy_note.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.lactation_note.label(class="form-label") }}
+                    {{ form.lactation_note(class="form-control", rows="3") }}
+                    {% for error in form.lactation_note.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-12">
+                    {{ form.doctor_notes.label(class="form-label") }}
+                    {{ form.doctor_notes(class="form-control", rows="3") }}
+                    {% for error in form.doctor_notes.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                {% if mode == "edit" %}
+                    <div class="col-12">
+                        <div class="form-check">
+                            {{ form.is_active(class="form-check-input") }}
+                            {{ form.is_active.label(class="form-check-label") }}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                {{ form.submit(class="btn btn-primary") }}
+                <a class="btn btn-outline-secondary" href="{{ url_for('drugs.index') }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

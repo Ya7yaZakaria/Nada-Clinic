@@ -464,3 +464,6 @@ Sprint 5.1B adds the Drug Settings UI for managing medication dictionaries. Auth
 
 ## Sprint 5.2A — Drug Database Backend Foundation
 Sprint 5.2A adds the backend foundation for the clinic drug database. It introduces the Drug model, DrugService, drugs migration, duplicate prevention by trade name + form + strength, relationships to medication dictionaries, and backend tests. No Drug UI, Prescription model, Prescription UI, presets, or print engine was added.
+
+## Sprint 5.2B — Drug Database UI
+Sprint 5.2B adds the Drug Database UI. Authorized Doctor/Admin users can list, search, create, edit, deactivate, and reactivate clinic drugs using structured dictionary dropdowns. Reception remains blocked. This sprint also cleans the Appointment timestamp warning by replacing deprecated `datetime.utcnow` defaults with timezone-aware UTC callables. No Prescription model, Prescription UI, presets, or print engine was added.

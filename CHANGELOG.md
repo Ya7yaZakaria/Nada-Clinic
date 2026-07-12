@@ -536,3 +536,32 @@
 ### Verification
 - 210 tests passed.
 - Migration current/head: `20260712_0052`.
+
+## 2026-07-13 — Sprint 5.2B Drug Database UI
+### Added
+- Drug Database blueprint.
+- Drug form.
+- Drug list and search page.
+- Drug create/edit template.
+- Drug deactivate/reactivate actions.
+- Sidebar link for Drug Database.
+- UI tests for drug database access and workflows.
+
+### Changed
+- DrugService supports clearing optional drug relationships during edit.
+- Appointment timestamp defaults now use timezone-aware UTC callables instead of deprecated `datetime.utcnow`.
+
+### Confirmed
+- Doctor/Admin can manage drugs.
+- Reception is blocked.
+- Drug search works by trade name, generic name, and strength.
+- Duplicate drug combination remains rejected.
+- Drug routes are registered.
+- No Prescription model added.
+- No Prescription UI added.
+- No print engine added.
+
+### Verification
+- 217 tests passed.
+- Warnings cleaned.
+- Migration current/head: `20260712_0052`.
