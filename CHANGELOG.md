@@ -445,3 +445,21 @@
 - Previous Days Clinic is generated from appointments.
 - No separate clinic-day table was added.
 - Today’s Clinic remains focused on the selected current day.
+
+## 2026-07-12 — Sprint 4.6 Stage 4 Freeze
+### Confirmed
+- Stage 4 Appointment & Today’s Clinic workflow frozen.
+- Appointment model belongs to Patient.
+- Appointment types are fixed and billing-ready.
+- Procedure remains deferred as a Visit add-on.
+- Booking, calendar, arrival, waiting, cancel, reschedule, emergency unscheduled, no-show conversion, Today’s Clinic, and Previous Days Clinic are verified.
+- Appointment does not create Visit automatically.
+- Doctor can open Patient Workspace and start Visit manually.
+- Previous clinic days can be reviewed.
+- No billing implementation added.
+- No unrelated features added.
+
+### Verification
+- 175 tests passed.
+- Migration head clean: ecf98d78d1b4.
+- Git working tree clean before freeze documentation.

@@ -452,3 +452,6 @@ Adds Today’s Clinic dashboard, day counters, waiting queue, full day appointme
 
 ## Sprint 4.5 — Previous Days Clinic
 Adds previous clinic days review, past day summaries, unfinished work visibility, no-show history review, and generated appointment-based previous-day views without a separate clinic-day table.
+
+## Stage 4 — Appointment & Today’s Clinic Freeze
+Stage 4 is frozen after Sprint 4.6. Appointment booking, calendar, arrival/waiting, emergency unscheduled workflow, Today’s Clinic, Previous Days Clinic, end-of-day no-show conversion, and appointment workflow tests are complete. Verified: 175 tests passed, migration head clean, and git working tree clean.
