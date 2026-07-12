@@ -1,0 +1,35 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Today’s Clinic — Nada Clinic System{% endblock %}
+{% block page_title %}Today’s Clinic{% endblock %}
+{% block page_subtitle %}Live clinic list for the selected day{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+    <div>
+        <p class="section-kicker">Clinic Day</p>
+        <h1 class="h4 mb-0">{{ selected_date }}</h1>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-primary" href="{{ url_for('appointments.calendar', date=selected_date.isoformat()) }}">Calendar</a>
+        <a class="btn btn-outline-danger" href="{{ url_for('appointments.emergency_new') }}">Emergency</a>
+        <form method="post" action="{{ url_for('today_clinic.close_day', clinic_date=selected_date.isoformat()) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-warning" type="submit">Close Day</button>
+        </form>
+    </div>
+</div>
+
+{% include "clinic/_counters.html" %}
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-xl-4">
+        {% include "clinic/_queue_section.html" %}
+    </div>
+
+    <div class="col-12 col-xl-8">
+        {% include "clinic/_day_list.html" %}
+    </div>
+</div>
+{% endblock %}

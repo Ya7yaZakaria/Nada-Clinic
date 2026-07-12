@@ -407,3 +407,24 @@
 ### Confirmed
 - Appointment workflow does not create Visit automatically.
 - Patient Workspace remains doctor-first.
+
+## 2026-07-07 — Sprint 4.4 Today’s Clinic Dashboard
+### Added
+- Today’s Clinic blueprint.
+- Today’s Clinic dashboard route.
+- Clinic day route.
+- End-of-day close route.
+- Mark appointment completed route.
+- Smart clinic day counters.
+- Waiting queue section.
+- Full day appointment list.
+- Patient preview cards.
+- Active Journey badges.
+- Last Visit display.
+- Pending flags placeholder.
+- Sprint 4.4 tests and documentation.
+
+### Confirmed
+- Today’s Clinic does not create Visit automatically.
+- Appointment remains visible after status changes.
+- End-of-day close converts remaining booked appointments to no-show.

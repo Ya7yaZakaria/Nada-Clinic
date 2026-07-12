@@ -1,4 +1,4 @@
-﻿import os
+import os
 
 from flask import Flask, render_template
 
@@ -35,11 +35,13 @@ def register_blueprints(app):
     from app.routes.journeys import journeys_bp
     from app.routes.main import main_bp
     from app.routes.patients import patients_bp
+    from app.routes.today_clinic import today_clinic_bp
     from app.routes.visits import visits_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(appointments_bp)
+    app.register_blueprint(today_clinic_bp)
     app.register_blueprint(patients_bp)
     app.register_blueprint(journeys_bp)
     app.register_blueprint(visits_bp)

@@ -446,3 +446,6 @@ Adds Appointment CRUD routes, AppointmentForm, calendar month/week/day views, pa
 
 ## Sprint 4.3 — Arrival / Waiting Queue
 Adds reception workflow actions for marking appointments arrived, cancellation, rescheduling, emergency unscheduled appointments, and waiting queue service support.
+
+## Sprint 4.4 — Today’s Clinic Dashboard
+Adds Today’s Clinic dashboard, day counters, waiting queue, full day appointment list, patient preview cards, active journey badges, last visit display, pending flags placeholder, appointment completion action, and end-of-day close workflow.

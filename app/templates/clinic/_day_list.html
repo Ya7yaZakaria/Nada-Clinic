@@ -1,0 +1,22 @@
+﻿<div class="clinic-card h-100">
+    <div class="d-flex justify-content-between gap-2 mb-2">
+        <div>
+            <p class="section-kicker">Full Day List</p>
+            <h2 class="h5">All Appointments</h2>
+        </div>
+        <span class="badge text-bg-light border">{{ clinic_day.appointments|length }}</span>
+    </div>
+
+    {% if clinic_day.appointments %}
+        <div class="list-group list-group-flush">
+            {% for appointment in clinic_day.appointments %}
+                {% include "clinic/_appointment_card.html" %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="placeholder-box">
+            <p class="fw-semibold mb-1">No appointments for this day.</p>
+            <p class="text-muted mb-0">Booked appointments will appear here.</p>
+        </div>
+    {% endif %}
+</div>

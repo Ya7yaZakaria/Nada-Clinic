@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
@@ -23,7 +23,7 @@
 
             <nav class="sidebar-nav">
                 <a class="sidebar-link active" href="{{ url_for('main.index') }}">Dashboard</a>
-                <a class="sidebar-link disabled" href="#">Today Clinic</a>
+                <a class="sidebar-link" href="{{ url_for('today_clinic.index') }}">Today Clinic</a>
                 <a class="sidebar-link" href="{{ url_for('patients.index') }}">Patients</a>
                 <a class="sidebar-link" href="{{ url_for('appointments.calendar') }}">Appointments</a>
                 <a class="sidebar-link disabled" href="#">Visits</a>
@@ -77,7 +77,7 @@
 
                 <nav class="sidebar-nav">
                     <a class="sidebar-link active" href="{{ url_for('main.index') }}">Dashboard</a>
-                    <a class="sidebar-link disabled" href="#">Today Clinic</a>
+                    <a class="sidebar-link" href="{{ url_for('today_clinic.index') }}">Today Clinic</a>
                     <a class="sidebar-link" href="{{ url_for('patients.index') }}">Patients</a>
                     <a class="sidebar-link" href="{{ url_for('appointments.calendar') }}">Appointments</a>
                     <a class="sidebar-link disabled" href="#">Visits</a>

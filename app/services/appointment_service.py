@@ -1,4 +1,4 @@
-﻿from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime
 
 from app.extensions import db
 from app.models.appointment import Appointment
@@ -275,6 +275,81 @@ class AppointmentService:
             Appointment.appointment_time.asc().nullslast(),
             Appointment.created_at.asc(),
         ).all()
+
+
+    @staticmethod
+    def get_booked_no_action(clinic_date):
+        return Appointment.query.filter_by(
+            appointment_date=clinic_date,
+            status=Appointment.STATUS_BOOKED,
+        ).order_by(
+            Appointment.appointment_time.asc().nullslast(),
+            Appointment.created_at.asc(),
+        ).all()
+
+    @staticmethod
+    def get_completed_for_date(clinic_date):
+        return Appointment.query.filter_by(
+            appointment_date=clinic_date,
+            status=Appointment.STATUS_COMPLETED,
+        ).order_by(
+            Appointment.completed_at.asc().nullslast(),
+            Appointment.appointment_time.asc().nullslast(),
+            Appointment.created_at.asc(),
+        ).all()
+
+    @staticmethod
+    def get_cancelled_for_date(clinic_date):
+        return Appointment.query.filter_by(
+            appointment_date=clinic_date,
+            status=Appointment.STATUS_CANCELLED,
+        ).order_by(
+            Appointment.cancelled_at.asc().nullslast(),
+            Appointment.appointment_time.asc().nullslast(),
+            Appointment.created_at.asc(),
+        ).all()
+
+    @staticmethod
+    def get_rescheduled_for_date(clinic_date):
+        return Appointment.query.filter_by(
+            appointment_date=clinic_date,
+            status=Appointment.STATUS_RESCHEDULED,
+        ).order_by(
+            Appointment.rescheduled_at.asc().nullslast(),
+            Appointment.appointment_time.asc().nullslast(),
+            Appointment.created_at.asc(),
+        ).all()
+
+    @staticmethod
+    def get_no_show_for_date(clinic_date):
+        return Appointment.query.filter_by(
+            appointment_date=clinic_date,
+            status=Appointment.STATUS_NO_SHOW,
+        ).order_by(
+            Appointment.no_show_at.asc().nullslast(),
+            Appointment.appointment_time.asc().nullslast(),
+            Appointment.created_at.asc(),
+        ).all()
+
+    @classmethod
+    def get_clinic_day(cls, clinic_date):
+        appointments = cls.get_appointments_for_date(clinic_date)
+
+        return {
+            "clinic_date": clinic_date,
+            "appointments": appointments,
+            "counters": cls.get_counters_for_date(clinic_date),
+            "waiting_queue": cls.get_waiting_queue(clinic_date),
+            "booked_no_action": cls.get_booked_no_action(clinic_date),
+            "completed": cls.get_completed_for_date(clinic_date),
+            "cancelled": cls.get_cancelled_for_date(clinic_date),
+            "rescheduled": cls.get_rescheduled_for_date(clinic_date),
+            "no_show": cls.get_no_show_for_date(clinic_date),
+        }
+
+    @classmethod
+    def get_today_clinic(cls):
+        return cls.get_clinic_day(date.today())
 
     @staticmethod
     def get_status_label(status):
