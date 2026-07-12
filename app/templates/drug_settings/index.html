@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Drug Settings{% endblock %}
+{% block page_title %}Drug Settings{% endblock %}
+{% block page_subtitle %}Medication dictionaries for structured prescriptions{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="h4 mb-1">Medication Dictionaries</h1>
+        <p class="text-muted mb-0">Controlled editable lists for AI-ready drug data.</p>
+    </div>
+    <form method="post" action="{{ url_for('drug_settings.seed_defaults') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline-primary" type="submit">Seed Defaults</button>
+    </form>
+</div>
+
+<div class="row g-3">
+    {% for dictionary_type, dictionary in dictionaries.items() %}
+        <div class="col-12 col-xl-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>{{ dictionary.label }}</strong>
+                        <div class="small text-muted">{{ dictionary.records|length }} item(s)</div>
+                    </div>
+                    <a class="btn btn-sm btn-primary" href="{{ url_for('drug_settings.new', dictionary_type=dictionary_type) }}">
+                        Add
+                    </a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Arabic</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in dictionary.records %}
+                                <tr>
+                                    <td><code>{{ item.code }}</code></td>
+                                    <td>{{ item.name_en }}</td>
+                                    <td>{{ item.name_ar or "—" }}</td>
+                                    <td>
+                                        {% if item.is_active %}
+                                            <span class="badge text-bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('drug_settings.edit', dictionary_type=dictionary_type, item_uuid=item.uuid) }}">
+                                            Edit
+                                        </a>
+
+                                        {% if item.is_active %}
+                                            <form method="post" action="{{ url_for('drug_settings.deactivate', dictionary_type=dictionary_type, item_uuid=item.uuid) }}" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button class="btn btn-sm btn-outline-warning" type="submit">Deactivate</button>
+                                            </form>
+                                        {% else %}
+                                            <form method="post" action="{{ url_for('drug_settings.reactivate', dictionary_type=dictionary_type, item_uuid=item.uuid) }}" class="d-inline">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button class="btn btn-sm btn-outline-success" type="submit">Reactivate</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-muted text-center py-4">
+                                        No items yet. Seed defaults or add manually.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

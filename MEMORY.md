@@ -23,3 +23,18 @@
 - Verified: 187 passed, 225 warnings, migration head 20260712_0051.
 - No Drug model, Prescription model, UI, routes, or print engine added yet.
 - Next action: Sprint 5.1B Drug Settings UI or Sprint 5.2 Drug Database Foundation.
+
+## 2026-07-12 — Sprint 5.1B Drug Settings UI Completed
+- Added Drug Settings UI for medication dictionaries.
+- Added forms for dictionary items and safety statuses.
+- Added Drug Settings routes.
+- Added Drug Settings templates.
+- Added sidebar link.
+- Added seed defaults UI action.
+- Added create/edit/deactivate/reactivate workflows.
+- Confirmed Doctor/Admin can manage medication dictionaries.
+- Confirmed Reception is blocked.
+- Fixed Jinja `dictionary.items` collision by using `records`.
+- Verified: 195 passed, 225 warnings, migration head 20260712_0051.
+- No Drug model, Prescription model, or print engine added yet.
+- Next action: Sprint 5.2 Drug Database Foundation.

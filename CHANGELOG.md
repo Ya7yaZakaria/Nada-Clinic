@@ -486,3 +486,29 @@
 ### Verification
 - 187 tests passed.
 - Migration current/head: `20260712_0051`.
+
+## 2026-07-12 — Sprint 5.1B Drug Settings UI
+### Added
+- Drug Settings blueprint.
+- Drug dictionary forms.
+- Drug Settings index template.
+- Drug dictionary create/edit template.
+- Sidebar link for Drug Settings.
+- Seed defaults UI action.
+- Deactivate/reactivate UI actions.
+- UI tests for drug settings permissions and workflows.
+
+### Confirmed
+- Doctor/Admin can manage medication dictionaries.
+- Reception is blocked.
+- Drug settings routes are registered.
+- No Drug model added yet.
+- No Prescription model added yet.
+- No print engine added yet.
+
+### Fixed
+- Avoided Jinja `dictionary.items` collision by using `records` in the template context.
+
+### Verification
+- 195 tests passed.
+- Migration current/head: `20260712_0051`.

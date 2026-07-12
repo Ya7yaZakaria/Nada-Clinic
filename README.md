@@ -458,3 +458,6 @@ Stage 4 is frozen after Sprint 4.6. Appointment booking, calendar, arrival/waiti
 
 ## Sprint 5.1A — Drug Dictionaries Backend Foundation
 Sprint 5.1A adds backend foundations for editable, AI-ready medication dictionaries: categories, forms, routes, and safety statuses. It adds `drug_settings.manage` permission for Admin/Doctor access while keeping Reception blocked from treatment-related settings. No Drug model, Prescription model, UI, or print engine was added in this sprint.
+
+## Sprint 5.1B — Drug Settings UI
+Sprint 5.1B adds the Drug Settings UI for managing medication dictionaries. Authorized Doctor/Admin users can open Drug Settings, seed defaults, create/edit dictionary items, and deactivate/reactivate them. Reception remains blocked from medication-related settings. No Drug model, Prescription model, or print engine was added.

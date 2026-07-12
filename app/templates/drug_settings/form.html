@@ -1,0 +1,71 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ config.singular }}{% endblock %}
+{% block page_title %}{{ "New" if mode == "new" else "Edit" }} {{ config.singular }}{% endblock %}
+{% block page_subtitle %}Medication dictionary setting{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            {{ form.hidden_tag() }}
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    {{ form.code.label(class="form-label") }}
+                    {{ form.code(class="form-control", placeholder="example_code") }}
+                    {% for error in form.code.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.name_en.label(class="form-label") }}
+                    {{ form.name_en(class="form-control", placeholder="English name") }}
+                    {% for error in form.name_en.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-4">
+                    {{ form.name_ar.label(class="form-label") }}
+                    {{ form.name_ar(class="form-control", placeholder="Arabic name") }}
+                    {% for error in form.name_ar.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-3">
+                    {{ form.sort_order.label(class="form-label") }}
+                    {{ form.sort_order(class="form-control") }}
+                    {% for error in form.sort_order.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                {% if form.severity_order is defined %}
+                    <div class="col-md-3">
+                        {{ form.severity_order.label(class="form-label") }}
+                        {{ form.severity_order(class="form-control") }}
+                        {% for error in form.severity_order.errors %}
+                            <div class="text-danger small">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="col-md-3 d-flex align-items-end">
+                    <div class="form-check">
+                        {{ form.is_active(class="form-check-input") }}
+                        {{ form.is_active.label(class="form-check-label") }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                {{ form.submit(class="btn btn-primary") }}
+                <a class="btn btn-outline-secondary" href="{{ url_for('drug_settings.index') }}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
