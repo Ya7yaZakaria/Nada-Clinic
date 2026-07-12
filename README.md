@@ -480,3 +480,6 @@ Sprint 5.5A adds backend support for reusable global prescription presets. Prese
 
 ## Sprint 5.5B — Prescription Presets Management UI
 Sprint 5.5B adds Doctor/Admin UI for managing reusable prescription presets, including preset list/create/edit/toggle and preset medication item add/edit/remove. It does not add apply-to-visit behavior, print, diagnosis-linked presets, or AI prescribing.
+
+## Sprint 5.5C — Apply Prescription Preset Inside Visit UI
+Sprint 5.5C adds an apply-preset control inside the Visit prescription card. Doctor/Admin users can apply an active prescription preset to create editable prescription medication lines. This sprint does not add print, prescription locking, diagnosis-linked suggestions, AI prescribing, or a migration.

@@ -1,4 +1,4 @@
-﻿from flask_wtf import FlaskForm
+from flask_wtf import FlaskForm
 from wtforms import BooleanField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, Optional
 
@@ -35,3 +35,8 @@ class PrescriptionPresetItemForm(FlaskForm):
     )
 
     submit = SubmitField("Save preset item")
+
+
+class PrescriptionPresetApplyForm(FlaskForm):
+    preset_id = SelectField("Prescription preset", coerce=int, validators=[DataRequired()])
+    submit = SubmitField("Apply preset")

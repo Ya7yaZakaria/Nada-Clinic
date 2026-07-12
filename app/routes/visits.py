@@ -4,16 +4,19 @@ from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from app.forms.prescription_forms import PrescriptionItemForm
+from app.forms.prescription_preset_forms import PrescriptionPresetApplyForm
 from app.forms.visit_forms import VisitForm, VisitJourneyLinkForm
 from app.models import Patient, Visit
 from app.models.drug import Drug
 from app.models.drug_dictionary import DrugRoute
 from app.models.prescription import PrescriptionItem
+from app.models.prescription_preset import PrescriptionPreset
 from app.services.drug_dictionary_service import DrugDictionaryService
 from app.services.drug_service import DrugService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
 from app.services.prescription_service import PrescriptionService
+from app.services.prescription_preset_service import PrescriptionPresetService
 from app.services.rbac_service import RBACService
 from app.services.visit_service import VisitService
 
@@ -39,6 +42,13 @@ def _populate_prescription_item_form(form):
     form.route_id.choices = [(0, "Use drug default route")] + [
         (route.id, _choice_label(route))
         for route in DrugDictionaryService.get_active_routes()
+    ]
+
+
+def _populate_prescription_preset_apply_form(form):
+    form.preset_id.choices = [(0, "Select preset...")] + [
+        (preset.id, preset.name)
+        for preset in PrescriptionPresetService.list_active_presets()
     ]
 
 
@@ -139,6 +149,7 @@ def detail(visit_uuid):
     prescription = None
     prescription_items = []
     prescription_item_form = None
+    prescription_preset_apply_form = None
 
     if can_view_prescription:
         prescription = PrescriptionService.get_prescription_for_visit(visit)
@@ -148,6 +159,8 @@ def detail(visit_uuid):
     if can_manage_prescription:
         prescription_item_form = PrescriptionItemForm()
         _populate_prescription_item_form(prescription_item_form)
+        prescription_preset_apply_form = PrescriptionPresetApplyForm()
+        _populate_prescription_preset_apply_form(prescription_preset_apply_form)
 
     return render_template(
         "visits/detail.html",
@@ -156,6 +169,7 @@ def detail(visit_uuid):
         prescription=prescription,
         prescription_items=prescription_items,
         prescription_item_form=prescription_item_form,
+        prescription_preset_apply_form=prescription_preset_apply_form,
         can_view_prescription=can_view_prescription,
         can_manage_prescription=can_manage_prescription,
         JourneyService=JourneyService,
@@ -279,6 +293,46 @@ def add_prescription_item(visit_uuid):
         return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
 
     flash("Medication added to prescription.", "success")
+    return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+
+@visits_bp.post("/visits/<visit_uuid>/prescription/apply-preset")
+@login_required
+@RBACService.require_permission("prescriptions.manage")
+def apply_prescription_preset(visit_uuid):
+    visit = Visit.query.filter_by(uuid=visit_uuid).first_or_404()
+
+    form = PrescriptionPresetApplyForm()
+    _populate_prescription_preset_apply_form(form)
+
+    if not form.validate_on_submit():
+        flash("Invalid prescription preset selection.", "danger")
+        return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    preset = PrescriptionPreset.query.filter_by(
+        id=form.preset_id.data,
+        is_active=True,
+    ).first()
+
+    if not preset:
+        flash("Prescription preset is required.", "danger")
+        return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    try:
+        prescription = PrescriptionService.get_or_create_prescription(
+            visit=visit,
+            actor_user=current_user,
+        )
+        created_items = PrescriptionPresetService.apply_to_prescription(
+            preset=preset,
+            prescription=prescription,
+            actor_user=current_user,
+        )
+    except ValueError as exc:
+        flash(str(exc), "danger")
+        return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    flash(f"Prescription preset applied: {preset.name} ({len(created_items)} items).", "success")
     return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
 
 

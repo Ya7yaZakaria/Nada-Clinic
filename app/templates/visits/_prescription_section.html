@@ -1,4 +1,4 @@
-﻿{% if can_view_prescription %}
+{% if can_view_prescription %}
 <div class="clinic-card mt-3">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
         <div>
@@ -11,6 +11,32 @@
             <span class="badge text-bg-warning align-self-start">No prescription yet</span>
         {% endif %}
     </div>
+
+
+    {% if can_manage_prescription and prescription_preset_apply_form %}
+        <div class="border rounded p-3 mb-3 bg-light">
+            <h3 class="h6 mb-2">Apply prescription preset</h3>
+            <form method="post" action="{{ url_for('visits.apply_prescription_preset', visit_uuid=visit.uuid) }}">
+                {{ prescription_preset_apply_form.hidden_tag() }}
+
+                <div class="row g-2 align-items-end">
+                    <div class="col-12 col-md-9">
+                        <label class="form-label" for="{{ prescription_preset_apply_form.preset_id.id }}">
+                            {{ prescription_preset_apply_form.preset_id.label.text }}
+                        </label>
+                        {{ prescription_preset_apply_form.preset_id(class="form-select") }}
+                    </div>
+                    <div class="col-12 col-md-3 d-grid">
+                        {{ prescription_preset_apply_form.submit(class="btn btn-outline-primary") }}
+                    </div>
+                </div>
+
+                <div class="form-text">
+                    Applying a preset adds editable medication lines. It does not print or lock the prescription.
+                </div>
+            </form>
+        </div>
+    {% endif %}
 
     {% if prescription_items %}
         <div class="table-responsive mb-3">

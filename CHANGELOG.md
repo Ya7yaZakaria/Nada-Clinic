@@ -661,3 +661,21 @@ No diagnosis-linked preset behavior added.
 - No apply-to-visit UI added.
 - No print engine added.
 - No migration added.
+
+## 2026-07-13 — Sprint 5.5C Apply Prescription Preset Inside Visit UI
+### Added
+- Apply-preset form inside Visit prescription card.
+- Active prescription preset dropdown.
+- Visit route for applying preset to a Visit prescription.
+- UI tests for applying presets from Visit detail.
+- Sprint 5.5C documentation.
+
+### Confirmed
+- Applying a preset creates editable prescription items.
+- Prescription is created automatically if missing.
+- Doctor/Admin can apply presets through prescription permissions.
+- Reception remains blocked.
+- Empty preset application shows an error.
+- No print engine added.
+- No migration added.
+- No AI or diagnosis-linked behavior added.

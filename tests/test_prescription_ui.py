@@ -9,6 +9,7 @@ from app.models.prescription import PrescriptionItem
 from app.services.drug_service import DrugService
 from app.services.patient_service import PatientService
 from app.services.prescription_service import PrescriptionService
+from app.services.prescription_preset_service import PrescriptionPresetService
 from app.services.rbac_service import RBACService
 from app.services.settings_service import SettingsService
 from app.services.visit_service import VisitService
@@ -271,5 +272,152 @@ def test_doctor_can_remove_prescription_item():
 
         assert response.status_code == 200
         assert db.session.get(PrescriptionItem, item_id) is None
+
+        db.drop_all()
+
+
+
+def test_doctor_sees_apply_preset_form_in_visit_detail():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        SettingsService.seed_defaults()
+        create_user("doctor-see-apply-preset@example.com", "01099110007", "Doctor")
+        patient = create_patient(phone_primary="01099110107")
+        visit = create_visit(patient)
+        drug, _route = create_drug()
+        preset = PrescriptionPresetService.create_preset(name="Sinusitis")
+        PrescriptionPresetService.add_item(
+            preset=preset,
+            drug=drug,
+            dose="1 tablet",
+            frequency="Every 24 hours",
+            duration="5 days",
+            instructions_ar="??? ??? ?????? ???? ? ????",
+        )
+
+        client = app.test_client()
+        login(client, "doctor-see-apply-preset@example.com")
+
+        response = client.get(f"/visits/{visit.uuid}")
+
+        assert response.status_code == 200
+        assert b"Apply prescription preset" in response.data
+        assert b"Sinusitis" in response.data
+
+        db.drop_all()
+
+
+def test_doctor_can_apply_prescription_preset_from_visit_detail():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        SettingsService.seed_defaults()
+        doctor = create_user("doctor-apply-preset-visit@example.com", "01099110008", "Doctor")
+        patient = create_patient(phone_primary="01099110108")
+        visit = create_visit(patient)
+        drug, _route = create_drug()
+
+        preset = PrescriptionPresetService.create_preset(name="Sinusitis", actor_user=doctor)
+        PrescriptionPresetService.add_item(
+            preset=preset,
+            drug=drug,
+            dose="1 tablet",
+            frequency="Every 24 hours",
+            duration="5 days",
+            instructions_ar="??? ??? ?????? ???? ? ????",
+        )
+
+        client = app.test_client()
+        login(client, "doctor-apply-preset-visit@example.com")
+
+        response = client.post(
+            f"/visits/{visit.uuid}/prescription/apply-preset",
+            data={
+                "preset_id": str(preset.id),
+            },
+            follow_redirects=True,
+        )
+
+        prescription = PrescriptionService.get_prescription_for_visit(visit)
+        items = PrescriptionService.list_items(prescription)
+
+        assert response.status_code == 200
+        assert b"Prescription preset applied" in response.data
+        assert b"Tavanic" in response.data
+        assert prescription is not None
+        assert len(items) == 1
+        assert items[0].drug == drug
+        assert items[0].dose == "1 tablet"
+        assert items[0].instructions_ar == "??? ??? ?????? ???? ? ????"
+
+        db.drop_all()
+
+
+def test_reception_cannot_apply_prescription_preset():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        SettingsService.seed_defaults()
+        create_user("reception-apply-preset-visit@example.com", "01099110009", "Reception")
+        patient = create_patient(phone_primary="01099110109")
+        visit = create_visit(patient)
+        drug, _route = create_drug()
+
+        preset = PrescriptionPresetService.create_preset(name="Sinusitis")
+        PrescriptionPresetService.add_item(
+            preset=preset,
+            drug=drug,
+            dose="1 tablet",
+            frequency="Every 24 hours",
+            duration="5 days",
+            instructions_ar="???????",
+        )
+
+        client = app.test_client()
+        login(client, "reception-apply-preset-visit@example.com")
+
+        response = client.post(
+            f"/visits/{visit.uuid}/prescription/apply-preset",
+            data={
+                "preset_id": str(preset.id),
+            },
+        )
+
+        assert response.status_code == 403
+
+        db.drop_all()
+
+
+def test_apply_empty_prescription_preset_from_visit_ui_shows_error():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        SettingsService.seed_defaults()
+        create_user("doctor-empty-preset-visit@example.com", "01099110010", "Doctor")
+        patient = create_patient(phone_primary="01099110110")
+        visit = create_visit(patient)
+        preset = PrescriptionPresetService.create_preset(name="Empty Preset")
+        create_drug()
+
+        client = app.test_client()
+        login(client, "doctor-empty-preset-visit@example.com")
+
+        response = client.post(
+            f"/visits/{visit.uuid}/prescription/apply-preset",
+            data={
+                "preset_id": str(preset.id),
+            },
+            follow_redirects=True,
+        )
+
+        assert response.status_code == 200
+        assert b"Prescription preset has no items" in response.data
+        assert PrescriptionService.get_prescription_for_visit(visit) is not None
+        assert PrescriptionService.list_items(PrescriptionService.get_prescription_for_visit(visit)) == []
 
         db.drop_all()

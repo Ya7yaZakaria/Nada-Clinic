@@ -112,3 +112,11 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Added sidebar link for Prescription Presets.
 - Added UI tests for preset workflows and Reception blocking.
 - No apply-to-visit UI, print engine, migration, diagnosis-linked presets, or AI prescribing added.
+
+## 2026-07-13 — Sprint 5.5C Apply Prescription Preset Inside Visit UI
+- Added apply-preset control inside Visit prescription section.
+- Added active preset dropdown and POST apply route.
+- Applying a preset creates editable PrescriptionItem rows.
+- Prescription is created automatically if missing.
+- Added UI tests for apply preset flow, Reception blocking, and empty preset error.
+- No migration, print engine, AI prescribing, diagnosis-linked suggestions, or locking added.
