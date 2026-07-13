@@ -522,3 +522,9 @@ Sprint 6.5D adds investigation request printing through the unified PrintTemplat
 
 ## Sprint 6.5E — Print Module Freeze Review
 Sprint 6.5E freeze-reviews the unified print module after prescription and investigation request printing were migrated to the PrintTemplate engine. It confirms PrintTemplate backend/UI, visual layout designer, prescription preview, investigation request preview, RBAC, documentation, route health, and no migration drift. PDF generation, print history, print lock, doctor signature, logo upload, result report printing, lab integration, and AI remain out of scope.
+
+## Stage 6 — Investigation Module Freeze Review
+Stage 6 freeze review verifies investigation dictionaries, orders, presets, result entry, historical results, result review, patient workspace investigation display, timeline integration, unified investigation request printing, RBAC, and Stage 5 prescription regression after unified print migration. Real upload/storage, result report printing, lab integration, alerts, billing, and AI remain out of scope. Recommended next stage: Stage 7 Documents & Storage.
+
+## Sprint 6.6A — Enter Pending Result From Current Visit
+Sprint 6.6A fixes ordered investigation result context. When a patient returns in a later Visit with pending investigation results, the doctor can enter the result from the current Visit. The system preserves the original ordered Visit and stores the current Visit as the result Visit. No migration, dictionary UI, upload/storage, lab integration, or AI behavior is added.

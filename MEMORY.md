@@ -258,3 +258,23 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Confirmed no new migration beyond 20260713_0063.
 - Confirmed PDF generation, print history, print lock, doctor signature, logo upload, result report printing, lab integration, and AI remain out of scope.
 - Next action: commit freeze documentation after verification, then move to the next Stage 6 cleanup or Stage 7 Documents/Storage planning.
+
+## 2026-07-13 — Stage 6 Investigation Module Freeze Review
+- Freeze-reviewed Stage 6 Investigations.
+- Confirmed investigation dictionaries, orders, presets, result entry, historical results, result review, patient workspace investigation section, timeline events, and unified investigation request printing.
+- Confirmed Stage 5 prescription regression after unified print migration.
+- Cleaned investigation test choice label separator in Visit detail.
+- Confirmed Reception remains blocked by RBAC.
+- Confirmed no new migration beyond 20260713_0063.
+- Confirmed upload/storage, result report printing, PDF generation, lab integration, alerts, billing, and AI remain out of scope.
+- Next action: commit freeze documentation and cleanup after verification, then plan Stage 7 Documents & Storage.
+
+## 2026-07-13 — Sprint 6.6A Enter Pending Result From Current Visit
+- Fixed ordered investigation result Visit context.
+- Visit detail now exposes pending results from previous visits for the same patient.
+- Doctor can enter a pending result from the current Visit.
+- Result keeps original ordered_visit and stores current Visit as result_visit.
+- Added regression tests for current-Visit result entry and cross-patient blocking.
+- No migration added.
+- Investigation dictionary/settings UI remains deferred.
+- Next action: verify tests, commit Stage 6 freeze + 6.6A fix, then plan Stage 7 Documents & Storage.

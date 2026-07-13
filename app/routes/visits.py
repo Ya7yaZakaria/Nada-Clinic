@@ -60,7 +60,7 @@ def _populate_prescription_preset_apply_form(form):
 def _investigation_test_choice_label(test):
     category_name = test.category.name_en if test.category else "Uncategorized"
     if test.default_unit:
-        return f"{test.name_en} ({category_name}) ? {test.default_unit}"
+        return f"{test.name_en} ({category_name}) - {test.default_unit}"
     return f"{test.name_en} ({category_name})"
 
 
@@ -173,6 +173,7 @@ def detail(visit_uuid):
 
     investigation_orders = []
     investigation_pending_items = []
+    patient_pending_investigation_items = []
     investigation_item_form = None
 
     if can_view_prescription:
@@ -207,6 +208,12 @@ def detail(visit_uuid):
             .all()
         )
 
+        patient_pending_investigation_items = [
+            item
+            for item in InvestigationService.list_pending_order_items(visit.patient)
+            if item.order.ordered_visit_id != visit.id
+        ]
+
     if can_manage_investigations:
         investigation_item_form = InvestigationOrderItemForm()
         _populate_investigation_item_form(investigation_item_form)
@@ -223,6 +230,7 @@ def detail(visit_uuid):
         can_manage_prescription=can_manage_prescription,
         investigation_orders=investigation_orders,
         investigation_pending_items=investigation_pending_items,
+        patient_pending_investigation_items=patient_pending_investigation_items,
         investigation_item_form=investigation_item_form,
         can_view_investigations=can_view_investigations,
         can_manage_investigations=can_manage_investigations,

@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Enter Investigation Result — Nada Clinic System{% endblock %}
 {% block page_title %}Enter Investigation Result{% endblock %}
@@ -82,7 +82,11 @@
 
         <div class="d-flex gap-2 mt-4">
             {{ form.submit(class="btn btn-primary") }}
-            <a class="btn btn-outline-secondary" href="{{ url_for('investigations.detail', order_uuid=order.uuid) }}">Cancel</a>
+            {% if return_visit is defined and return_visit %}
+                <a class="btn btn-outline-secondary" href="{{ url_for('visits.detail', visit_uuid=return_visit.uuid) }}">Cancel</a>
+            {% else %}
+                <a class="btn btn-outline-secondary" href="{{ url_for('investigations.detail', order_uuid=order.uuid) }}">Cancel</a>
+            {% endif %}
         </div>
     </form>
 </div>

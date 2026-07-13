@@ -7,15 +7,26 @@
         </div>
         <div class="d-flex gap-2 align-items-start flex-wrap">
             <span class="badge text-bg-light align-self-start">Orders: {{ investigation_orders|length }}</span>
+
             {% if investigation_pending_items %}
-                <span class="badge text-bg-warning align-self-start">Pending: {{ investigation_pending_items|length }}</span>
+                <span class="badge text-bg-warning align-self-start">
+                    Pending: {{ investigation_pending_items|length }}
+                </span>
             {% endif %}
+
+            {% if patient_pending_investigation_items is defined and patient_pending_investigation_items %}
+                <span class="badge text-bg-warning align-self-start">
+                    Previous pending: {{ patient_pending_investigation_items|length }}
+                </span>
+            {% endif %}
+
             {% if can_manage_investigations %}
                 <a class="btn btn-sm btn-outline-primary"
                    href="{{ url_for('investigations.new_from_visit', visit_uuid=visit.uuid) }}">
                     New order
                 </a>
             {% endif %}
+
             <a class="btn btn-sm btn-outline-secondary"
                href="{{ url_for('investigations.patient_orders', patient_uuid=visit.patient.uuid) }}">
                 Patient investigations
@@ -62,12 +73,69 @@
             <h3 class="h6 mb-2">Pending results from this visit</h3>
             <ul class="mb-0">
                 {% for item in investigation_pending_items %}
-                    <li>
-                        {{ item.test.name_en }}
-                        <span class="text-muted">— {{ item.status }}</span>
+                    <li class="mb-2">
+                        <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+                            <div>
+                                {{ item.test.name_en }}
+                                <span class="text-muted">— {{ item.status }}</span>
+                            </div>
+
+                            {% if can_manage_investigations %}
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="{{ url_for('investigations.new_result_for_item_from_visit', visit_uuid=visit.uuid, item_uuid=item.uuid) }}">
+                                    Enter result in this visit
+                                </a>
+                            {% endif %}
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
+        </div>
+    {% endif %}
+
+    {% if patient_pending_investigation_items is defined and patient_pending_investigation_items %}
+        <div class="border rounded p-3 bg-light mt-3">
+            <h3 class="h6 mb-2">Pending results from previous visits</h3>
+
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Ordered visit</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in patient_pending_investigation_items %}
+                            <tr>
+                                <td>{{ item.test.name_en }}</td>
+                                <td>
+                                    {% if item.order.ordered_visit %}
+                                        <a href="{{ url_for('visits.detail', visit_uuid=item.order.ordered_visit.uuid) }}">
+                                            {{ item.order.ordered_visit.visit_date.date() if item.order.ordered_visit.visit_date else "Visit" }}
+                                        </a>
+                                    {% else %}
+                                        —
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge text-bg-warning">{{ item.status }}</span>
+                                </td>
+                                <td class="text-end">
+                                    {% if can_manage_investigations %}
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           href="{{ url_for('investigations.new_result_for_item_from_visit', visit_uuid=visit.uuid, item_uuid=item.uuid) }}">
+                                            Enter result in this visit
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     {% endif %}
 </div>

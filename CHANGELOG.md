@@ -954,3 +954,42 @@ No diagnosis-linked preset behavior added.
 - Result report printing.
 - Lab integration.
 - AI behavior.
+
+## 2026-07-13 — Stage 6 Investigation Module Freeze Review
+### Verified
+- Investigation dictionaries, tests, orders, and order items.
+- Investigation presets backend and UI.
+- Ordered and historical investigation result entry.
+- Result review workflow and pending review queue.
+- Patient Workspace investigation section.
+- Timeline investigation events.
+- Unified investigation request printing.
+- Stage 5 prescription regression after unified print migration.
+- RBAC and Reception blocking.
+- Migration head remains 20260713_0063.
+
+### Changed
+- Cleaned investigation test choice label separator in Visit detail.
+
+### Confirmed Out of Scope
+- Real upload/storage.
+- Result report printing.
+- PDF generation.
+- Lab integration.
+- Alerts/notifications.
+- Billing/finance.
+- AI interpretation.
+
+## 2026-07-13 — Sprint 6.6A Enter Pending Result From Current Visit
+### Added
+- Current-Visit ordered investigation result entry route.
+- Visit detail action for pending results from previous visits.
+- Regression tests proving ordered_visit and result_visit can differ.
+
+### Changed
+- Ordered investigation result entry can now preserve original ordered Visit while storing the current Visit as result Visit.
+
+### Confirmed
+- No migration added.
+- Investigation dictionary/settings UI remains deferred.
+- Upload/storage, lab integration, and AI remain out of scope.

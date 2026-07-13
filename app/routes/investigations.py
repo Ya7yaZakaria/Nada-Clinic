@@ -382,6 +382,68 @@ def new_result_for_item(item_uuid):
     )
 
 
+
+@investigations_bp.route("/visits/<visit_uuid>/items/<item_uuid>/result/new", methods=["GET", "POST"])
+@login_required
+@RBACService.require_permission("investigations.manage")
+def new_result_for_item_from_visit(visit_uuid, item_uuid):
+    visit = Visit.query.filter_by(uuid=visit_uuid).first_or_404()
+    item = InvestigationOrderItem.query.filter_by(uuid=item_uuid).first_or_404()
+
+    if item.order.patient_id != visit.patient_id:
+        flash("Investigation item does not belong to this visit patient.", "danger")
+        return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    form = InvestigationResultForm()
+    _populate_abnormal_flag_choices(form)
+
+    if form.validate_on_submit():
+        try:
+            InvestigationService.enter_result_for_order_item(
+                order_item=item,
+                result_visit=visit,
+                result_date=form.result_date.data,
+                lab_name=form.lab_name.data,
+                result_value=form.result_value.data,
+                unit=form.unit.data,
+                reference_range=form.reference_range.data,
+                result_text=form.result_text.data,
+                doctor_comment=form.doctor_comment.data,
+                abnormal_flag=form.abnormal_flag.data,
+                has_attachment=form.has_attachment.data,
+                attachment_label=form.attachment_label.data,
+                external_report_reference=form.external_report_reference.data,
+                actor_user=current_user,
+            )
+        except ValueError as exc:
+            flash(str(exc), "danger")
+            return render_template(
+                "investigations/result_form.html",
+                form=form,
+                item=item,
+                order=item.order,
+                mode="ordered_current_visit",
+                return_visit=visit,
+                PatientService=PatientService,
+            )
+
+        flash("Investigation result entered for current visit.", "success")
+        return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    if form.is_submitted() is False:
+        _apply_test_defaults_to_result_form(form, item.test)
+
+    return render_template(
+        "investigations/result_form.html",
+        form=form,
+        item=item,
+        order=item.order,
+        mode="ordered_current_visit",
+        return_visit=visit,
+        PatientService=PatientService,
+    )
+
+
 @investigations_bp.route("/patients/<patient_uuid>/results/new", methods=["GET", "POST"])
 @login_required
 @RBACService.require_permission("investigations.manage")
