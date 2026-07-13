@@ -796,3 +796,21 @@ No diagnosis-linked preset behavior added.
 - No upload/storage added.
 - No AI behavior added.
 - No migration added.
+
+## 2026-07-13 — Sprint 6.3 Investigation Result Entry
+### Added
+- Hardened InvestigationService result entry logic.
+- Result update/cancel/listing helpers.
+- Ordered result entry form and route.
+- Historical/external result entry from Patient and Visit.
+- Result display in investigation order detail and patient investigations.
+- Result entry UI tests and backend service tests.
+- Sprint 6.3 documentation.
+
+### Confirmed
+- No result review UI added.
+- No print request added.
+- No upload/storage added.
+- No timeline integration added.
+- No AI behavior added.
+- No migration added.

@@ -1,8 +1,8 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Investigation Order — Nada Clinic System{% endblock %}
 {% block page_title %}Investigation Order{% endblock %}
-{% block page_subtitle %}Ordered tests{% endblock %}
+{% block page_subtitle %}Ordered tests and results{% endblock %}
 
 {% block content %}
 <div class="clinic-card mb-3">
@@ -32,7 +32,6 @@
         </div>
         <span class="badge text-bg-light">Items: {{ items|length }}</span>
     </div>
-
 
     {% if can_manage_investigations and preset_apply_form %}
         <div class="border rounded p-3 mb-3 bg-light">
@@ -67,6 +66,7 @@
                         <th>Test</th>
                         <th>Status</th>
                         <th>Notes</th>
+                        <th>Results</th>
                         {% if can_manage_investigations %}
                             <th class="text-end">Actions</th>
                         {% endif %}
@@ -85,9 +85,32 @@
                             </td>
                             <td><span class="badge text-bg-light">{{ item.status }}</span></td>
                             <td>{{ item.item_notes or "—" }}</td>
+                            <td>
+                                {% set item_results = results_by_item.get(item.id, []) %}
+                                {% if item_results %}
+                                    {% for result in item_results %}
+                                        <div class="small">
+                                            <strong>{{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}</strong>
+                                            {% if result.unit %} {{ result.unit }}{% endif %}
+                                            <span class="text-muted">
+                                                · {{ result.result_date }}
+                                                {% if result.lab_name %} · {{ result.lab_name }}{% endif %}
+                                                · {{ result.abnormal_flag }}
+                                            </span>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">No result yet</span>
+                                {% endif %}
+                            </td>
                             {% if can_manage_investigations %}
                                 <td class="text-end">
                                     {% if item.status != "cancelled" %}
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           href="{{ url_for('investigations.new_result_for_item', item_uuid=item.uuid) }}">
+                                            Enter result
+                                        </a>
+
                                         <form method="post"
                                               action="{{ url_for('investigations.cancel_item', item_uuid=item.uuid) }}"
                                               class="d-inline">

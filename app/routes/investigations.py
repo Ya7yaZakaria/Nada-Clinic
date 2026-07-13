@@ -1,14 +1,17 @@
+﻿from datetime import date
+
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from app.forms.investigation_forms import InvestigationOrderForm, InvestigationOrderItemForm
 from app.forms.investigation_preset_forms import InvestigationPresetApplyForm
+from app.forms.investigation_result_forms import HistoricalInvestigationResultForm, InvestigationResultForm
 from app.models import Patient, Visit
-from app.models.investigation import InvestigationOrder, InvestigationOrderItem, InvestigationTest
+from app.models.investigation import InvestigationOrder, InvestigationOrderItem, InvestigationResult, InvestigationTest
 from app.models.investigation_preset import InvestigationPreset
 from app.services.investigation_dictionary_service import InvestigationDictionaryService
-from app.services.investigation_service import InvestigationService
 from app.services.investigation_preset_service import InvestigationPresetService
+from app.services.investigation_service import InvestigationService
 from app.services.patient_service import PatientService
 from app.services.rbac_service import RBACService
 from app.services.visit_service import VisitService
@@ -31,7 +34,6 @@ def _populate_item_form(form):
     ]
 
 
-
 def _populate_preset_apply_form(form):
     form.preset_id.choices = [(0, "Select investigation preset...")] + [
         (preset.id, preset.name)
@@ -39,15 +41,48 @@ def _populate_preset_apply_form(form):
     ]
 
 
+def _populate_abnormal_flag_choices(form):
+    choices = [
+        (InvestigationResult.FLAG_UNKNOWN, "Unknown"),
+        (InvestigationResult.FLAG_NORMAL, "Normal"),
+        (InvestigationResult.FLAG_LOW, "Low"),
+        (InvestigationResult.FLAG_HIGH, "High"),
+        (InvestigationResult.FLAG_ABNORMAL, "Abnormal"),
+        (InvestigationResult.FLAG_CRITICAL, "Critical"),
+        (InvestigationResult.FLAG_NOT_APPLICABLE, "Not applicable"),
+    ]
+    form.abnormal_flag.choices = choices
+
+
+def _populate_historical_result_form(form):
+    form.test_id.choices = [(0, "Select investigation test...")] + [
+        (test.id, _test_choice_label(test))
+        for test in InvestigationDictionaryService.list_active_tests()
+    ]
+    _populate_abnormal_flag_choices(form)
+
+
 def _get_active_preset_or_none(preset_id):
     if not preset_id:
         return None
     return InvestigationPreset.query.filter_by(id=preset_id, is_active=True).first()
 
+
 def _get_active_test_or_none(test_id):
     if not test_id:
         return None
     return InvestigationTest.query.filter_by(id=test_id, is_active=True).first()
+
+
+def _apply_test_defaults_to_result_form(form, test):
+    if not form.unit.data:
+        form.unit.data = test.default_unit
+    if not form.reference_range.data:
+        form.reference_range.data = test.default_reference_range
+    if not form.abnormal_flag.data:
+        form.abnormal_flag.data = InvestigationResult.FLAG_UNKNOWN
+    if not form.result_date.data:
+        form.result_date.data = date.today()
 
 
 @investigations_bp.get("/")
@@ -82,6 +117,12 @@ def patient_orders(patient_uuid):
     )
     pending_items = InvestigationService.list_pending_order_items(patient)
     latest_results = InvestigationService.list_latest_results(patient)
+    all_results = InvestigationService.list_results_for_patient(patient)
+
+    can_manage_investigations = RBACService.user_has_permission(
+        current_user,
+        "investigations.manage",
+    )
 
     return render_template(
         "investigations/patient_orders.html",
@@ -89,6 +130,8 @@ def patient_orders(patient_uuid):
         orders=orders,
         pending_items=pending_items,
         latest_results=latest_results,
+        all_results=all_results,
+        can_manage_investigations=can_manage_investigations,
         PatientService=PatientService,
     )
 
@@ -141,6 +184,11 @@ def detail(order_uuid):
         .all()
     )
 
+    results_by_item = {
+        item.id: InvestigationService.list_results_for_order_item(item)
+        for item in items
+    }
+
     can_manage_investigations = RBACService.user_has_permission(
         current_user,
         "investigations.manage",
@@ -158,6 +206,7 @@ def detail(order_uuid):
         "investigations/detail.html",
         order=order,
         items=items,
+        results_by_item=results_by_item,
         item_form=item_form,
         preset_apply_form=preset_apply_form,
         can_manage_investigations=can_manage_investigations,
@@ -225,6 +274,169 @@ def apply_preset(order_uuid):
 
     flash(f"Investigation preset applied: {preset.name} ({len(created_items)} items).", "success")
     return redirect(url_for("investigations.detail", order_uuid=order.uuid))
+
+
+@investigations_bp.route("/items/<item_uuid>/result/new", methods=["GET", "POST"])
+@login_required
+@RBACService.require_permission("investigations.manage")
+def new_result_for_item(item_uuid):
+    item = InvestigationOrderItem.query.filter_by(uuid=item_uuid).first_or_404()
+    form = InvestigationResultForm()
+    _populate_abnormal_flag_choices(form)
+
+    if form.validate_on_submit():
+        try:
+            InvestigationService.enter_result_for_order_item(
+                order_item=item,
+                result_visit=item.order.ordered_visit,
+                result_date=form.result_date.data,
+                lab_name=form.lab_name.data,
+                result_value=form.result_value.data,
+                unit=form.unit.data,
+                reference_range=form.reference_range.data,
+                result_text=form.result_text.data,
+                doctor_comment=form.doctor_comment.data,
+                abnormal_flag=form.abnormal_flag.data,
+                has_attachment=form.has_attachment.data,
+                attachment_label=form.attachment_label.data,
+                external_report_reference=form.external_report_reference.data,
+                actor_user=current_user,
+            )
+        except ValueError as exc:
+            flash(str(exc), "danger")
+            return render_template(
+                "investigations/result_form.html",
+                form=form,
+                item=item,
+                order=item.order,
+                mode="ordered",
+                PatientService=PatientService,
+            )
+
+        flash("Investigation result entered.", "success")
+        return redirect(url_for("investigations.detail", order_uuid=item.order.uuid))
+
+    if form.is_submitted() is False:
+        _apply_test_defaults_to_result_form(form, item.test)
+
+    return render_template(
+        "investigations/result_form.html",
+        form=form,
+        item=item,
+        order=item.order,
+        mode="ordered",
+        PatientService=PatientService,
+    )
+
+
+@investigations_bp.route("/patients/<patient_uuid>/results/new", methods=["GET", "POST"])
+@login_required
+@RBACService.require_permission("investigations.manage")
+def new_historical_result_for_patient(patient_uuid):
+    patient = Patient.query.filter_by(uuid=patient_uuid).first_or_404()
+    form = HistoricalInvestigationResultForm()
+    _populate_historical_result_form(form)
+
+    if form.validate_on_submit():
+        test = _get_active_test_or_none(form.test_id.data)
+
+        try:
+            InvestigationService.enter_historical_result(
+                patient=patient,
+                test=test,
+                result_date=form.result_date.data,
+                lab_name=form.lab_name.data,
+                result_value=form.result_value.data,
+                unit=form.unit.data,
+                reference_range=form.reference_range.data,
+                result_text=form.result_text.data,
+                doctor_comment=form.doctor_comment.data,
+                abnormal_flag=form.abnormal_flag.data,
+                has_attachment=form.has_attachment.data,
+                attachment_label=form.attachment_label.data,
+                external_report_reference=form.external_report_reference.data,
+                actor_user=current_user,
+            )
+        except ValueError as exc:
+            flash(str(exc), "danger")
+            return render_template(
+                "investigations/historical_result_form.html",
+                form=form,
+                patient=patient,
+                visit=None,
+                PatientService=PatientService,
+            )
+
+        flash("Historical investigation result entered.", "success")
+        return redirect(url_for("investigations.patient_orders", patient_uuid=patient.uuid))
+
+    if form.is_submitted() is False:
+        form.result_date.data = date.today()
+        form.abnormal_flag.data = InvestigationResult.FLAG_UNKNOWN
+
+    return render_template(
+        "investigations/historical_result_form.html",
+        form=form,
+        patient=patient,
+        visit=None,
+        PatientService=PatientService,
+    )
+
+
+@investigations_bp.route("/visits/<visit_uuid>/results/new", methods=["GET", "POST"])
+@login_required
+@RBACService.require_permission("investigations.manage")
+def new_historical_result_for_visit(visit_uuid):
+    visit = Visit.query.filter_by(uuid=visit_uuid).first_or_404()
+    patient = visit.patient
+    form = HistoricalInvestigationResultForm()
+    _populate_historical_result_form(form)
+
+    if form.validate_on_submit():
+        test = _get_active_test_or_none(form.test_id.data)
+
+        try:
+            InvestigationService.enter_historical_result(
+                patient=patient,
+                test=test,
+                result_visit=visit,
+                result_date=form.result_date.data,
+                lab_name=form.lab_name.data,
+                result_value=form.result_value.data,
+                unit=form.unit.data,
+                reference_range=form.reference_range.data,
+                result_text=form.result_text.data,
+                doctor_comment=form.doctor_comment.data,
+                abnormal_flag=form.abnormal_flag.data,
+                has_attachment=form.has_attachment.data,
+                attachment_label=form.attachment_label.data,
+                external_report_reference=form.external_report_reference.data,
+                actor_user=current_user,
+            )
+        except ValueError as exc:
+            flash(str(exc), "danger")
+            return render_template(
+                "investigations/historical_result_form.html",
+                form=form,
+                patient=patient,
+                visit=visit,
+                PatientService=PatientService,
+            )
+
+        flash("Historical investigation result entered.", "success")
+        return redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    if form.is_submitted() is False:
+        form.result_date.data = date.today()
+        form.abnormal_flag.data = InvestigationResult.FLAG_UNKNOWN
+
+    return render_template(
+        "investigations/historical_result_form.html",
+        form=form,
+        patient=patient,
+        visit=visit,
+        PatientService=PatientService,
+    )
 
 
 @investigations_bp.post("/items/<item_uuid>/cancel")

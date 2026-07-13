@@ -2,16 +2,28 @@
 
 {% block title %}Patient Investigations — Nada Clinic System{% endblock %}
 {% block page_title %}Patient Investigations{% endblock %}
-{% block page_subtitle %}Orders, pending items, and latest results{% endblock %}
+{% block page_subtitle %}Orders, pending items, latest results, and historical results{% endblock %}
 
 {% block content %}
 <div class="clinic-card mb-3">
-    <p class="section-kicker">Patient</p>
-    <h1 class="h4">
-        <a href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">
-            {{ PatientService.get_display_name(patient) }}
-        </a>
-    </h1>
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
+        <div>
+            <p class="section-kicker">Patient</p>
+            <h1 class="h4">
+                <a href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">
+                    {{ PatientService.get_display_name(patient) }}
+                </a>
+            </h1>
+        </div>
+        {% if can_manage_investigations %}
+            <div>
+                <a class="btn btn-primary"
+                   href="{{ url_for('investigations.new_historical_result_for_patient', patient_uuid=patient.uuid) }}">
+                    Add historical result
+                </a>
+            </div>
+        {% endif %}
+    </div>
 </div>
 
 <div class="row g-3">
@@ -22,11 +34,21 @@
                 <ul class="list-group list-group-flush">
                     {% for item in pending_items %}
                         <li class="list-group-item px-0">
-                            <strong>{{ item.test.name_en }}</strong>
-                            <div class="small text-muted">
-                                Ordered: {{ item.order.created_at.strftime("%Y-%m-%d") }}
-                                {% if item.order.ordered_visit %}
-                                    · <a href="{{ url_for('visits.detail', visit_uuid=item.order.ordered_visit.uuid) }}">Visit</a>
+                            <div class="d-flex justify-content-between gap-2">
+                                <div>
+                                    <strong>{{ item.test.name_en }}</strong>
+                                    <div class="small text-muted">
+                                        Ordered: {{ item.order.created_at.strftime("%Y-%m-%d") }}
+                                        {% if item.order.ordered_visit %}
+                                            · <a href="{{ url_for('visits.detail', visit_uuid=item.order.ordered_visit.uuid) }}">Visit</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% if can_manage_investigations %}
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       href="{{ url_for('investigations.new_result_for_item', item_uuid=item.uuid) }}">
+                                        Enter
+                                    </a>
                                 {% endif %}
                             </div>
                         </li>
@@ -47,7 +69,7 @@
                         <li class="list-group-item px-0">
                             <strong>{{ result.test.name_en }}</strong>
                             <div>
-                                {{ result.result_value or result.result_text or "Result entered" }}
+                                {{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}
                                 {% if result.unit %} {{ result.unit }}{% endif %}
                             </div>
                             <div class="small text-muted">
@@ -63,6 +85,49 @@
             {% endif %}
         </div>
     </div>
+</div>
+
+<div class="clinic-card mt-3">
+    <h2 class="h5">All active results</h2>
+    {% if all_results %}
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>Date</th>
+                        <th>Lab</th>
+                        <th>Flag</th>
+                        <th>Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in all_results %}
+                        <tr>
+                            <td><strong>{{ result.test.name_en }}</strong></td>
+                            <td>
+                                {{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}
+                                {% if result.unit %} {{ result.unit }}{% endif %}
+                            </td>
+                            <td>{{ result.result_date }}</td>
+                            <td>{{ result.lab_name or "—" }}</td>
+                            <td><span class="badge text-bg-light">{{ result.abnormal_flag }}</span></td>
+                            <td>
+                                {% if result.order_item %}
+                                    Ordered item
+                                {% else %}
+                                    Historical / external
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-0">No active results recorded.</p>
+    {% endif %}
 </div>
 
 <div class="clinic-card mt-3">

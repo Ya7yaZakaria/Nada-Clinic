@@ -1,0 +1,89 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Enter Investigation Result — Nada Clinic System{% endblock %}
+{% block page_title %}Enter Investigation Result{% endblock %}
+{% block page_subtitle %}Ordered investigation result{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <p class="section-kicker">Ordered Investigation</p>
+    <h1 class="h4">{{ item.test.name_en }}</h1>
+    <p class="text-muted mb-0">
+        Patient:
+        <a href="{{ url_for('patients.detail', patient_uuid=order.patient.uuid) }}">
+            {{ PatientService.get_display_name(order.patient) }}
+        </a>
+        · Order status: {{ order.status }}
+    </p>
+</div>
+
+<div class="clinic-card">
+    <form method="post">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="{{ form.result_date.id }}">{{ form.result_date.label.text }}</label>
+                {{ form.result_date(class="form-control") }}
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="{{ form.lab_name.id }}">{{ form.lab_name.label.text }}</label>
+                {{ form.lab_name(class="form-control", placeholder="External lab name") }}
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="{{ form.abnormal_flag.id }}">{{ form.abnormal_flag.label.text }}</label>
+                {{ form.abnormal_flag(class="form-select") }}
+            </div>
+
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="{{ form.result_value.id }}">{{ form.result_value.label.text }}</label>
+                {{ form.result_value(class="form-control", placeholder="e.g. 2.1") }}
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="{{ form.unit.id }}">{{ form.unit.label.text }}</label>
+                {{ form.unit(class="form-control") }}
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="{{ form.reference_range.id }}">{{ form.reference_range.label.text }}</label>
+                {{ form.reference_range(class="form-control") }}
+            </div>
+
+            <div class="col-12">
+                <label class="form-label" for="{{ form.result_text.id }}">{{ form.result_text.label.text }}</label>
+                {{ form.result_text(class="form-control", rows="4", placeholder="For CBC/HSG/Semen Analysis/report style results") }}
+            </div>
+
+            <div class="col-12">
+                <label class="form-label" for="{{ form.doctor_comment.id }}">{{ form.doctor_comment.label.text }}</label>
+                {{ form.doctor_comment(class="form-control", rows="3", placeholder="Doctor-only comment") }}
+            </div>
+
+            <div class="col-12">
+                <div class="form-check">
+                    {{ form.has_attachment(class="form-check-input") }}
+                    <label class="form-check-label" for="{{ form.has_attachment.id }}">
+                        {{ form.has_attachment.label.text }}
+                    </label>
+                </div>
+                <div class="form-text">
+                    Placeholder only. Real upload/storage is Stage 7.
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label" for="{{ form.attachment_label.id }}">{{ form.attachment_label.label.text }}</label>
+                {{ form.attachment_label(class="form-control", placeholder="e.g. printed report / PDF later") }}
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label" for="{{ form.external_report_reference.id }}">{{ form.external_report_reference.label.text }}</label>
+                {{ form.external_report_reference(class="form-control", placeholder="Optional external reference") }}
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+            <a class="btn btn-outline-secondary" href="{{ url_for('investigations.detail', order_uuid=order.uuid) }}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

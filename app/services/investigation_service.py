@@ -1,5 +1,7 @@
 ﻿from datetime import datetime, timezone
 
+from sqlalchemy import or_
+
 from app.extensions import db
 from app.models.investigation import (
     InvestigationOrder,
@@ -51,6 +53,57 @@ class InvestigationService:
             raise ValueError("Invalid investigation test")
         if not test.is_active:
             raise ValueError("Inactive investigation test cannot be used")
+
+    @staticmethod
+    def _validate_result(result):
+        if not result:
+            raise ValueError("Investigation result is required")
+        if not isinstance(result, InvestigationResult):
+            raise ValueError("Invalid investigation result")
+
+    @staticmethod
+    def _validate_abnormal_flag(abnormal_flag):
+        if abnormal_flag not in InvestigationResult.ABNORMAL_FLAGS:
+            raise ValueError("Invalid abnormal flag")
+
+    @classmethod
+    def _has_result_content(
+        cls,
+        *,
+        result_value=None,
+        result_text=None,
+        has_attachment=False,
+        attachment_label=None,
+        external_report_reference=None,
+    ):
+        return any(
+            [
+                bool(cls._clean(result_value)),
+                bool(cls._clean(result_text)),
+                bool(has_attachment),
+                bool(cls._clean(attachment_label)),
+                bool(cls._clean(external_report_reference)),
+            ]
+        )
+
+    @classmethod
+    def _require_result_content(
+        cls,
+        *,
+        result_value=None,
+        result_text=None,
+        has_attachment=False,
+        attachment_label=None,
+        external_report_reference=None,
+    ):
+        if not cls._has_result_content(
+            result_value=result_value,
+            result_text=result_text,
+            has_attachment=has_attachment,
+            attachment_label=attachment_label,
+            external_report_reference=external_report_reference,
+        ):
+            raise ValueError("Investigation result value, text, or attachment reference is required")
 
     @classmethod
     def create_order(
@@ -177,6 +230,31 @@ class InvestigationService:
         return order
 
     @classmethod
+    def _sync_order_item_status_from_results(cls, order_item):
+        if not order_item:
+            return None
+
+        if order_item.status == InvestigationOrderItem.STATUS_CANCELLED:
+            return order_item
+
+        active_results = (
+            InvestigationResult.query.filter_by(order_item_id=order_item.id)
+            .filter(InvestigationResult.status != InvestigationResult.STATUS_CANCELLED)
+            .all()
+        )
+
+        if not active_results:
+            order_item.status = InvestigationOrderItem.STATUS_PENDING_RESULT
+        elif any(result.status == InvestigationResult.STATUS_REVIEWED for result in active_results):
+            order_item.status = InvestigationOrderItem.STATUS_REVIEWED
+        else:
+            order_item.status = InvestigationOrderItem.STATUS_RESULT_ENTERED
+
+        db.session.commit()
+        cls._update_order_status_from_items(order_item.order)
+        return order_item
+
+    @classmethod
     def enter_result_for_order_item(
         cls,
         *,
@@ -205,14 +283,22 @@ class InvestigationService:
             raise ValueError("Result date is required")
 
         cls._validate_visit(result_visit)
+        cls._validate_abnormal_flag(abnormal_flag)
+        cls._require_result_content(
+            result_value=result_value,
+            result_text=result_text,
+            has_attachment=has_attachment,
+            attachment_label=attachment_label,
+            external_report_reference=external_report_reference,
+        )
 
         order = order_item.order
 
+        if order.status == InvestigationOrder.STATUS_CANCELLED:
+            raise ValueError("Cannot enter result for cancelled investigation order")
+
         if result_visit is not None and result_visit.patient_id != order.patient_id:
             raise ValueError("Result visit does not belong to patient")
-
-        if abnormal_flag not in InvestigationResult.ABNORMAL_FLAGS:
-            raise ValueError("Invalid abnormal flag")
 
         result = InvestigationResult(
             patient_id=order.patient_id,
@@ -273,8 +359,14 @@ class InvestigationService:
         if not result_date:
             raise ValueError("Result date is required")
 
-        if abnormal_flag not in InvestigationResult.ABNORMAL_FLAGS:
-            raise ValueError("Invalid abnormal flag")
+        cls._validate_abnormal_flag(abnormal_flag)
+        cls._require_result_content(
+            result_value=result_value,
+            result_text=result_text,
+            has_attachment=has_attachment,
+            attachment_label=attachment_label,
+            external_report_reference=external_report_reference,
+        )
 
         result = InvestigationResult(
             patient=patient,
@@ -299,6 +391,111 @@ class InvestigationService:
 
         db.session.add(result)
         db.session.commit()
+        return result
+
+    @classmethod
+    def update_result(
+        cls,
+        result,
+        *,
+        result_date=None,
+        result_visit=None,
+        lab_name=None,
+        result_value=None,
+        unit=None,
+        reference_range=None,
+        result_text=None,
+        doctor_comment=None,
+        abnormal_flag=None,
+        has_attachment=None,
+        attachment_label=None,
+        external_report_reference=None,
+        actor_user=None,
+    ):
+        cls._validate_result(result)
+
+        if result.status == InvestigationResult.STATUS_CANCELLED:
+            raise ValueError("Cannot update cancelled investigation result")
+
+        cls._validate_visit(result_visit)
+
+        if result_visit is not None and result_visit.patient_id != result.patient_id:
+            raise ValueError("Result visit does not belong to patient")
+
+        next_result_value = result.result_value if result_value is None else cls._clean(result_value) or None
+        next_result_text = result.result_text if result_text is None else cls._clean(result_text) or None
+        next_has_attachment = result.has_attachment if has_attachment is None else bool(has_attachment)
+        next_attachment_label = result.attachment_label if attachment_label is None else cls._clean(attachment_label) or None
+        next_external_report_reference = (
+            result.external_report_reference
+            if external_report_reference is None
+            else cls._clean(external_report_reference) or None
+        )
+
+        cls._require_result_content(
+            result_value=next_result_value,
+            result_text=next_result_text,
+            has_attachment=next_has_attachment,
+            attachment_label=next_attachment_label,
+            external_report_reference=next_external_report_reference,
+        )
+
+        if result_date is not None:
+            result.result_date = result_date
+
+        if result_visit is not None:
+            result.result_visit = result_visit
+
+        if lab_name is not None:
+            result.lab_name = cls._clean(lab_name) or None
+
+        if result_value is not None:
+            result.result_value = next_result_value
+
+        if unit is not None:
+            result.unit = cls._clean(unit) or result.test.default_unit
+
+        if reference_range is not None:
+            result.reference_range = cls._clean(reference_range) or result.test.default_reference_range
+
+        if result_text is not None:
+            result.result_text = next_result_text
+
+        if doctor_comment is not None:
+            result.doctor_comment = cls._clean(doctor_comment) or None
+
+        if abnormal_flag is not None:
+            cls._validate_abnormal_flag(abnormal_flag)
+            result.abnormal_flag = abnormal_flag
+
+        if has_attachment is not None:
+            result.has_attachment = next_has_attachment
+
+        if attachment_label is not None:
+            result.attachment_label = next_attachment_label
+
+        if external_report_reference is not None:
+            result.external_report_reference = next_external_report_reference
+
+        if actor_user is not None:
+            result.entered_by_user = actor_user
+
+        db.session.commit()
+        return result
+
+    @classmethod
+    def cancel_result(cls, result):
+        cls._validate_result(result)
+
+        if result.status == InvestigationResult.STATUS_CANCELLED:
+            return result
+
+        result.status = InvestigationResult.STATUS_CANCELLED
+        db.session.commit()
+
+        if result.order_item:
+            cls._sync_order_item_status_from_results(result.order_item)
+
         return result
 
     @staticmethod
@@ -356,6 +553,74 @@ class InvestigationService:
         )
 
     @classmethod
+    def list_results_for_patient(cls, patient, *, include_cancelled=False):
+        cls._validate_patient(patient)
+
+        query = InvestigationResult.query.filter_by(patient_id=patient.id)
+
+        if not include_cancelled:
+            query = query.filter(InvestigationResult.status != InvestigationResult.STATUS_CANCELLED)
+
+        return (
+            query.order_by(InvestigationResult.result_date.desc(), InvestigationResult.id.desc())
+            .all()
+        )
+
+    @classmethod
+    def list_results_for_visit(cls, visit, *, include_ordered_visit=True, include_cancelled=False):
+        cls._validate_visit(visit)
+        if visit is None:
+            raise ValueError("Visit is required")
+
+        if include_ordered_visit:
+            query = InvestigationResult.query.filter(
+                or_(
+                    InvestigationResult.result_visit_id == visit.id,
+                    InvestigationResult.ordered_visit_id == visit.id,
+                )
+            )
+        else:
+            query = InvestigationResult.query.filter(
+                InvestigationResult.result_visit_id == visit.id
+            )
+
+        if not include_cancelled:
+            query = query.filter(InvestigationResult.status != InvestigationResult.STATUS_CANCELLED)
+
+        return (
+            query.order_by(InvestigationResult.result_date.desc(), InvestigationResult.id.desc())
+            .all()
+        )
+
+    @classmethod
+    def list_results_for_order_item(cls, order_item, *, include_cancelled=False):
+        if not order_item:
+            raise ValueError("Investigation order item is required")
+
+        query = InvestigationResult.query.filter_by(order_item_id=order_item.id)
+
+        if not include_cancelled:
+            query = query.filter(InvestigationResult.status != InvestigationResult.STATUS_CANCELLED)
+
+        return (
+            query.order_by(InvestigationResult.result_date.desc(), InvestigationResult.id.desc())
+            .all()
+        )
+
+    @classmethod
+    def list_entered_unreviewed_results(cls, patient=None):
+        query = InvestigationResult.query.filter_by(status=InvestigationResult.STATUS_ENTERED)
+
+        if patient is not None:
+            cls._validate_patient(patient)
+            query = query.filter(InvestigationResult.patient_id == patient.id)
+
+        return (
+            query.order_by(InvestigationResult.result_date.asc(), InvestigationResult.id.asc())
+            .all()
+        )
+
+    @classmethod
     def find_missing_tests(cls, patient, required_tests):
         cls._validate_patient(patient)
 
@@ -371,6 +636,9 @@ class InvestigationService:
     def review_result(result, *, review_note=None, abnormal_flag=None, actor_user=None):
         if not result:
             raise ValueError("Investigation result is required")
+
+        if result.status == InvestigationResult.STATUS_CANCELLED:
+            raise ValueError("Cannot review cancelled investigation result")
 
         if abnormal_flag is not None:
             if abnormal_flag not in InvestigationResult.ABNORMAL_FLAGS:

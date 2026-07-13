@@ -177,3 +177,14 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Added sidebar Investigation Presets link.
 - Kept result entry UI, historical result UI, print request, upload/storage, lab integration, AI behavior, and migration out of scope.
 - Next action: verify tests/routes, then Sprint 6.3A Result Entry Backend.
+
+## 2026-07-13 — Sprint 6.3 Investigation Result Entry
+- Added investigation result entry backend and UI.
+- Doctors can enter result for ordered investigation item.
+- Doctors can enter historical/external result from Patient or Visit context.
+- Results store lab name, result date, value/text, doctor comment, abnormal flag, and attachment placeholders.
+- Added result update/cancel/listing service helpers.
+- Added result display in order detail and patient investigations.
+- Reception remains blocked from result entry.
+- Kept result review UI, print request, upload/storage, timeline integration, lab integration, and AI behavior out of scope.
+- Next action: verify tests/routes, then Sprint 6.4 Result Review + Patient Workspace.
