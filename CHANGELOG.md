@@ -713,3 +713,25 @@ No diagnosis-linked preset behavior added.
 - No safety notes printed.
 - Reception remains blocked from treatment workflow.
 - No print locking, print history, PDF generation, or AI prescribing added.
+
+## 2026-07-13 — Sprint 6.1A Investigation Dictionaries + Core Models
+### Added
+- Investigation category and test models.
+- Investigation order and order item models.
+- Investigation result model.
+- Support for historical/external results without prior order.
+- Support for separate ordered visit and result visit.
+- Lab name, result date, result value/unit/reference range/text, doctor comment, abnormal flag, and attachment placeholder fields.
+- Investigation dictionary and investigation services.
+- Latest result, pending ordered result, and missing test service helpers.
+- Investigation RBAC permissions for Doctor/Admin.
+- Migration `20260713_0061_add_investigation_core`.
+- Model/service tests and Sprint 6.1A documentation.
+
+### Confirmed
+- No UI added.
+- No presets added.
+- No print request added.
+- No real file upload/storage added.
+- No lab integration added.
+- No AI behavior added.

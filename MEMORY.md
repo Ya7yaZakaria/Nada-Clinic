@@ -136,3 +136,13 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Added final freeze regression checks for print content and navigation.
 - Confirmed no migration, print locking, print history, doctor identity, diagnosis printing, PDF generation, or AI prescribing added.
 - Next action after verification: close Stage 5 and prepare Stage 6 Investigations.
+
+## 2026-07-13 — Sprint 6.1A Investigation Dictionaries + Core Models
+- Added investigation backend foundation: categories, tests, orders, order items, and results.
+- Supports historical/external results without prior order.
+- Supports separate ordered_visit and result_visit.
+- Stores lab name, result date, value/unit/reference/text, doctor comment, abnormal flag, and attachment placeholders for Stage 7.
+- Added latest result, pending ordered result, and missing test service helpers.
+- Added investigation RBAC permissions for Doctor/Admin while Reception remains blocked.
+- No UI, presets, print request, real upload/storage, lab integration, or AI behavior added.
+- Next action: verify migration/tests, then Sprint 6.1B Investigation Orders From Visit UI.

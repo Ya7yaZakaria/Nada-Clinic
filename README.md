@@ -489,3 +489,6 @@ Sprint 5.6 adds a standalone browser print page for Visit prescriptions. The pri
 
 ## Sprint 5.7 — Prescription Module Freeze Review
 Sprint 5.7 closes the Stage 5 prescription foundation with a cleanup and freeze review. It fixes duplicate mobile navigation for Prescription Presets, updates the stale sidebar stage label, cleans prescription UI test strings, adds final regression checks, and confirms no migration or unrelated prescription features are introduced.
+
+## Sprint 6.1A — Investigation Dictionaries + Core Models
+Sprint 6.1A adds the backend foundation for investigations: categories, tests, orders, order items, results, historical results without prior orders, separate ordered/result visits, latest result lookup, pending ordered result lookup, missing test detection, and investigation RBAC permissions. No UI, presets, print, upload storage, lab integration, or AI behavior is added.

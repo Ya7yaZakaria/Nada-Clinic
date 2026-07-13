@@ -26,6 +26,10 @@ class RBACService:
         "prescriptions.view": "View prescriptions",
         "prescriptions.manage": "Manage prescriptions",
         "prescription_presets.manage": "Manage prescription presets",
+        "investigations.view": "View investigations",
+        "investigations.manage": "Manage investigations",
+        "investigation_settings.manage": "Manage investigation dictionaries",
+        "investigation_results.review": "Review investigation results",
     }
 
     ROLE_PERMISSION_MATRIX = {
@@ -41,6 +45,10 @@ class RBACService:
             "prescriptions.manage",
             "prescriptions.view",
             "prescription_presets.manage",
+            "investigations.view",
+            "investigations.manage",
+            "investigation_settings.manage",
+            "investigation_results.review",
         ],
         "Reception": [
             "dashboard.view",
