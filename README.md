@@ -534,3 +534,6 @@ Sprint 7.1 adds the backend foundation for patient documents: PatientDocument me
 
 ## Sprint 7.2 — Patient Documents UI
 Sprint 7.2 adds UI workflows for patient documents: upload, list, detail, download, archive, and Patient Workspace document display. It reuses the Sprint 7.1 DocumentService and keeps OCR, AI extraction, cloud storage, drawing tools, ultrasound workflows, and investigation result attachment UI out of scope.
+
+## Sprint 7.3 — Attach Documents to Investigation Results
+Sprint 7.3 links the Documents module to investigation results. Doctors can upload a real report file from an InvestigationResult context, the file is stored as a PatientDocument linked to the result, and attached reports appear on investigation order and patient investigation pages. OCR, AI extraction, lab integration, PDF parsing, cloud storage, and drawing tools remain out of scope.

@@ -116,6 +116,27 @@
                                                 <div class="small text-muted">Comment: {{ result.doctor_comment }}</div>
                                             {% endif %}
 
+                                            {% set result_documents = result.documents.filter_by(is_active=True).all() %}
+                                            {% if result_documents %}
+                                                <div class="small mt-2">
+                                                    <span class="fw-semibold">Attached reports:</span>
+                                                    {% for document in result_documents %}
+                                                        <a href="{{ url_for('documents.detail', document_uuid=document.uuid) }}">
+                                                            {{ document.title }}
+                                                        </a>{% if not loop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+
+                                            {% if can_manage_documents %}
+                                                <div class="mt-2">
+                                                    <a class="btn btn-sm btn-outline-secondary"
+                                                       href="{{ url_for('documents.new_investigation_result_document', result_uuid=result.uuid) }}">
+                                                        Attach report
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+
                                             {% if can_review_results and result.status == "entered" %}
                                                 <form method="post"
                                                       action="{{ url_for('investigations.review_result', result_uuid=result.uuid) }}"

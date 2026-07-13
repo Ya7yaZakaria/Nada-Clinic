@@ -289,3 +289,13 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Added backend model/service tests and Sprint 7.1 documentation.
 - Kept UI, OCR, AI extraction, cloud storage, drawing tools, and ultrasound module out of scope.
 - Next action: verify migration/tests, then Sprint 7.2 Patient Documents UI.
+
+## 2026-07-13 - Sprint 7.3 Attach Documents to Investigation Results
+- Added route to upload a real document from InvestigationResult context.
+- Linked PatientDocument to InvestigationResult using the Stage 7 document foundation.
+- Preserved Stage 6 placeholder fields for compatibility.
+- Displayed attached reports on investigation order detail and patient investigations pages.
+- Improved document detail link back to related investigation result/order.
+- Added tests for doctor upload, patient investigations display, Reception block, and invalid file rejection.
+- Kept OCR, AI extraction, lab integration, PDF parsing, cloud storage, and drawing/annotation out of scope.
+- Next action: verify tests/routes, then Sprint 7.4 Documents & Storage Freeze Review.

@@ -1032,3 +1032,22 @@ No diagnosis-linked preset behavior added.
 - Drawing/annotation.
 - Ultrasound module.
 - Investigation result attachment UI.
+
+## 2026-07-13 — Sprint 7.3 Attach Documents to Investigation Results
+### Added
+- InvestigationResult document upload route.
+- PatientDocument linkage to InvestigationResult.
+- Attached report display on investigation order detail.
+- Attached report display on patient investigations page.
+- Improved document detail investigation result link.
+- Investigation document attachment tests.
+- Sprint 7.3 documentation.
+
+### Confirmed Out of Scope
+- OCR.
+- AI extraction.
+- Lab integration.
+- Result interpretation.
+- PDF parsing.
+- Drawing/annotation.
+- Cloud storage.

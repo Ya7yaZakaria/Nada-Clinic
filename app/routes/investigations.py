@@ -178,6 +178,7 @@ def patient_orders(patient_uuid):
         missing_workup_tests=missing_workup_tests,
         can_manage_investigations=can_manage_investigations,
         can_review_results=can_review_results,
+        can_manage_documents=RBACService.user_has_permission(current_user, "documents.manage"),
         review_form=_build_review_form(),
         PatientService=PatientService,
     )
@@ -263,6 +264,7 @@ def detail(order_uuid):
         review_form=_build_review_form(),
         can_manage_investigations=can_manage_investigations,
         can_review_results=can_review_results,
+        can_manage_documents=RBACService.user_has_permission(current_user, "documents.manage"),
         PatientService=PatientService,
         VisitService=VisitService,
     )

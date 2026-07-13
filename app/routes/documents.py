@@ -1,10 +1,10 @@
-﻿from pathlib import Path
+from pathlib import Path
 
 from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, send_file, url_for
 from flask_login import current_user, login_required
 
 from app.forms.document_forms import DocumentUploadForm
-from app.models import Patient, PatientDocument
+from app.models import InvestigationResult, Patient, PatientDocument
 from app.services.document_service import DocumentService
 from app.services.patient_service import PatientService
 from app.services.rbac_service import RBACService
@@ -15,6 +15,10 @@ documents_bp = Blueprint("documents", __name__)
 
 def _get_patient_or_404(patient_uuid):
     return Patient.query.filter_by(uuid=patient_uuid).first_or_404()
+
+
+def _get_investigation_result_or_404(result_uuid):
+    return InvestigationResult.query.filter_by(uuid=result_uuid).first_or_404()
 
 
 def _get_document_or_404(document_uuid, include_inactive=False):
@@ -130,3 +134,63 @@ def archive(document_uuid):
 
     flash("Document archived.", "warning")
     return redirect(url_for("documents.patient_documents", patient_uuid=document.patient.uuid))
+
+
+@documents_bp.route("/investigations/results/<result_uuid>/documents/new", methods=["GET", "POST"])
+@login_required
+@RBACService.require_permission("documents.manage")
+def new_investigation_result_document(result_uuid):
+    result = _get_investigation_result_or_404(result_uuid)
+    form = DocumentUploadForm()
+
+    if request.method == "GET":
+        form.document_type.data = PatientDocument.TYPE_INVESTIGATION_REPORT
+        if not form.title.data:
+            form.title.data = f"{result.test.name_en} report"
+
+    if form.validate_on_submit():
+        try:
+            document = DocumentService.save_uploaded_file(
+                patient=result.patient,
+                visit=result.result_visit,
+                investigation_result=result,
+                file_storage=form.file.data,
+                document_type=form.document_type.data or PatientDocument.TYPE_INVESTIGATION_REPORT,
+                title=form.title.data,
+                description=form.description.data,
+                actor_user=current_user,
+            )
+        except ValueError as exc:
+            flash(str(exc), "danger")
+            return render_template(
+                "documents/new_investigation_result.html",
+                result=result,
+                patient=result.patient,
+                form=form,
+                PatientService=PatientService,
+            )
+
+        # Preserve Stage 6 placeholder compatibility while linking a real document.
+        result.has_attachment = True
+        if not result.attachment_label:
+            result.attachment_label = document.title
+        if not result.external_report_reference:
+            result.external_report_reference = document.original_filename
+
+        from app.extensions import db
+        db.session.commit()
+
+        flash("Investigation result document uploaded.", "success")
+        if result.order_item:
+            return redirect(url_for("investigations.detail", order_uuid=result.order_item.order.uuid))
+
+        return redirect(url_for("investigations.patient_orders", patient_uuid=result.patient.uuid))
+
+    return render_template(
+        "documents/new_investigation_result.html",
+        result=result,
+        patient=result.patient,
+        form=form,
+        PatientService=PatientService,
+    )
+

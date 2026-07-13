@@ -1,0 +1,89 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Attach Investigation Report — Nada Clinic System{% endblock %}
+{% block page_title %}Attach Investigation Report{% endblock %}
+{% block page_subtitle %}Upload a real file linked to an investigation result{% endblock %}
+
+{% block content %}
+{% set display_name = PatientService.get_display_name(patient) %}
+
+<div class="clinic-card mb-3">
+    <div class="d-flex justify-content-between gap-2">
+        <div>
+            <p class="section-kicker">Investigation Document</p>
+            <h1 class="h4 mb-1">Attach report</h1>
+            <p class="text-muted mb-0">
+                {{ display_name }} · MRN {{ patient.formatted_mrn }} · {{ result.test.name_en }} · {{ result.result_date }}
+            </p>
+        </div>
+
+        {% if result.order_item %}
+            <a class="btn btn-outline-secondary align-self-start"
+               href="{{ url_for('investigations.detail', order_uuid=result.order_item.order.uuid) }}">
+                Cancel
+            </a>
+        {% else %}
+            <a class="btn btn-outline-secondary align-self-start"
+               href="{{ url_for('investigations.patient_orders', patient_uuid=patient.uuid) }}">
+                Cancel
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="clinic-card">
+    <form method="post" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                {{ form.document_type.label(class="form-label") }}
+                {{ form.document_type(class="form-select") }}
+                {% for error in form.document_type.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 col-md-6">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control", placeholder="Report title") }}
+                {% for error in form.title.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-control", rows="3", placeholder="Optional notes") }}
+                {% for error in form.description.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12">
+                {{ form.file.label(class="form-label") }}
+                {{ form.file(class="form-control") }}
+                <div class="form-text">Allowed: PDF, PNG, JPG, JPEG, WEBP, GIF, TXT.</div>
+                {% for error in form.file.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+            {{ form.submit(class="btn btn-primary") }}
+            {% if result.order_item %}
+                <a class="btn btn-outline-secondary"
+                   href="{{ url_for('investigations.detail', order_uuid=result.order_item.order.uuid) }}">
+                    Cancel
+                </a>
+            {% else %}
+                <a class="btn btn-outline-secondary"
+                   href="{{ url_for('investigations.patient_orders', patient_uuid=patient.uuid) }}">
+                    Cancel
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

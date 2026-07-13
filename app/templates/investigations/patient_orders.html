@@ -192,6 +192,15 @@
                             <td>
                                 {{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}
                                 {% if result.unit %} {{ result.unit }}{% endif %}
+                                {% set result_documents = result.documents.filter_by(is_active=True).all() %}
+                                {% if result_documents %}
+                                    <div class="small">
+                                        Reports:
+                                        {% for document in result_documents %}
+                                            <a href="{{ url_for('documents.detail', document_uuid=document.uuid) }}">{{ document.title }}</a>{% if not loop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
                             </td>
                             <td>{{ result.result_date }}</td>
                             <td>{{ result.lab_name or "—" }}</td>
