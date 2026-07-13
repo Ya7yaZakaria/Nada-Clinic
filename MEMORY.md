@@ -156,3 +156,14 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Added sidebar Investigations link.
 - Kept result entry, historical result UI, presets, print request, upload/storage, AI behavior, and migration out of scope.
 - Next action: verify tests/routes, then Sprint 6.2A Investigation Presets Backend or Sprint 6.3A Result Entry Backend depending on workflow priority.
+
+## 2026-07-13 — Sprint 6.2A Investigation Presets Backend
+- Added investigation preset backend foundation.
+- Added InvestigationPreset and InvestigationPresetItem models.
+- Added InvestigationPresetService.
+- Supports applying preset to existing investigation order as normal editable order items.
+- Supports missing tests from preset using latest patient results.
+- Prevents duplicate preset names, duplicate tests inside a preset, and duplicate active order tests during preset apply.
+- Added investigation_presets.manage permission for Doctor/Admin while Reception remains blocked.
+- No preset UI, result entry UI, historical result UI, print request, upload/storage, lab integration, or AI behavior added.
+- Next action: verify migration/tests, then Sprint 6.2B Investigation Presets UI.

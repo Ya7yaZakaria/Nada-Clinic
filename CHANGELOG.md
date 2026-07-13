@@ -757,3 +757,24 @@ No diagnosis-linked preset behavior added.
 - No upload/storage added.
 - No AI behavior added.
 - No migration added.
+
+## 2026-07-13 — Sprint 6.2A Investigation Presets Backend
+### Added
+- InvestigationPreset and InvestigationPresetItem models.
+- InvestigationPresetService.
+- Apply-preset-to-order backend workflow.
+- Missing tests from preset using latest patient results.
+- Duplicate preset name prevention.
+- Duplicate test-in-preset prevention.
+- Duplicate active order test prevention during preset apply.
+- `investigation_presets.manage` permission for Doctor/Admin.
+- Migration `20260713_0062_add_investigation_presets`.
+- Model/service tests and Sprint 6.2A documentation.
+
+### Confirmed
+- No preset UI added.
+- No result entry UI added.
+- No historical result UI added.
+- No print request added.
+- No upload/storage added.
+- No AI behavior added.

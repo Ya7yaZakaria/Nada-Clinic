@@ -30,6 +30,7 @@ class RBACService:
         "investigations.manage": "Manage investigations",
         "investigation_settings.manage": "Manage investigation dictionaries",
         "investigation_results.review": "Review investigation results",
+        "investigation_presets.manage": "Manage investigation presets",
     }
 
     ROLE_PERMISSION_MATRIX = {
@@ -49,6 +50,7 @@ class RBACService:
             "investigations.manage",
             "investigation_settings.manage",
             "investigation_results.review",
+            "investigation_presets.manage",
         ],
         "Reception": [
             "dashboard.view",

@@ -495,3 +495,6 @@ Sprint 6.1A adds the backend foundation for investigations: categories, tests, o
 
 ## Sprint 6.1B — Investigation Orders From Visit UI
 Sprint 6.1B adds the first investigation UI workflow: doctors can create investigation orders from a Visit, add individual tests, view order details, see pending items from the Visit, and open a Patient Investigations page. It does not add result entry, presets, print requests, upload/storage, AI behavior, or a new migration.
+
+## Sprint 6.2A — Investigation Presets Backend
+Sprint 6.2A adds reusable investigation panel/workup backend support. Doctors/Admins can manage investigation presets by service permission, add investigation tests to presets, apply presets to existing investigation orders, and calculate missing tests from presets using latest patient results. No UI, result entry UI, print request, upload/storage, or AI behavior is added.
