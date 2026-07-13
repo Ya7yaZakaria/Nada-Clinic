@@ -1,4 +1,4 @@
-﻿from datetime import datetime, timezone
+from datetime import datetime, timezone
 
 from sqlalchemy import or_
 
@@ -619,6 +619,22 @@ class InvestigationService:
             query.order_by(InvestigationResult.result_date.asc(), InvestigationResult.id.asc())
             .all()
         )
+
+
+    @classmethod
+    def list_pending_results(cls, patient=None):
+        """List entered results waiting for doctor review."""
+        return cls.list_entered_unreviewed_results(patient)
+
+    @classmethod
+    def list_patient_pending_results(cls, patient):
+        """List entered results waiting for doctor review for one patient."""
+        return cls.list_entered_unreviewed_results(patient)
+
+    @classmethod
+    def mark_order_reviewed_if_all_reviewed(cls, order):
+        """Recalculate order status after result review."""
+        return cls._update_order_status_from_items(order)
 
     @classmethod
     def find_missing_tests(cls, patient, required_tests):

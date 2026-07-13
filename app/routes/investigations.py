@@ -1,11 +1,12 @@
-﻿from datetime import date
+from datetime import date
 
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.forms.investigation_forms import InvestigationOrderForm, InvestigationOrderItemForm
 from app.forms.investigation_preset_forms import InvestigationPresetApplyForm
 from app.forms.investigation_result_forms import HistoricalInvestigationResultForm, InvestigationResultForm
+from app.forms.investigation_review_forms import InvestigationReviewForm
 from app.models import Patient, Visit
 from app.models.investigation import InvestigationOrder, InvestigationOrderItem, InvestigationResult, InvestigationTest
 from app.models.investigation_preset import InvestigationPreset
@@ -53,6 +54,40 @@ def _populate_abnormal_flag_choices(form):
     ]
     form.abnormal_flag.choices = choices
 
+
+
+def _build_review_form():
+    form = InvestigationReviewForm()
+    _populate_abnormal_flag_choices(form)
+    return form
+
+
+def _get_result_return_url(result):
+    if result.order_item:
+        return url_for("investigations.detail", order_uuid=result.order_item.order.uuid)
+
+    return url_for("investigations.patient_orders", patient_uuid=result.patient.uuid)
+
+
+def _get_selected_preset_and_missing_tests(patient):
+    active_presets = InvestigationPresetService.list_active_presets()
+    selected_preset = None
+    missing_workup_tests = []
+
+    selected_preset_id = request.args.get("preset_id", type=int)
+    if selected_preset_id:
+        selected_preset = next(
+            (preset for preset in active_presets if preset.id == selected_preset_id),
+            None,
+        )
+
+        if selected_preset:
+            missing_workup_tests = InvestigationPresetService.missing_tests_for_patient(
+                preset=selected_preset,
+                patient=patient,
+            )
+
+    return active_presets, selected_preset, missing_workup_tests
 
 def _populate_historical_result_form(form):
     form.test_id.choices = [(0, "Select investigation test...")] + [
@@ -118,10 +153,16 @@ def patient_orders(patient_uuid):
     pending_items = InvestigationService.list_pending_order_items(patient)
     latest_results = InvestigationService.list_latest_results(patient)
     all_results = InvestigationService.list_results_for_patient(patient)
+    pending_review_results = InvestigationService.list_patient_pending_results(patient)
+    active_presets, selected_preset, missing_workup_tests = _get_selected_preset_and_missing_tests(patient)
 
     can_manage_investigations = RBACService.user_has_permission(
         current_user,
         "investigations.manage",
+    )
+    can_review_results = RBACService.user_has_permission(
+        current_user,
+        "investigation_results.review",
     )
 
     return render_template(
@@ -131,7 +172,13 @@ def patient_orders(patient_uuid):
         pending_items=pending_items,
         latest_results=latest_results,
         all_results=all_results,
+        pending_review_results=pending_review_results,
+        active_presets=active_presets,
+        selected_preset=selected_preset,
+        missing_workup_tests=missing_workup_tests,
         can_manage_investigations=can_manage_investigations,
+        can_review_results=can_review_results,
+        review_form=_build_review_form(),
         PatientService=PatientService,
     )
 
@@ -193,6 +240,10 @@ def detail(order_uuid):
         current_user,
         "investigations.manage",
     )
+    can_review_results = RBACService.user_has_permission(
+        current_user,
+        "investigation_results.review",
+    )
 
     item_form = None
     preset_apply_form = None
@@ -209,7 +260,9 @@ def detail(order_uuid):
         results_by_item=results_by_item,
         item_form=item_form,
         preset_apply_form=preset_apply_form,
+        review_form=_build_review_form(),
         can_manage_investigations=can_manage_investigations,
+        can_review_results=can_review_results,
         PatientService=PatientService,
         VisitService=VisitService,
     )
@@ -437,6 +490,46 @@ def new_historical_result_for_visit(visit_uuid):
         visit=visit,
         PatientService=PatientService,
     )
+
+
+@investigations_bp.get("/pending")
+@login_required
+@RBACService.require_permission("investigation_results.review")
+def pending_results():
+    results = InvestigationService.list_pending_results()
+
+    return render_template(
+        "investigations/pending.html",
+        results=results,
+        review_form=_build_review_form(),
+        PatientService=PatientService,
+    )
+
+
+@investigations_bp.post("/results/<result_uuid>/review")
+@login_required
+@RBACService.require_permission("investigation_results.review")
+def review_result(result_uuid):
+    result = InvestigationResult.query.filter_by(uuid=result_uuid).first_or_404()
+    form = _build_review_form()
+
+    if not form.validate_on_submit():
+        flash("Invalid investigation result review.", "danger")
+        return redirect(_get_result_return_url(result))
+
+    try:
+        InvestigationService.review_result(
+            result,
+            review_note=form.review_note.data,
+            abnormal_flag=form.abnormal_flag.data,
+            actor_user=current_user,
+        )
+    except ValueError as exc:
+        flash(str(exc), "danger")
+        return redirect(_get_result_return_url(result))
+
+    flash("Investigation result reviewed.", "success")
+    return redirect(_get_result_return_url(result))
 
 
 @investigations_bp.post("/items/<item_uuid>/cancel")

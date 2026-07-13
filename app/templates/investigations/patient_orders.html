@@ -1,8 +1,8 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Patient Investigations — Nada Clinic System{% endblock %}
 {% block page_title %}Patient Investigations{% endblock %}
-{% block page_subtitle %}Orders, pending items, latest results, and historical results{% endblock %}
+{% block page_subtitle %}Orders, pending items, latest results, reviews, and missing workup{% endblock %}
 
 {% block content %}
 <div class="clinic-card mb-3">
@@ -27,9 +27,10 @@
 </div>
 
 <div class="row g-3">
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-4">
         <div class="clinic-card h-100">
-            <h2 class="h5">Pending results</h2>
+            <h2 class="h5">Pending ordered results</h2>
+            <div class="small text-muted mb-2">Pending results</div>
             {% if pending_items %}
                 <ul class="list-group list-group-flush">
                     {% for item in pending_items %}
@@ -55,12 +56,58 @@
                     {% endfor %}
                 </ul>
             {% else %}
-                <p class="text-muted mb-0">No pending investigation results.</p>
+                <p class="text-muted mb-0">No pending ordered results.</p>
             {% endif %}
         </div>
     </div>
 
-    <div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-4">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Pending review</h2>
+            {% if pending_review_results %}
+                <ul class="list-group list-group-flush">
+                    {% for result in pending_review_results %}
+                        <li class="list-group-item px-0">
+                            <strong>{{ result.test.name_en }}</strong>
+                            <div>
+                                {{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}
+                                {% if result.unit %} {{ result.unit }}{% endif %}
+                            </div>
+                            <div class="small text-muted">
+                                {{ result.result_date }}
+                                {% if result.lab_name %} · {{ result.lab_name }}{% endif %}
+                                · {{ result.abnormal_flag }}
+                            </div>
+                            {% if can_review_results %}
+                                <form method="post"
+                                      action="{{ url_for('investigations.review_result', result_uuid=result.uuid) }}"
+                                      class="mt-2">
+                                    {{ review_form.hidden_tag() }}
+
+                                    <select name="{{ review_form.abnormal_flag.name }}" class="form-select form-select-sm mb-1">
+                                        {% for value, label in review_form.abnormal_flag.choices %}
+                                            <option value="{{ value }}" {% if value == result.abnormal_flag %}selected{% endif %}>
+                                                {{ label }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                    <textarea name="{{ review_form.review_note.name }}"
+                                              class="form-control form-control-sm mb-1"
+                                              rows="2"
+                                              placeholder="Review note"></textarea>
+                                    <button class="btn btn-sm btn-primary" type="submit">Review</button>
+                                </form>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted mb-0">No results awaiting review.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
         <div class="clinic-card h-100">
             <h2 class="h5">Latest results</h2>
             {% if latest_results %}
@@ -76,6 +123,7 @@
                                 {{ result.result_date }}
                                 {% if result.lab_name %} · {{ result.lab_name }}{% endif %}
                                 · {{ result.abnormal_flag }}
+                                · {{ result.status }}
                             </div>
                         </li>
                     {% endfor %}
@@ -85,6 +133,40 @@
             {% endif %}
         </div>
     </div>
+</div>
+
+<div class="clinic-card mt-3">
+    <h2 class="h5">Missing workup</h2>
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-md-9">
+            <label class="form-label" for="preset_id">Investigation preset</label>
+            <select id="preset_id" name="preset_id" class="form-select">
+                <option value="">Select preset...</option>
+                {% for preset in active_presets %}
+                    <option value="{{ preset.id }}" {% if selected_preset and selected_preset.id == preset.id %}selected{% endif %}>
+                        {{ preset.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-3 d-grid">
+            <button class="btn btn-outline-primary" type="submit">Check missing</button>
+        </div>
+    </form>
+
+    {% if selected_preset %}
+        <hr>
+        <h3 class="h6">{{ selected_preset.name }}</h3>
+        {% if missing_workup_tests %}
+            <ul class="mb-0">
+                {% for test in missing_workup_tests %}
+                    <li>{{ test.name_en }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted mb-0">No missing tests from this preset.</p>
+        {% endif %}
+    {% endif %}
 </div>
 
 <div class="clinic-card mt-3">
@@ -99,6 +181,7 @@
                         <th>Date</th>
                         <th>Lab</th>
                         <th>Flag</th>
+                        <th>Status</th>
                         <th>Source</th>
                     </tr>
                 </thead>
@@ -113,6 +196,7 @@
                             <td>{{ result.result_date }}</td>
                             <td>{{ result.lab_name or "—" }}</td>
                             <td><span class="badge text-bg-light">{{ result.abnormal_flag }}</span></td>
+                            <td>{{ result.status }}</td>
                             <td>
                                 {% if result.order_item %}
                                     Ordered item

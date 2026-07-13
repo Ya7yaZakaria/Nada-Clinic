@@ -1,0 +1,83 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Pending Investigation Reviews — Nada Clinic System{% endblock %}
+{% block page_title %}Pending Investigation Reviews{% endblock %}
+{% block page_subtitle %}Entered results awaiting doctor review{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <div class="d-flex justify-content-between gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Investigations</p>
+            <h1 class="h4 mb-0">Pending result review</h1>
+        </div>
+        <span class="badge text-bg-light">Results: {{ results|length }}</span>
+    </div>
+
+    {% if results %}
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Test</th>
+                        <th>Result</th>
+                        <th>Date</th>
+                        <th>Lab</th>
+                        <th>Review</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('patients.detail', patient_uuid=result.patient.uuid) }}">
+                                    {{ PatientService.get_display_name(result.patient) }}
+                                </a>
+                            </td>
+                            <td>
+                                <strong>{{ result.test.name_en }}</strong>
+                                <div class="small text-muted">{{ result.abnormal_flag }}</div>
+                            </td>
+                            <td>
+                                {{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}
+                                {% if result.unit %} {{ result.unit }}{% endif %}
+                            </td>
+                            <td>{{ result.result_date }}</td>
+                            <td>{{ result.lab_name or "—" }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('investigations.review_result', result_uuid=result.uuid) }}">
+                                    {{ review_form.hidden_tag() }}
+
+                                    <div class="row g-1">
+                                        <div class="col-12">
+                                            <select name="{{ review_form.abnormal_flag.name }}" class="form-select form-select-sm">
+                                                {% for value, label in review_form.abnormal_flag.choices %}
+                                                    <option value="{{ value }}" {% if value == result.abnormal_flag %}selected{% endif %}>
+                                                        {{ label }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <textarea name="{{ review_form.review_note.name }}"
+                                                      class="form-control form-control-sm"
+                                                      rows="2"
+                                                      placeholder="Review note"></textarea>
+                                        </div>
+                                        <div class="col-12">
+                                            <button class="btn btn-sm btn-primary" type="submit">Review</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-0">No investigation results awaiting review.</p>
+    {% endif %}
+</div>
+{% endblock %}

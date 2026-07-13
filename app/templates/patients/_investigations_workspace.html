@@ -1,0 +1,133 @@
+﻿<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div class="clinic-card">
+            <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+                <div>
+                    <p class="section-kicker">Investigations</p>
+                    <h2 class="h5 mb-0">Investigation Workspace</h2>
+                </div>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-sm btn-outline-primary"
+                       href="{{ url_for('investigations.patient_orders', patient_uuid=patient.uuid) }}">
+                        Open investigations
+                    </a>
+                    {% if can_manage_investigations %}
+                        <a class="btn btn-sm btn-primary"
+                           href="{{ url_for('investigations.new_historical_result_for_patient', patient_uuid=patient.uuid) }}">
+                            Add historical result
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-lg-4">
+                    <div class="border rounded p-3 h-100">
+                        <h3 class="h6">Pending ordered results</h3>
+                        {% if pending_investigation_items %}
+                            <ul class="list-unstyled mb-0">
+                                {% for item in pending_investigation_items[:5] %}
+                                    <li class="mb-2">
+                                        <strong>{{ item.test.name_en }}</strong>
+                                        <div class="small text-muted">
+                                            {{ item.order.created_at.strftime("%Y-%m-%d") }}
+                                            · {{ item.order.priority }}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No pending ordered results.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-4">
+                    <div class="border rounded p-3 h-100">
+                        <h3 class="h6">Pending review</h3>
+                        {% if pending_investigation_reviews %}
+                            <ul class="list-unstyled mb-0">
+                                {% for result in pending_investigation_reviews[:5] %}
+                                    <li class="mb-2">
+                                        <strong>{{ result.test.name_en }}</strong>
+                                        <div>
+                                            {{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}
+                                            {% if result.unit %} {{ result.unit }}{% endif %}
+                                        </div>
+                                        <div class="small text-muted">
+                                            {{ result.result_date }} · {{ result.abnormal_flag }}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No results awaiting review.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-4">
+                    <div class="border rounded p-3 h-100">
+                        <h3 class="h6">Latest results</h3>
+                        {% if latest_investigation_results %}
+                            <ul class="list-unstyled mb-0">
+                                {% for result in latest_investigation_results[:5] %}
+                                    <li class="mb-2">
+                                        <strong>{{ result.test.name_en }}</strong>
+                                        <div>
+                                            {{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}
+                                            {% if result.unit %} {{ result.unit }}{% endif %}
+                                        </div>
+                                        <div class="small text-muted">
+                                            {{ result.result_date }}
+                                            {% if result.lab_name %} · {{ result.lab_name }}{% endif %}
+                                            · {{ result.status }}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0">No latest results yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <h3 class="h6">Missing workup</h3>
+            <form method="get" action="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}" class="row g-2 align-items-end">
+                <div class="col-12 col-md-9">
+                    <label class="form-label" for="workspace_preset_id">Investigation preset</label>
+                    <select id="workspace_preset_id" name="preset_id" class="form-select">
+                        <option value="">Select preset...</option>
+                        {% for preset in investigation_presets %}
+                            <option value="{{ preset.id }}"
+                                    {% if selected_investigation_preset and selected_investigation_preset.id == preset.id %}selected{% endif %}>
+                                {{ preset.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12 col-md-3 d-grid">
+                    <button class="btn btn-outline-primary" type="submit">Check missing</button>
+                </div>
+            </form>
+
+            {% if selected_investigation_preset %}
+                <div class="mt-3">
+                    <strong>{{ selected_investigation_preset.name }}</strong>
+                    {% if missing_workup_tests %}
+                        <ul class="mt-2 mb-0">
+                            {% for test in missing_workup_tests %}
+                                <li>{{ test.name_en }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted mb-0">No missing tests from this preset.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

@@ -1,11 +1,13 @@
 ﻿from datetime import date, datetime, time
 
+from app.models.investigation import InvestigationOrder, InvestigationResult
+
 
 class TimelineService:
     """Generated patient timeline service.
 
     No timeline table is used. Timeline events are generated from existing
-    clinical records such as Visits and Journeys.
+    clinical records such as Visits, Journeys, and Investigations.
     """
 
     @staticmethod
@@ -23,6 +25,7 @@ class TimelineService:
         events = []
         events.extend(TimelineService.build_journey_events(patient))
         events.extend(TimelineService.build_visit_events(patient))
+        events.extend(TimelineService.build_investigation_events(patient))
         return TimelineService.sort_events(events)
 
     @staticmethod
@@ -105,6 +108,67 @@ class TimelineService:
                         "source_uuid": visit.uuid,
                         "status": visit.status,
                         "is_unassigned": visit.journey_id is None,
+                    }
+                )
+
+        return events
+
+    @staticmethod
+    def build_investigation_events(patient):
+        events = []
+
+        orders = (
+            InvestigationOrder.query.filter_by(patient_id=patient.id)
+            .order_by(InvestigationOrder.created_at.desc(), InvestigationOrder.id.desc())
+            .all()
+        )
+
+        for order in orders:
+            events.append(
+                {
+                    "date": TimelineService.normalize_event_date(order.created_at),
+                    "type": "investigation_ordered",
+                    "label": "Investigation ordered",
+                    "title": f"Investigation order ({order.status})",
+                    "subtitle": order.priority,
+                    "source": "investigation_order",
+                    "source_uuid": order.uuid,
+                    "status": order.status,
+                }
+            )
+
+        results = (
+            InvestigationResult.query.filter_by(patient_id=patient.id)
+            .filter(InvestigationResult.status != InvestigationResult.STATUS_CANCELLED)
+            .order_by(InvestigationResult.result_date.desc(), InvestigationResult.id.desc())
+            .all()
+        )
+
+        for result in results:
+            events.append(
+                {
+                    "date": TimelineService.normalize_event_date(result.result_date),
+                    "type": "investigation_result_entered",
+                    "label": "Investigation result",
+                    "title": result.test.name_en,
+                    "subtitle": result.abnormal_flag,
+                    "source": "investigation_result",
+                    "source_uuid": result.uuid,
+                    "status": result.status,
+                }
+            )
+
+            if result.status == InvestigationResult.STATUS_REVIEWED and result.reviewed_at:
+                events.append(
+                    {
+                        "date": TimelineService.normalize_event_date(result.reviewed_at),
+                        "type": "investigation_result_reviewed",
+                        "label": "Investigation result reviewed",
+                        "title": result.test.name_en,
+                        "subtitle": result.review_note or result.abnormal_flag,
+                        "source": "investigation_result",
+                        "source_uuid": result.uuid,
+                        "status": result.status,
                     }
                 )
 

@@ -504,3 +504,6 @@ Sprint 6.2B adds Doctor/Admin UI for investigation preset management and applyin
 
 ## Sprint 6.3 — Investigation Result Entry
 Sprint 6.3 adds investigation result entry backend and UI. Doctors can enter results for ordered investigation items and record historical/external results from Patient or Visit context. Results store lab name, result date, value/text, doctor comment, abnormal flag, and attachment placeholders. No review UI, print request, upload/storage, AI behavior, timeline integration, or migration is added.
+
+## Sprint 6.4 — Result Review + Patient Workspace
+Sprint 6.4 adds investigation result review workflows and Patient Workspace investigation sections. Doctors can review entered results, confirm abnormal flags, store review notes and reviewed timestamps. Patient Workspace now shows pending ordered results, pending review results, latest results, and missing workup from a selected preset. Generated timeline now includes investigation ordered/result/reviewed events. No migration, AI interpretation, lab integration, upload/storage, or print request is added.

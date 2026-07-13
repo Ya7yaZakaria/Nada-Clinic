@@ -67,7 +67,7 @@
                         <th>Status</th>
                         <th>Notes</th>
                         <th>Results</th>
-                        {% if can_manage_investigations %}
+                        {% if can_manage_investigations or can_review_results %}
                             <th class="text-end">Actions</th>
                         {% endif %}
                     </tr>
@@ -89,23 +89,61 @@
                                 {% set item_results = results_by_item.get(item.id, []) %}
                                 {% if item_results %}
                                     {% for result in item_results %}
-                                        <div class="small">
-                                            <strong>{{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}</strong>
-                                            {% if result.unit %} {{ result.unit }}{% endif %}
-                                            <span class="text-muted">
-                                                · {{ result.result_date }}
-                                                {% if result.lab_name %} · {{ result.lab_name }}{% endif %}
-                                                · {{ result.abnormal_flag }}
-                                            </span>
+                                        <div class="border rounded p-2 mb-2">
+                                            <div class="small">
+                                                <strong>{{ result.result_value or result.result_text or result.attachment_label or "Result entered" }}</strong>
+                                                {% if result.unit %} {{ result.unit }}{% endif %}
+                                                <span class="text-muted">
+                                                    · {{ result.result_date }}
+                                                    {% if result.lab_name %} · {{ result.lab_name }}{% endif %}
+                                                    · {{ result.abnormal_flag }}
+                                                    · {{ result.status }}
+                                                </span>
+                                            </div>
+
+                                            {% if result.doctor_comment %}
+                                                <div class="small text-muted">Comment: {{ result.doctor_comment }}</div>
+                                            {% endif %}
+
+                                            {% if can_review_results and result.status == "entered" %}
+                                                <form method="post"
+                                                      action="{{ url_for('investigations.review_result', result_uuid=result.uuid) }}"
+                                                      class="mt-2">
+                                                    {{ review_form.hidden_tag() }}
+
+                                                    <div class="row g-1">
+                                                        <div class="col-12 col-lg-4">
+                                                            <select name="{{ review_form.abnormal_flag.name }}" class="form-select form-select-sm">
+                                                                {% for value, label in review_form.abnormal_flag.choices %}
+                                                                    <option value="{{ value }}" {% if value == result.abnormal_flag %}selected{% endif %}>
+                                                                        {{ label }}
+                                                                    </option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-12 col-lg-5">
+                                                            <textarea name="{{ review_form.review_note.name }}"
+                                                                      class="form-control form-control-sm"
+                                                                      rows="1"
+                                                                      placeholder="Review note"></textarea>
+                                                        </div>
+                                                        <div class="col-12 col-lg-3 d-grid">
+                                                            <button class="btn btn-sm btn-primary" type="submit">
+                                                                Review
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            {% endif %}
                                         </div>
                                     {% endfor %}
                                 {% else %}
                                     <span class="text-muted">No result yet</span>
                                 {% endif %}
                             </td>
-                            {% if can_manage_investigations %}
+                            {% if can_manage_investigations or can_review_results %}
                                 <td class="text-end">
-                                    {% if item.status != "cancelled" %}
+                                    {% if can_manage_investigations and item.status != "cancelled" %}
                                         <a class="btn btn-sm btn-outline-primary"
                                            href="{{ url_for('investigations.new_result_for_item', item_uuid=item.uuid) }}">
                                             Enter result

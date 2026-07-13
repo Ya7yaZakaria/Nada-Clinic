@@ -188,3 +188,14 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Reception remains blocked from result entry.
 - Kept result review UI, print request, upload/storage, timeline integration, lab integration, and AI behavior out of scope.
 - Next action: verify tests/routes, then Sprint 6.4 Result Review + Patient Workspace.
+
+## 2026-07-13 — Sprint 6.4 Result Review + Patient Workspace
+- Added investigation result review workflow.
+- Doctors can review entered results, confirm abnormal flag, and store review note.
+- Review stores reviewed_by_user and reviewed_at.
+- Added pending result review page.
+- Added Patient Workspace investigation section with pending ordered results, pending review results, latest results, and missing workup from preset.
+- Added generated timeline events for investigation ordered, result entered, and result reviewed.
+- Reception remains blocked from investigation result review.
+- Kept AI interpretation, automatic diagnosis, upload/storage, lab integration, alerts, and print request out of scope.
+- Next action: verify tests/routes, then Sprint 6.5 Investigation Print Request.

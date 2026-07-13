@@ -814,3 +814,25 @@ No diagnosis-linked preset behavior added.
 - No timeline integration added.
 - No AI behavior added.
 - No migration added.
+
+## 2026-07-13 — Sprint 6.4 Result Review and Patient Workspace
+### Added
+- InvestigationReviewForm.
+- Pending result review page.
+- Result review POST route.
+- Review note, reviewed_by_user, reviewed_at, and abnormal flag confirmation workflow.
+- Patient Workspace investigation section.
+- Pending ordered results in Patient Workspace.
+- Pending review results in Patient Workspace.
+- Latest results in Patient Workspace.
+- Missing workup check from investigation preset.
+- Generated timeline investigation ordered/result/reviewed events.
+- Review service/UI tests and Sprint 6.4 documentation.
+
+### Confirmed
+- No migration added.
+- No AI interpretation added.
+- No automatic diagnosis added.
+- No upload/storage added.
+- No lab integration added.
+- No print request added.

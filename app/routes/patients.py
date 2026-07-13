@@ -1,4 +1,4 @@
-﻿from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.forms.appointment_forms import AppointmentForm
@@ -6,6 +6,8 @@ from app.forms.appointment_forms import AppointmentForm
 from app.forms.patient_forms import MRNChangeForm, PatientForm
 from app.models import Patient
 from app.services.appointment_service import AppointmentService
+from app.services.investigation_preset_service import InvestigationPresetService
+from app.services.investigation_service import InvestigationService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
 from app.services.rbac_service import RBACService
@@ -13,6 +15,36 @@ from app.services.timeline_service import TimelineService
 from app.services.visit_service import VisitService
 
 patients_bp = Blueprint("patients", __name__, url_prefix="/patients")
+
+
+def _get_patient_workspace_investigation_context(patient):
+    active_presets = InvestigationPresetService.list_active_presets()
+    selected_preset = None
+    missing_workup_tests = []
+
+    selected_preset_id = request.args.get("preset_id", type=int)
+    if selected_preset_id:
+        selected_preset = next(
+            (preset for preset in active_presets if preset.id == selected_preset_id),
+            None,
+        )
+
+        if selected_preset:
+            missing_workup_tests = InvestigationPresetService.missing_tests_for_patient(
+                preset=selected_preset,
+                patient=patient,
+            )
+
+    return {
+        "pending_investigation_items": InvestigationService.list_pending_order_items(patient),
+        "latest_investigation_results": InvestigationService.list_latest_results(patient),
+        "pending_investigation_reviews": InvestigationService.list_patient_pending_results(patient),
+        "investigation_presets": active_presets,
+        "selected_investigation_preset": selected_preset,
+        "missing_workup_tests": missing_workup_tests,
+        "can_manage_investigations": RBACService.user_has_permission(current_user, "investigations.manage"),
+        "can_review_investigation_results": RBACService.user_has_permission(current_user, "investigation_results.review"),
+    }
 
 
 @patients_bp.get("/")
@@ -93,6 +125,8 @@ def new():
 def detail(patient_uuid):
     patient = Patient.query.filter_by(uuid=patient_uuid).first_or_404()
 
+    investigation_context = _get_patient_workspace_investigation_context(patient)
+
     return render_template(
         "patients/detail.html",
         patient=patient,
@@ -101,6 +135,7 @@ def detail(patient_uuid):
         VisitService=VisitService,
         TimelineService=TimelineService,
         timeline_events=TimelineService.get_patient_timeline(patient),
+        **investigation_context,
     )
 
 
