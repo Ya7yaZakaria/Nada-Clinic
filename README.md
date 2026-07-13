@@ -519,3 +519,6 @@ Sprint 6.5C migrates prescription printing from the legacy Visit print page to t
 
 ## Sprint 6.5D — Investigation Print Using Unified Designer
 Sprint 6.5D adds investigation request printing through the unified PrintTemplate engine. Investigation order detail now exposes a Print request button, and /print/investigations/<order_uuid>/preview renders patient details, request date, instruction text, and ordered investigation lines using layout_json. No migration, result report printing, PDF generation, print history, print lock, doctor signature, lab integration, or AI behavior is added.
+
+## Sprint 6.5E — Print Module Freeze Review
+Sprint 6.5E freeze-reviews the unified print module after prescription and investigation request printing were migrated to the PrintTemplate engine. It confirms PrintTemplate backend/UI, visual layout designer, prescription preview, investigation request preview, RBAC, documentation, route health, and no migration drift. PDF generation, print history, print lock, doctor signature, logo upload, result report printing, lab integration, and AI remain out of scope.

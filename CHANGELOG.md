@@ -933,3 +933,24 @@ No diagnosis-linked preset behavior added.
 - No doctor signature added.
 - No lab integration added.
 - No AI behavior added.
+
+## 2026-07-13 — Sprint 6.5E Print Module Freeze Review
+### Verified
+- PrintTemplate backend and service layer.
+- PrintTemplate management UI and visual designer.
+- Unified prescription print preview.
+- Unified investigation request print preview.
+- Print route registration.
+- RBAC blocking for Reception.
+- Documentation coverage.
+- Migration head remains 20260713_0063.
+
+### Confirmed Out of Scope
+- PDF generation.
+- Print history.
+- Print lock.
+- Doctor signature.
+- Logo upload.
+- Result report printing.
+- Lab integration.
+- AI behavior.
