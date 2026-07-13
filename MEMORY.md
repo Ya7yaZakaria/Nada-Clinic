@@ -199,3 +199,15 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Reception remains blocked from investigation result review.
 - Kept AI interpretation, automatic diagnosis, upload/storage, lab integration, alerts, and print request out of scope.
 - Next action: verify tests/routes, then Sprint 6.5 Investigation Print Request.
+
+## 2026-07-13 — Sprint 6.5A Unified Print Template Backend
+- Added generic PrintTemplate backend foundation for future unified print designer.
+- Supports prescription and investigation_request document types.
+- Stores paper size in millimeters and visual layout positions in layout_json.
+- Added PrintTemplateService with default template creation, update, listing, activation, and default management.
+- Added print_templates.manage permission for Doctor/Admin while Reception remains blocked.
+- Added migration 20260713_0063_add_print_templates.
+- Added model/service/RBAC tests.
+- Existing prescription print remains temporarily until Sprint 6.5C migration.
+- Kept visual designer UI, prescription migration, investigation print route, print preview, PDF generation, print history, print lock, doctor signature, logo upload, and AI behavior out of scope.
+- Next action: verify migration/tests, then Sprint 6.5B Unified Visual Designer UI.

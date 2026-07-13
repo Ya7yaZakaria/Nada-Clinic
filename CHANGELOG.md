@@ -836,3 +836,27 @@ No diagnosis-linked preset behavior added.
 - No upload/storage added.
 - No lab integration added.
 - No print request added.
+
+## 2026-07-13 — Sprint 6.5A Unified Print Template Backend
+### Added
+- Generic PrintTemplate model.
+- print_templates table migration.
+- PrintTemplateService.
+- JSON layout storage for visual print designer positions.
+- Prescription and investigation_request document types.
+- Default template helpers.
+- print_templates.manage permission.
+- Print template model/service/RBAC tests.
+- Sprint 6.5A documentation.
+
+### Confirmed
+- Existing prescription print remains temporarily until Sprint 6.5C migration.
+- No visual designer UI added.
+- No prescription print route migration added.
+- No investigation print route added.
+- No print preview added.
+- No PDF generation added.
+- No print history added.
+- No print lock added.
+- No doctor signature added.
+- No AI behavior added.

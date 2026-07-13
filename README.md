@@ -507,3 +507,6 @@ Sprint 6.3 adds investigation result entry backend and UI. Doctors can enter res
 
 ## Sprint 6.4 — Result Review + Patient Workspace
 Sprint 6.4 adds investigation result review workflows and Patient Workspace investigation sections. Doctors can review entered results, confirm abnormal flags, store review notes and reviewed timestamps. Patient Workspace now shows pending ordered results, pending review results, latest results, and missing workup from a selected preset. Generated timeline now includes investigation ordered/result/reviewed events. No migration, AI interpretation, lab integration, upload/storage, or print request is added.
+
+## Sprint 6.5A — Unified Print Template Backend
+Sprint 6.5A adds the generic PrintTemplate backend foundation for future visual print design. It supports prescription and investigation request document types, millimeter paper sizes, JSON layout storage, active/default templates, service helpers, RBAC permission print_templates.manage, migration, and tests. The existing prescription print route/template remains temporarily until Sprint 6.5C migration. No visual designer UI, prescription route migration, investigation print route, preview, PDF generation, print history, print lock, doctor signature, or AI behavior is added.
