@@ -528,3 +528,6 @@ Stage 6 freeze review verifies investigation dictionaries, orders, presets, resu
 
 ## Sprint 6.6A — Enter Pending Result From Current Visit
 Sprint 6.6A fixes ordered investigation result context. When a patient returns in a later Visit with pending investigation results, the doctor can enter the result from the current Visit. The system preserves the original ordered Visit and stores the current Visit as the result Visit. No migration, dictionary UI, upload/storage, lab integration, or AI behavior is added.
+
+## Sprint 7.1 — Documents Backend Foundation
+Sprint 7.1 adds the backend foundation for patient documents: PatientDocument metadata, local file storage, secure filename handling, validation, document service helpers, optional links to Visit and InvestigationResult, RBAC permissions, migration, and backend tests. UI, OCR, AI, cloud storage, drawing tools, and ultrasound workflows remain out of scope.

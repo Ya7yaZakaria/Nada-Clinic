@@ -278,3 +278,14 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - No migration added.
 - Investigation dictionary/settings UI remains deferred.
 - Next action: verify tests, commit Stage 6 freeze + 6.6A fix, then plan Stage 7 Documents & Storage.
+
+## 2026-07-13 — Sprint 7.1 Documents Backend Foundation
+- Added PatientDocument backend model for patient file metadata.
+- Added DocumentService for local storage, validation, safe filename generation, listing, and archive.
+- Added optional links to Visit and InvestigationResult.
+- Added document permissions: documents.view and documents.manage.
+- Admin and Doctor receive document permissions; Reception remains blocked initially.
+- Added migration 20260713_0064_add_patient_documents.
+- Added backend model/service tests and Sprint 7.1 documentation.
+- Kept UI, OCR, AI extraction, cloud storage, drawing tools, and ultrasound module out of scope.
+- Next action: verify migration/tests, then Sprint 7.2 Patient Documents UI.

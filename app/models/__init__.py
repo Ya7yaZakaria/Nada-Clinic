@@ -1,5 +1,6 @@
 from app.models.drug_dictionary import DrugCategory, DrugForm, DrugRoute, DrugSafetyStatus
 from app.models.drug import Drug
+from app.models.document import PatientDocument
 from app.models.investigation_preset import InvestigationPreset, InvestigationPresetItem
 from app.models.investigation import (InvestigationCategory, InvestigationTest, InvestigationOrder, InvestigationOrderItem, InvestigationResult)
 from app.models.journey import Journey
@@ -28,6 +29,7 @@ __all__ = [
     "InvestigationPreset",
     "Journey",
     "Patient",
+    "PatientDocument",
     "PrescriptionItem",
     "Prescription",
     "PrescriptionPreset",

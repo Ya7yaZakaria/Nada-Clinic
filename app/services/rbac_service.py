@@ -32,6 +32,8 @@ class RBACService:
         "investigation_results.review": "Review investigation results",
         "investigation_presets.manage": "Manage investigation presets",
         "print_templates.manage": "Manage print layout templates",
+        "documents.view": "View patient documents",
+        "documents.manage": "Manage patient documents",
     }
 
     ROLE_PERMISSION_MATRIX = {
@@ -53,6 +55,10 @@ class RBACService:
             "investigation_results.review",
             "investigation_presets.manage",
             "print_templates.manage",
+            "documents.view",
+            "documents.manage",
+            "documents.view",
+            "documents.manage",
         ],
         "Reception": [
             "dashboard.view",

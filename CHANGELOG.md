@@ -993,3 +993,22 @@ No diagnosis-linked preset behavior added.
 - No migration added.
 - Investigation dictionary/settings UI remains deferred.
 - Upload/storage, lab integration, and AI remain out of scope.
+
+## 2026-07-13 — Sprint 7.1 Documents Backend Foundation
+### Added
+- PatientDocument model.
+- DocumentService for local file storage and metadata.
+- File validation and secure stored filename generation.
+- Optional document links to Visit and InvestigationResult.
+- Document RBAC permissions for Admin and Doctor.
+- Migration 20260713_0064.
+- Backend model/service tests.
+- Sprint 7.1 documentation.
+
+### Confirmed Out of Scope
+- UI.
+- OCR.
+- AI extraction.
+- Cloud storage.
+- Drawing tools.
+- Ultrasound module.
