@@ -237,3 +237,14 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Reception remains blocked from prescription print preview.
 - No new migration, investigation print route, PDF generation, print history, print lock, doctor signature, logo upload, or AI behavior added.
 - Next action: verify tests/routes, then Sprint 6.5D Investigation Print Using Unified Designer.
+
+## 2026-07-13 — Sprint 6.5D Investigation Print Using Unified Designer
+- Added unified investigation request preview route under /print/investigations/<order_uuid>/preview.
+- Added investigation request designer redirect route under /print/investigations/<order_uuid>/designer.
+- Investigation order detail now shows Print request when the order has active items.
+- Preview renders patient name, MRN, date, instruction text, and ordered investigation lines using layout_json.
+- Added dedicated unified investigation print tests.
+- Cleaned prescription print line separator text.
+- Reception remains blocked from investigation request print preview.
+- No new migration, result report printing, PDF generation, print history, print lock, doctor signature, logo upload, lab integration, or AI behavior added.
+- Next action: verify tests/routes, then Sprint 6.5E Print Module Freeze Review.

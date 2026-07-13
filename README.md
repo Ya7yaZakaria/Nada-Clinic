@@ -516,3 +516,6 @@ Sprint 6.5B adds a generic Print Templates UI and visual drag-and-drop designer 
 
 ## Sprint 6.5C — Prescription Migration to Unified Print
 Sprint 6.5C migrates prescription printing from the legacy Visit print page to the unified PrintTemplate-based print engine. The Visit Print button now opens unified prescription preview under /print/prescriptions/, the preview renders medication lines using layout_json, and the old visits/prescription_print.html template plus legacy visit print route are removed. No investigation print route, migration, PDF generation, print history, print lock, doctor signature, or AI behavior is added.
+
+## Sprint 6.5D — Investigation Print Using Unified Designer
+Sprint 6.5D adds investigation request printing through the unified PrintTemplate engine. Investigation order detail now exposes a Print request button, and /print/investigations/<order_uuid>/preview renders patient details, request date, instruction text, and ordered investigation lines using layout_json. No migration, result report printing, PDF generation, print history, print lock, doctor signature, lab integration, or AI behavior is added.

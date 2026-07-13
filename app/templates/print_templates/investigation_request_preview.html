@@ -1,0 +1,124 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Investigation Request Print — Nada Clinic System{% endblock %}
+{% block page_title %}Investigation Request Print{% endblock %}
+{% block page_subtitle %}Unified print template preview{% endblock %}
+
+{% block content %}
+<div class="clinic-card print-toolbar mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <p class="section-kicker">Unified Investigation Request Print</p>
+            <h1 class="h4 mb-0">{{ PatientService.get_display_name(order.patient) }}</h1>
+            <p class="text-muted mb-0">
+                MRN: {{ order.patient.formatted_mrn }} · Template: {{ template.name }} · Priority: {{ order.priority }}
+            </p>
+        </div>
+        <div class="d-flex gap-2 align-items-start flex-wrap">
+            <a class="btn btn-outline-secondary" href="{{ url_for('investigations.detail', order_uuid=order.uuid) }}">
+                Back to order
+            </a>
+            <a class="btn btn-outline-secondary"
+               href="{{ url_for('print_templates.designer', template_uuid=template.uuid) }}">
+                Edit layout
+            </a>
+            <button class="btn btn-primary" type="button" onclick="window.print()">Print</button>
+        </div>
+    </div>
+</div>
+
+<div class="unified-print-wrapper">
+    <div class="unified-print-paper"
+         style="width: {{ template.paper_width_mm }}mm; height: {{ template.paper_height_mm }}mm;">
+        {% for key, element in template.layout_json.items() %}
+            {% if element.get("visible", true) %}
+                <div class="unified-print-element"
+                     data-key="{{ key }}"
+                     style="
+                        left: {{ element.get('x', 0) }}mm;
+                        top: {{ element.get('y', 0) }}mm;
+                        width: {{ element.get('width', 40) }}mm;
+                        min-height: {{ element.get('height', 8) }}mm;
+                        font-size: {{ element.get('fontSize', 12) }}pt;
+                        line-height: {{ element.get('lineHeight', 7) }}mm;
+                     ">
+                    {% if key == "investigation_items" %}
+                        <ul class="mb-0 ps-3">
+                            {% for line in print_data.get(key, []) %}
+                                <li>{{ line }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        {{ print_data.get(key, "") }}
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    @page {
+        size: {{ template.paper_width_mm }}mm {{ template.paper_height_mm }}mm;
+        margin: 0;
+    }
+
+    .unified-print-wrapper {
+        overflow: auto;
+        padding: 24px;
+        background: rgba(16, 42, 47, 0.05);
+        border-radius: 16px;
+    }
+
+    .unified-print-paper {
+        position: relative;
+        background: #fff;
+        border: 1px solid rgba(16, 42, 47, 0.2);
+        box-shadow: 0 16px 40px rgba(16, 42, 47, 0.16);
+        margin: 0 auto;
+        color: #111;
+    }
+
+    .unified-print-element {
+        position: absolute;
+        overflow: hidden;
+        white-space: pre-wrap;
+    }
+
+    @media print {
+        body {
+            background: #fff !important;
+        }
+
+        .clinic-sidebar,
+        .clinic-topbar,
+        .mobile-sidebar,
+        .mobile-sidebar-backdrop,
+        .print-toolbar {
+            display: none !important;
+        }
+
+        .clinic-shell,
+        .clinic-main,
+        .clinic-content {
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: auto !important;
+        }
+
+        .unified-print-wrapper {
+            padding: 0 !important;
+            background: #fff !important;
+            border-radius: 0 !important;
+            overflow: visible !important;
+        }
+
+        .unified-print-paper {
+            border: 0 !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+        }
+    }
+</style>
+{% endblock %}

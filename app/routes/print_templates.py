@@ -6,6 +6,7 @@ from flask_login import current_user, login_required
 from app.forms.print_template_forms import PrintTemplateForm
 from app.models import Visit
 from app.models.print_template import PrintTemplate
+from app.models.investigation import InvestigationOrder, InvestigationOrderItem
 from app.services.patient_service import PatientService
 from app.services.prescription_service import PrescriptionService
 from app.services.print_template_service import PrintTemplateService
@@ -185,9 +186,9 @@ def _prescription_line_text(item):
     detail_label = " | ".join((value or "").strip() for value in details if value and value.strip())
 
     if item.instructions_ar:
-        return f"{drug_label} ? {detail_label} ? {item.instructions_ar}"
+        return f"{drug_label} - {detail_label} - {item.instructions_ar}"
 
-    return f"{drug_label} ? {detail_label}"
+    return f"{drug_label} - {detail_label}"
 
 
 def _prescription_print_context_or_redirect(visit_uuid):
@@ -263,6 +264,106 @@ def prescription_preview(visit_uuid):
         visit=visit,
         prescription=prescription,
         prescription_items=prescription_items,
+        template=template,
+        print_data=print_data,
+        PatientService=PatientService,
+    )
+
+
+def _investigation_item_line_text(item):
+    test = item.test
+    parts = [test.name_en]
+
+    if test.name_ar:
+        parts.append(test.name_ar)
+
+    if test.default_unit:
+        parts.append(test.default_unit)
+
+    line = " - ".join((part or "").strip() for part in parts if part and part.strip())
+
+    if item.item_notes:
+        line = f"{line} - {item.item_notes}"
+
+    return line
+
+
+def _investigation_print_context_or_redirect(order_uuid):
+    order = InvestigationOrder.query.filter_by(uuid=order_uuid).first_or_404()
+    items = (
+        InvestigationOrderItem.query.filter_by(order_id=order.id)
+        .filter(InvestigationOrderItem.status != InvestigationOrderItem.STATUS_CANCELLED)
+        .order_by(InvestigationOrderItem.sort_order.asc(), InvestigationOrderItem.id.asc())
+        .all()
+    )
+
+    if not items:
+        flash("Investigation order has no tests to print.", "warning")
+        return None, redirect(url_for("investigations.detail", order_uuid=order.uuid))
+
+    return (order, items), None
+
+
+def _get_investigation_template(template_uuid=None):
+    if template_uuid:
+        template = PrintTemplateService.get_template_by_uuid(template_uuid)
+        if template and template.document_type == PrintTemplate.DOCUMENT_TYPE_INVESTIGATION_REQUEST:
+            return template
+
+    return PrintTemplateService.get_or_create_default_template(
+        PrintTemplate.DOCUMENT_TYPE_INVESTIGATION_REQUEST,
+        actor_user=current_user,
+    )
+
+
+@print_templates_bp.get("/investigations/<order_uuid>/designer")
+@login_required
+@RBACService.require_permission("investigations.view")
+def investigation_designer(order_uuid):
+    context, response = _investigation_print_context_or_redirect(order_uuid)
+    if response:
+        return response
+
+    template = _get_investigation_template()
+    flash("Investigation request uses the unified print template. Edit layout from Print Templates.", "info")
+    return redirect(
+        url_for(
+            "print_templates.investigation_preview",
+            order_uuid=order_uuid,
+            template_uuid=template.uuid,
+        )
+    )
+
+
+@print_templates_bp.get("/investigations/<order_uuid>/preview")
+@login_required
+@RBACService.require_permission("investigations.view")
+def investigation_preview(order_uuid):
+    context, response = _investigation_print_context_or_redirect(order_uuid)
+    if response:
+        return response
+
+    order, items = context
+    template = _get_investigation_template(request.args.get("template_uuid"))
+
+    instruction_element = (template.layout_json or {}).get("instruction", {})
+    default_instruction = instruction_element.get("defaultText") or ""
+
+    print_data = {
+        "patient_name": PatientService.get_display_name(order.patient),
+        "mrn": order.patient.formatted_mrn,
+        "date": order.created_at.date().isoformat() if order.created_at else "",
+        "instruction": default_instruction,
+        "investigation_items": [
+            _investigation_item_line_text(item)
+            for item in items
+        ],
+    }
+
+    return render_template(
+        "print_templates/investigation_request_preview.html",
+        order=order,
+        items=items,
         template=template,
         print_data=print_data,
         PatientService=PatientService,

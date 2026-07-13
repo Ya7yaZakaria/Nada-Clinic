@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Investigation Order — Nada Clinic System{% endblock %}
 {% block page_title %}Investigation Order{% endblock %}
@@ -20,6 +20,17 @@
                     · <a href="{{ url_for('visits.detail', visit_uuid=order.ordered_visit.uuid) }}">Ordered visit</a>
                 {% endif %}
             </p>
+        </div>
+
+        <div class="d-flex gap-2 align-items-start flex-wrap">
+            {% if items %}
+                <a class="btn btn-outline-primary"
+                   href="{{ url_for('print_templates.investigation_preview', order_uuid=order.uuid) }}"
+                   target="_blank"
+                   rel="noopener">
+                    Print request
+                </a>
+            {% endif %}
         </div>
     </div>
 </div>

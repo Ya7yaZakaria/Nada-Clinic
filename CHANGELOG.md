@@ -910,3 +910,26 @@ No diagnosis-linked preset behavior added.
 - No print lock added.
 - No doctor signature added.
 - No AI behavior added.
+
+## 2026-07-13 — Sprint 6.5D Investigation Print Using Unified Designer
+### Added
+- Unified investigation request print preview route.
+- Unified investigation request designer redirect route.
+- PrintTemplate-based investigation request rendering.
+- Optional template_uuid support for investigation request preview.
+- Print request button on investigation order detail.
+- Dedicated unified investigation print tests.
+- Sprint 6.5D documentation.
+
+### Changed
+- Cleaned prescription print line separator text.
+
+### Confirmed
+- No new migration added.
+- No result report printing added.
+- No PDF generation added.
+- No print history added.
+- No print lock added.
+- No doctor signature added.
+- No lab integration added.
+- No AI behavior added.
