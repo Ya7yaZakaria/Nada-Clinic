@@ -513,3 +513,6 @@ Sprint 6.5A adds the generic PrintTemplate backend foundation for future visual 
 
 ## Sprint 6.5B — Unified Visual Designer UI
 Sprint 6.5B adds a generic Print Templates UI and visual drag-and-drop designer for reusable print layouts. Doctors/Admins can seed default templates, create/edit templates, open a paper canvas, drag elements, fine-tune positions/sizes, and save layout_json. Existing prescription print remains unchanged until Sprint 6.5C migration. No new migration, prescription route migration, investigation print route, preview rendering, PDF generation, print history, print lock, doctor signature, or AI behavior is added.
+
+## Sprint 6.5C — Prescription Migration to Unified Print
+Sprint 6.5C migrates prescription printing from the legacy Visit print page to the unified PrintTemplate-based print engine. The Visit Print button now opens unified prescription preview under /print/prescriptions/, the preview renders medication lines using layout_json, and the old visits/prescription_print.html template plus legacy visit print route are removed. No investigation print route, migration, PDF generation, print history, print lock, doctor signature, or AI behavior is added.

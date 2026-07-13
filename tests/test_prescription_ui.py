@@ -448,10 +448,10 @@ def test_doctor_can_open_prescription_print_page():
         client = app.test_client()
         login(client, "doctor-print-prescription@example.com")
 
-        response = client.get(f"/visits/{visit.uuid}/prescription/print")
+        response = client.get(f"/print/prescriptions/{visit.uuid}/preview")
 
         assert response.status_code == 200
-        assert b"Rx" in response.data
+        assert b"Unified Prescription Print" in response.data
         assert b"Tavanic" in response.data
         assert b"Arabic instructions" in response.data
         assert visit.patient.formatted_mrn.encode("utf-8") in response.data
@@ -488,7 +488,8 @@ def test_print_button_appears_when_prescription_has_items():
 
         assert response.status_code == 200
         assert b"Print" in response.data
-        assert b"/prescription/print" in response.data
+        assert b"/print/prescriptions/" in response.data
+        assert b"/prescription/print" not in response.data
 
         db.drop_all()
 
@@ -508,7 +509,7 @@ def test_print_page_redirects_when_no_prescription_exists():
         login(client, "doctor-print-empty@example.com")
 
         response = client.get(
-            f"/visits/{visit.uuid}/prescription/print",
+            f"/print/prescriptions/{visit.uuid}/preview",
             follow_redirects=True,
         )
 
@@ -542,7 +543,7 @@ def test_reception_cannot_open_prescription_print_page():
         client = app.test_client()
         login(client, "reception-print-prescription@example.com")
 
-        response = client.get(f"/visits/{visit.uuid}/prescription/print")
+        response = client.get(f"/print/prescriptions/{visit.uuid}/preview")
 
         assert response.status_code == 403
 
@@ -574,7 +575,7 @@ def test_stage_5_freeze_print_page_excludes_doctor_identity_and_safety_notes():
         client = app.test_client()
         login(client, "doctor-freeze-print@example.com")
 
-        response = client.get(f"/visits/{visit.uuid}/prescription/print")
+        response = client.get(f"/print/prescriptions/{visit.uuid}/preview")
         body = response.data.lower()
 
         assert response.status_code == 200
@@ -601,5 +602,36 @@ def test_stage_5_freeze_visit_prescription_nav_has_single_mobile_presets_link():
         assert response.status_code == 200
         assert response.data.count(b"Prescription Presets") == 2
         assert b"Stage 6 Investigations" in response.data
+
+        db.drop_all()
+
+
+def test_legacy_prescription_print_route_removed_after_unified_migration():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        SettingsService.seed_defaults()
+        create_user("doctor-legacy-print-route@example.com", "01099110017", "Doctor")
+        patient = create_patient(phone_primary="01099110117")
+        visit = create_visit(patient)
+        drug, route = create_drug()
+        prescription = PrescriptionService.create_prescription(visit=visit)
+        PrescriptionService.add_item(
+            prescription=prescription,
+            drug=drug,
+            dose="1 tablet",
+            frequency="Every 24 hours",
+            duration="5 days",
+            instructions_ar="Arabic instructions",
+            route=route,
+        )
+
+        client = app.test_client()
+        login(client, "doctor-legacy-print-route@example.com")
+
+        response = client.get(f"/visits/{visit.uuid}/prescription/print")
+
+        assert response.status_code == 404
 
         db.drop_all()

@@ -884,3 +884,29 @@ No diagnosis-linked preset behavior added.
 - No print lock added.
 - No doctor signature added.
 - No AI behavior added.
+
+## 2026-07-13 — Sprint 6.5C Prescription Migration to Unified Print
+### Added
+- Unified prescription print preview route.
+- Unified prescription designer redirect route.
+- PrintTemplate-based prescription preview rendering.
+- Optional template_uuid support for prescription preview.
+- Dedicated unified prescription print tests.
+- Sprint 6.5C documentation.
+
+### Changed
+- Visit prescription Print button now points to unified /print/prescriptions/ preview.
+- Prescription print tests now validate unified print behavior.
+
+### Removed
+- Legacy visits.print_prescription route.
+- Legacy visits/prescription_print.html template.
+
+### Confirmed
+- No new migration added.
+- No investigation print route added.
+- No PDF generation added.
+- No print history added.
+- No print lock added.
+- No doctor signature added.
+- No AI behavior added.

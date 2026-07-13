@@ -1,10 +1,13 @@
-﻿import json
+import json
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.forms.print_template_forms import PrintTemplateForm
+from app.models import Visit
 from app.models.print_template import PrintTemplate
+from app.services.patient_service import PatientService
+from app.services.prescription_service import PrescriptionService
 from app.services.print_template_service import PrintTemplateService
 from app.services.rbac_service import RBACService
 
@@ -12,7 +15,7 @@ from app.services.rbac_service import RBACService
 print_templates_bp = Blueprint(
     "print_templates",
     __name__,
-    url_prefix="/print/templates",
+    url_prefix="/print",
 )
 
 
@@ -33,7 +36,7 @@ def _apply_template_to_form(form, template):
     form.is_active.data = template.is_active
 
 
-@print_templates_bp.get("/")
+@print_templates_bp.get("/templates/")
 @login_required
 @RBACService.require_permission("print_templates.manage")
 def index():
@@ -45,7 +48,7 @@ def index():
     )
 
 
-@print_templates_bp.post("/seed-defaults")
+@print_templates_bp.post("/templates/seed-defaults")
 @login_required
 @RBACService.require_permission("print_templates.manage")
 def seed_defaults():
@@ -54,7 +57,7 @@ def seed_defaults():
     return redirect(url_for("print_templates.index"))
 
 
-@print_templates_bp.route("/new", methods=["GET", "POST"])
+@print_templates_bp.route("/templates/new", methods=["GET", "POST"])
 @login_required
 @RBACService.require_permission("print_templates.manage")
 def new():
@@ -83,7 +86,7 @@ def new():
     return render_template("print_templates/form.html", form=form, mode="new")
 
 
-@print_templates_bp.route("/<template_uuid>/edit", methods=["GET", "POST"])
+@print_templates_bp.route("/templates/<template_uuid>/edit", methods=["GET", "POST"])
 @login_required
 @RBACService.require_permission("print_templates.manage")
 def edit(template_uuid):
@@ -124,7 +127,7 @@ def edit(template_uuid):
     )
 
 
-@print_templates_bp.get("/<template_uuid>/designer")
+@print_templates_bp.get("/templates/<template_uuid>/designer")
 @login_required
 @RBACService.require_permission("print_templates.manage")
 def designer(template_uuid):
@@ -137,7 +140,7 @@ def designer(template_uuid):
     )
 
 
-@print_templates_bp.post("/<template_uuid>/layout")
+@print_templates_bp.post("/templates/<template_uuid>/layout")
 @login_required
 @RBACService.require_permission("print_templates.manage")
 def save_layout(template_uuid):
@@ -162,7 +165,111 @@ def save_layout(template_uuid):
     return redirect(url_for("print_templates.designer", template_uuid=template.uuid))
 
 
-@print_templates_bp.post("/<template_uuid>/deactivate")
+def _prescription_line_text(item):
+    drug = item.drug
+    drug_parts = [
+        getattr(drug, "trade_name", "") or "",
+        getattr(drug, "strength", "") or "",
+    ]
+    drug_label = " ".join(part.strip() for part in drug_parts if part and part.strip())
+
+    details = [
+        item.dose,
+        item.frequency,
+        item.duration,
+    ]
+
+    if item.route:
+        details.append(item.route.name_en)
+
+    detail_label = " | ".join((value or "").strip() for value in details if value and value.strip())
+
+    if item.instructions_ar:
+        return f"{drug_label} ? {detail_label} ? {item.instructions_ar}"
+
+    return f"{drug_label} ? {detail_label}"
+
+
+def _prescription_print_context_or_redirect(visit_uuid):
+    visit = Visit.query.filter_by(uuid=visit_uuid).first_or_404()
+    prescription = PrescriptionService.get_prescription_for_visit(visit)
+
+    if not prescription:
+        flash("No prescription exists for this visit.", "warning")
+        return None, redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    prescription_items = PrescriptionService.list_items(prescription)
+    if not prescription_items:
+        flash("Prescription has no medications to print.", "warning")
+        return None, redirect(url_for("visits.detail", visit_uuid=visit.uuid))
+
+    return (visit, prescription, prescription_items), None
+
+
+def _get_prescription_template(template_uuid=None):
+    if template_uuid:
+        template = PrintTemplateService.get_template_by_uuid(template_uuid)
+        if template and template.document_type == PrintTemplate.DOCUMENT_TYPE_PRESCRIPTION:
+            return template
+
+    return PrintTemplateService.get_or_create_default_template(
+        PrintTemplate.DOCUMENT_TYPE_PRESCRIPTION,
+        actor_user=current_user,
+    )
+
+
+@print_templates_bp.get("/prescriptions/<visit_uuid>/designer")
+@login_required
+@RBACService.require_permission("prescriptions.view")
+def prescription_designer(visit_uuid):
+    context, response = _prescription_print_context_or_redirect(visit_uuid)
+    if response:
+        return response
+
+    template = _get_prescription_template()
+    flash("Prescription uses the unified print template. Edit layout from Print Templates.", "info")
+    return redirect(
+        url_for(
+            "print_templates.prescription_preview",
+            visit_uuid=visit_uuid,
+            template_uuid=template.uuid,
+        )
+    )
+
+
+@print_templates_bp.get("/prescriptions/<visit_uuid>/preview")
+@login_required
+@RBACService.require_permission("prescriptions.view")
+def prescription_preview(visit_uuid):
+    context, response = _prescription_print_context_or_redirect(visit_uuid)
+    if response:
+        return response
+
+    visit, prescription, prescription_items = context
+    template = _get_prescription_template(request.args.get("template_uuid"))
+
+    print_data = {
+        "patient_name": PatientService.get_display_name(visit.patient),
+        "mrn": visit.patient.formatted_mrn,
+        "date": visit.visit_date.date().isoformat() if visit.visit_date else "",
+        "prescription_items": [
+            _prescription_line_text(item)
+            for item in prescription_items
+        ],
+    }
+
+    return render_template(
+        "print_templates/prescription_preview.html",
+        visit=visit,
+        prescription=prescription,
+        prescription_items=prescription_items,
+        template=template,
+        print_data=print_data,
+        PatientService=PatientService,
+    )
+
+
+@print_templates_bp.post("/templates/<template_uuid>/deactivate")
 @login_required
 @RBACService.require_permission("print_templates.manage")
 def deactivate(template_uuid):
@@ -172,7 +279,7 @@ def deactivate(template_uuid):
     return redirect(url_for("print_templates.index"))
 
 
-@print_templates_bp.post("/<template_uuid>/reactivate")
+@print_templates_bp.post("/templates/<template_uuid>/reactivate")
 @login_required
 @RBACService.require_permission("print_templates.manage")
 def reactivate(template_uuid):

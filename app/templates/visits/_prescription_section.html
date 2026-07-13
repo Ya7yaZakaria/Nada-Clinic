@@ -10,7 +10,7 @@
                 <span class="badge text-bg-light align-self-start">Items: {{ prescription_items|length }}</span>
                 {% if prescription_items %}
                     <a class="btn btn-sm btn-outline-primary"
-                       href="{{ url_for('visits.print_prescription', visit_uuid=visit.uuid) }}"
+                       href="{{ url_for('print_templates.prescription_preview', visit_uuid=visit.uuid) }}"
                        target="_blank"
                        rel="noopener">
                         Print
