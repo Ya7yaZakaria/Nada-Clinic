@@ -1051,3 +1051,19 @@ No diagnosis-linked preset behavior added.
 - PDF parsing.
 - Drawing/annotation.
 - Cloud storage.
+
+## 2026-07-13 — Stage 7 Documents & Storage Freeze Review
+### Verified
+- PatientDocument model and migration.
+- DocumentService local storage workflow.
+- Secure filename and file validation.
+- Patient document upload, list, detail, download, and archive.
+- Patient Workspace documents section.
+- InvestigationResult report attachment.
+- RBAC for documents.view and documents.manage.
+- Reception blocked from document workflows.
+- No migration drift.
+- No OCR, AI extraction, cloud storage, drawing tools, lab integration, or PDF parsing.
+
+### Next
+- Stage 8 Ultrasound.

@@ -299,3 +299,11 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Added tests for doctor upload, patient investigations display, Reception block, and invalid file rejection.
 - Kept OCR, AI extraction, lab integration, PDF parsing, cloud storage, and drawing/annotation out of scope.
 - Next action: verify tests/routes, then Sprint 7.4 Documents & Storage Freeze Review.
+
+## 2026-07-13 - Stage 7 Documents Storage Freeze Review
+- Stage 7 reviewed for freeze after Documents backend, Patient Documents UI, and InvestigationResult attachment.
+- Verified PatientDocument model, DocumentService, local storage, validation, download/archive routes, Patient Workspace integration, InvestigationResult attachment, RBAC, tests, docs, and migration state.
+- Confirmed documents.view and documents.manage permissions; Admin/Doctor allowed, Reception blocked initially.
+- Confirmed no OCR, AI extraction, cloud storage, drawing/annotation, lab integration, PDF parsing, or Ultrasound structured module added.
+- Current migration head remains 20260713_0064.
+- Next action: commit Sprint 7.3A cleanup plus Stage 7 freeze review, push, then start Stage 8 Ultrasound planning.

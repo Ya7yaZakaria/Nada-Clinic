@@ -57,8 +57,6 @@ class RBACService:
             "print_templates.manage",
             "documents.view",
             "documents.manage",
-            "documents.view",
-            "documents.manage",
         ],
         "Reception": [
             "dashboard.view",

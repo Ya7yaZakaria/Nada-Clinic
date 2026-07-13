@@ -537,3 +537,6 @@ Sprint 7.2 adds UI workflows for patient documents: upload, list, detail, downlo
 
 ## Sprint 7.3 — Attach Documents to Investigation Results
 Sprint 7.3 links the Documents module to investigation results. Doctors can upload a real report file from an InvestigationResult context, the file is stored as a PatientDocument linked to the result, and attached reports appear on investigation order and patient investigation pages. OCR, AI extraction, lab integration, PDF parsing, cloud storage, and drawing tools remain out of scope.
+
+## Stage 7 - Documents & Storage Freeze Review
+Stage 7 freezes the Documents & Storage module after backend foundation, patient document UI, and investigation result attachment. The module supports local file storage, document metadata, secure filenames, validation, view/download/archive workflows, Patient Workspace integration, InvestigationResult attachment, RBAC, and tests. OCR, AI extraction, cloud storage, drawing tools, lab integration, PDF parsing, and ultrasound structured workflows remain out of scope.
