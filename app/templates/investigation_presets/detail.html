@@ -1,0 +1,112 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Investigation Preset Detail — Nada Clinic System{% endblock %}
+{% block page_title %}Investigation Preset{% endblock %}
+{% block page_subtitle %}Panel tests{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
+        <div>
+            <p class="section-kicker">Investigation Preset</p>
+            <h1 class="h4 mb-1">{{ preset.name }}</h1>
+            <p class="text-muted mb-0">
+                {{ preset.description or "No description" }}
+                ·
+                {% if preset.is_active %}
+                    <span class="badge text-bg-success">Active</span>
+                {% else %}
+                    <span class="badge text-bg-secondary">Inactive</span>
+                {% endif %}
+            </p>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+            <a class="btn btn-outline-secondary"
+               href="{{ url_for('investigation_presets.edit', preset_uuid=preset.uuid) }}">
+                Edit
+            </a>
+            <a class="btn btn-outline-secondary"
+               href="{{ url_for('investigation_presets.index') }}">
+                Back
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="clinic-card">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Tests</p>
+            <h2 class="h5 mb-0">Preset investigation tests</h2>
+        </div>
+        <span class="badge text-bg-light">Items: {{ items|length }}</span>
+    </div>
+
+    {% if items %}
+        <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Test</th>
+                        <th>Notes</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>
+                                <strong>{{ item.test.name_en }}</strong>
+                                <div class="small text-muted">
+                                    {% if item.test.category %}{{ item.test.category.name_en }} · {% endif %}
+                                    {{ item.test.result_kind }}
+                                    {% if item.test.default_unit %} · {{ item.test.default_unit }}{% endif %}
+                                </div>
+                            </td>
+                            <td>{{ item.notes or "—" }}</td>
+                            <td class="text-end">
+                                <form method="post"
+                                      action="{{ url_for('investigation_presets.remove_item', item_uuid=item.uuid) }}"
+                                      class="d-inline">
+                                    {{ item_form.hidden_tag() }}
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                                        Remove
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-3">No tests added yet.</p>
+    {% endif %}
+
+    <hr>
+    <h3 class="h6">Add investigation test</h3>
+    <form method="post" action="{{ url_for('investigation_presets.add_item', preset_uuid=preset.uuid) }}">
+        {{ item_form.hidden_tag() }}
+
+        <div class="row g-2">
+            <div class="col-12 col-lg-8">
+                <label class="form-label" for="{{ item_form.test_id.id }}">
+                    {{ item_form.test_id.label.text }}
+                </label>
+                {{ item_form.test_id(class="form-select") }}
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="{{ item_form.notes.id }}">
+                    {{ item_form.notes.label.text }}
+                </label>
+                {{ item_form.notes(class="form-control", placeholder="Optional") }}
+            </div>
+        </div>
+
+        <div class="mt-3">
+            {{ item_form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

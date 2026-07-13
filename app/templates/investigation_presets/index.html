@@ -1,0 +1,83 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Investigation Presets — Nada Clinic System{% endblock %}
+{% block page_title %}Investigation Presets{% endblock %}
+{% block page_subtitle %}Reusable investigation panels and workups{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Investigation Presets</p>
+            <h1 class="h4 mb-0">Panels / Workups</h1>
+        </div>
+        <a class="btn btn-primary" href="{{ url_for('investigation_presets.new') }}">New preset</a>
+    </div>
+
+    {% if presets %}
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Items</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for preset in presets %}
+                        <tr>
+                            <td>
+                                <strong>{{ preset.name }}</strong>
+                            </td>
+                            <td>{{ preset.description or "—" }}</td>
+                            <td>
+                                {% if preset.is_active %}
+                                    <span class="badge text-bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ preset.items.count() }}</td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="{{ url_for('investigation_presets.detail', preset_uuid=preset.uuid) }}">
+                                    Open
+                                </a>
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="{{ url_for('investigation_presets.edit', preset_uuid=preset.uuid) }}">
+                                    Edit
+                                </a>
+
+                                {% if preset.is_active %}
+                                    <form method="post"
+                                          action="{{ url_for('investigation_presets.deactivate', preset_uuid=preset.uuid) }}"
+                                          class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-sm btn-outline-warning" type="submit">
+                                            Deactivate
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <form method="post"
+                                          action="{{ url_for('investigation_presets.reactivate', preset_uuid=preset.uuid) }}"
+                                          class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-sm btn-outline-success" type="submit">
+                                            Reactivate
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-0">No investigation presets yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -778,3 +778,21 @@ No diagnosis-linked preset behavior added.
 - No print request added.
 - No upload/storage added.
 - No AI behavior added.
+
+## 2026-07-13 — Sprint 6.2B Investigation Presets UI
+### Added
+- Investigation preset forms.
+- Investigation presets blueprint/routes.
+- Preset list/create/edit/detail UI.
+- Add/remove preset investigation tests.
+- Apply investigation preset from order detail.
+- Sidebar Investigation Presets link.
+- UI tests and Sprint 6.2B documentation.
+
+### Confirmed
+- No result entry UI added.
+- No historical result UI added.
+- No print request added.
+- No upload/storage added.
+- No AI behavior added.
+- No migration added.

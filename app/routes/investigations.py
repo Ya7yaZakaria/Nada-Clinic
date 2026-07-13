@@ -1,11 +1,14 @@
-﻿from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
 from app.forms.investigation_forms import InvestigationOrderForm, InvestigationOrderItemForm
+from app.forms.investigation_preset_forms import InvestigationPresetApplyForm
 from app.models import Patient, Visit
 from app.models.investigation import InvestigationOrder, InvestigationOrderItem, InvestigationTest
+from app.models.investigation_preset import InvestigationPreset
 from app.services.investigation_dictionary_service import InvestigationDictionaryService
 from app.services.investigation_service import InvestigationService
+from app.services.investigation_preset_service import InvestigationPresetService
 from app.services.patient_service import PatientService
 from app.services.rbac_service import RBACService
 from app.services.visit_service import VisitService
@@ -27,6 +30,19 @@ def _populate_item_form(form):
         for test in InvestigationDictionaryService.list_active_tests()
     ]
 
+
+
+def _populate_preset_apply_form(form):
+    form.preset_id.choices = [(0, "Select investigation preset...")] + [
+        (preset.id, preset.name)
+        for preset in InvestigationPresetService.list_active_presets()
+    ]
+
+
+def _get_active_preset_or_none(preset_id):
+    if not preset_id:
+        return None
+    return InvestigationPreset.query.filter_by(id=preset_id, is_active=True).first()
 
 def _get_active_test_or_none(test_id):
     if not test_id:
@@ -131,15 +147,19 @@ def detail(order_uuid):
     )
 
     item_form = None
+    preset_apply_form = None
     if can_manage_investigations:
         item_form = InvestigationOrderItemForm()
         _populate_item_form(item_form)
+        preset_apply_form = InvestigationPresetApplyForm()
+        _populate_preset_apply_form(preset_apply_form)
 
     return render_template(
         "investigations/detail.html",
         order=order,
         items=items,
         item_form=item_form,
+        preset_apply_form=preset_apply_form,
         can_manage_investigations=can_manage_investigations,
         PatientService=PatientService,
         VisitService=VisitService,
@@ -171,6 +191,39 @@ def add_item(order_uuid):
         return redirect(url_for("investigations.detail", order_uuid=order.uuid))
 
     flash("Investigation test added.", "success")
+    return redirect(url_for("investigations.detail", order_uuid=order.uuid))
+
+
+@investigations_bp.post("/orders/<order_uuid>/apply-preset")
+@login_required
+@RBACService.require_permission("investigations.manage")
+def apply_preset(order_uuid):
+    order = InvestigationOrder.query.filter_by(uuid=order_uuid).first_or_404()
+
+    form = InvestigationPresetApplyForm()
+    _populate_preset_apply_form(form)
+
+    if not form.validate_on_submit():
+        flash("Invalid investigation preset selection.", "danger")
+        return redirect(url_for("investigations.detail", order_uuid=order.uuid))
+
+    preset = _get_active_preset_or_none(form.preset_id.data)
+
+    if not preset:
+        flash("Investigation preset is required.", "danger")
+        return redirect(url_for("investigations.detail", order_uuid=order.uuid))
+
+    try:
+        created_items = InvestigationPresetService.apply_to_order(
+            preset=preset,
+            order=order,
+            actor_user=current_user,
+        )
+    except ValueError as exc:
+        flash(str(exc), "danger")
+        return redirect(url_for("investigations.detail", order_uuid=order.uuid))
+
+    flash(f"Investigation preset applied: {preset.name} ({len(created_items)} items).", "success")
     return redirect(url_for("investigations.detail", order_uuid=order.uuid))
 
 
