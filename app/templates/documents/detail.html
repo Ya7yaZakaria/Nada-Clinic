@@ -1,0 +1,94 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Document Detail — Nada Clinic System{% endblock %}
+{% block page_title %}Document Detail{% endblock %}
+{% block page_subtitle %}Patient file metadata and actions{% endblock %}
+
+{% block content %}
+{% set patient = document.patient %}
+{% set display_name = PatientService.get_display_name(patient) %}
+
+<div class="clinic-card mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
+        <div>
+            <p class="section-kicker">Documents</p>
+            <h1 class="h4 mb-1">{{ document.title }}</h1>
+            <p class="text-muted mb-0">{{ display_name }} · MRN {{ patient.formatted_mrn }}</p>
+        </div>
+        <div class="d-flex gap-2 align-items-start flex-wrap">
+            <a class="btn btn-primary" href="{{ url_for('documents.download', document_uuid=document.uuid) }}">Download</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('documents.patient_documents', patient_uuid=patient.uuid) }}">Back to documents</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-8">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Metadata</p>
+            <h2 class="h5">File details</h2>
+
+            <dl class="row mb-0">
+                <dt class="col-5">Type</dt>
+                <dd class="col-7">{{ document.document_type }}</dd>
+
+                <dt class="col-5">Original filename</dt>
+                <dd class="col-7">{{ document.original_filename }}</dd>
+
+                <dt class="col-5">MIME type</dt>
+                <dd class="col-7">{{ document.mime_type or "—" }}</dd>
+
+                <dt class="col-5">File size</dt>
+                <dd class="col-7">{{ document.file_size }} bytes</dd>
+
+                <dt class="col-5">Uploaded</dt>
+                <dd class="col-7">{{ document.created_at }}</dd>
+
+                <dt class="col-5">Uploaded by</dt>
+                <dd class="col-7">{{ document.uploaded_by_user.name if document.uploaded_by_user else "—" }}</dd>
+
+                <dt class="col-5">Visit link</dt>
+                <dd class="col-7">
+                    {% if document.visit %}
+                        <a href="{{ url_for('visits.detail', visit_uuid=document.visit.uuid) }}">Open visit</a>
+                    {% else %}
+                        —
+                    {% endif %}
+                </dd>
+
+                <dt class="col-5">Investigation result link</dt>
+                <dd class="col-7">
+                    {% if document.investigation_result %}
+                        Linked result
+                    {% else %}
+                        —
+                    {% endif %}
+                </dd>
+
+                <dt class="col-5">Description</dt>
+                <dd class="col-7">{{ document.description or "—" }}</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Actions</p>
+            <h2 class="h5">Document actions</h2>
+
+            <div class="d-grid gap-2">
+                <a class="btn btn-primary" href="{{ url_for('documents.download', document_uuid=document.uuid) }}">Download</a>
+
+                {% if can_manage_documents %}
+                    <form method="post" action="{{ url_for('documents.archive', document_uuid=document.uuid) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-outline-danger w-100" type="submit">Archive document</button>
+                    </form>
+                {% endif %}
+
+                <a class="btn btn-outline-secondary" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">Back to workspace</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

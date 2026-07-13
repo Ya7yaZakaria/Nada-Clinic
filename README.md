@@ -531,3 +531,6 @@ Sprint 6.6A fixes ordered investigation result context. When a patient returns i
 
 ## Sprint 7.1 — Documents Backend Foundation
 Sprint 7.1 adds the backend foundation for patient documents: PatientDocument metadata, local file storage, secure filename handling, validation, document service helpers, optional links to Visit and InvestigationResult, RBAC permissions, migration, and backend tests. UI, OCR, AI, cloud storage, drawing tools, and ultrasound workflows remain out of scope.
+
+## Sprint 7.2 — Patient Documents UI
+Sprint 7.2 adds UI workflows for patient documents: upload, list, detail, download, archive, and Patient Workspace document display. It reuses the Sprint 7.1 DocumentService and keeps OCR, AI extraction, cloud storage, drawing tools, ultrasound workflows, and investigation result attachment UI out of scope.

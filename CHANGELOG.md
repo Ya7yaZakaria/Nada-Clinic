@@ -1012,3 +1012,23 @@ No diagnosis-linked preset behavior added.
 - Cloud storage.
 - Drawing tools.
 - Ultrasound module.
+
+## 2026-07-13 — Sprint 7.2 Patient Documents UI
+### Added
+- Documents blueprint and routes.
+- Document upload form.
+- Patient document list page.
+- Document detail page.
+- Secure document download route.
+- Document archive route.
+- Patient Workspace documents section.
+- Document UI tests.
+- Sprint 7.2 documentation.
+
+### Confirmed Out of Scope
+- OCR.
+- AI extraction.
+- Cloud storage.
+- Drawing/annotation.
+- Ultrasound module.
+- Investigation result attachment UI.

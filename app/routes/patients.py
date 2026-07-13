@@ -6,6 +6,7 @@ from app.forms.appointment_forms import AppointmentForm
 from app.forms.patient_forms import MRNChangeForm, PatientForm
 from app.models import Patient
 from app.services.appointment_service import AppointmentService
+from app.services.document_service import DocumentService
 from app.services.investigation_preset_service import InvestigationPresetService
 from app.services.investigation_service import InvestigationService
 from app.services.journey_service import JourneyService
@@ -44,6 +45,24 @@ def _get_patient_workspace_investigation_context(patient):
         "missing_workup_tests": missing_workup_tests,
         "can_manage_investigations": RBACService.user_has_permission(current_user, "investigations.manage"),
         "can_review_investigation_results": RBACService.user_has_permission(current_user, "investigation_results.review"),
+    }
+
+
+def _get_patient_workspace_documents_context(patient):
+    can_view_documents = RBACService.user_has_permission(current_user, "documents.view")
+    can_manage_documents = RBACService.user_has_permission(current_user, "documents.manage")
+
+    if not can_view_documents:
+        return {
+            "patient_documents": [],
+            "can_view_documents": False,
+            "can_manage_documents": False,
+        }
+
+    return {
+        "patient_documents": DocumentService.list_patient_documents(patient),
+        "can_view_documents": can_view_documents,
+        "can_manage_documents": can_manage_documents,
     }
 
 
@@ -126,6 +145,7 @@ def detail(patient_uuid):
     patient = Patient.query.filter_by(uuid=patient_uuid).first_or_404()
 
     investigation_context = _get_patient_workspace_investigation_context(patient)
+    documents_context = _get_patient_workspace_documents_context(patient)
 
     return render_template(
         "patients/detail.html",
@@ -136,6 +156,7 @@ def detail(patient_uuid):
         TimelineService=TimelineService,
         timeline_events=TimelineService.get_patient_timeline(patient),
         **investigation_context,
+        **documents_context,
     )
 
 
