@@ -600,6 +600,6 @@ def test_stage_5_freeze_visit_prescription_nav_has_single_mobile_presets_link():
 
         assert response.status_code == 200
         assert response.data.count(b"Prescription Presets") == 2
-        assert b"Stage 5 Prescriptions" in response.data
+        assert b"Stage 6 Investigations" in response.data
 
         db.drop_all()

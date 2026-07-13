@@ -3,16 +3,20 @@ from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
+from app.forms.investigation_forms import InvestigationOrderItemForm
 from app.forms.prescription_forms import PrescriptionItemForm
 from app.forms.prescription_preset_forms import PrescriptionPresetApplyForm
 from app.forms.visit_forms import VisitForm, VisitJourneyLinkForm
 from app.models import Patient, Visit
 from app.models.drug import Drug
 from app.models.drug_dictionary import DrugRoute
+from app.models.investigation import InvestigationOrder, InvestigationOrderItem
 from app.models.prescription import PrescriptionItem
 from app.models.prescription_preset import PrescriptionPreset
 from app.services.drug_dictionary_service import DrugDictionaryService
 from app.services.drug_service import DrugService
+from app.services.investigation_dictionary_service import InvestigationDictionaryService
+from app.services.investigation_service import InvestigationService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
 from app.services.prescription_service import PrescriptionService
@@ -51,6 +55,20 @@ def _populate_prescription_preset_apply_form(form):
         for preset in PrescriptionPresetService.list_active_presets()
     ]
 
+
+
+def _investigation_test_choice_label(test):
+    category_name = test.category.name_en if test.category else "Uncategorized"
+    if test.default_unit:
+        return f"{test.name_en} ({category_name}) ? {test.default_unit}"
+    return f"{test.name_en} ({category_name})"
+
+
+def _populate_investigation_item_form(form):
+    form.test_id.choices = [(0, "Select investigation test...")] + [
+        (test.id, _investigation_test_choice_label(test))
+        for test in InvestigationDictionaryService.list_active_tests()
+    ]
 
 def _get_drug_or_none(drug_id):
     if not drug_id:
@@ -145,11 +163,17 @@ def detail(visit_uuid):
 
     can_view_prescription = RBACService.user_has_permission(current_user, "prescriptions.view")
     can_manage_prescription = RBACService.user_has_permission(current_user, "prescriptions.manage")
+    can_view_investigations = RBACService.user_has_permission(current_user, "investigations.view")
+    can_manage_investigations = RBACService.user_has_permission(current_user, "investigations.manage")
 
     prescription = None
     prescription_items = []
     prescription_item_form = None
     prescription_preset_apply_form = None
+
+    investigation_orders = []
+    investigation_pending_items = []
+    investigation_item_form = None
 
     if can_view_prescription:
         prescription = PrescriptionService.get_prescription_for_visit(visit)
@@ -162,6 +186,31 @@ def detail(visit_uuid):
         prescription_preset_apply_form = PrescriptionPresetApplyForm()
         _populate_prescription_preset_apply_form(prescription_preset_apply_form)
 
+    if can_view_investigations:
+        investigation_orders = (
+            InvestigationOrder.query.filter_by(ordered_visit_id=visit.id)
+            .order_by(InvestigationOrder.created_at.desc(), InvestigationOrder.id.desc())
+            .all()
+        )
+        investigation_pending_items = (
+            InvestigationOrderItem.query.join(InvestigationOrder)
+            .filter(InvestigationOrder.ordered_visit_id == visit.id)
+            .filter(
+                InvestigationOrderItem.status.in_(
+                    [
+                        InvestigationOrderItem.STATUS_ORDERED,
+                        InvestigationOrderItem.STATUS_PENDING_RESULT,
+                    ]
+                )
+            )
+            .order_by(InvestigationOrder.created_at.asc(), InvestigationOrderItem.sort_order.asc())
+            .all()
+        )
+
+    if can_manage_investigations:
+        investigation_item_form = InvestigationOrderItemForm()
+        _populate_investigation_item_form(investigation_item_form)
+
     return render_template(
         "visits/detail.html",
         visit=visit,
@@ -172,6 +221,11 @@ def detail(visit_uuid):
         prescription_preset_apply_form=prescription_preset_apply_form,
         can_view_prescription=can_view_prescription,
         can_manage_prescription=can_manage_prescription,
+        investigation_orders=investigation_orders,
+        investigation_pending_items=investigation_pending_items,
+        investigation_item_form=investigation_item_form,
+        can_view_investigations=can_view_investigations,
+        can_manage_investigations=can_manage_investigations,
         JourneyService=JourneyService,
         PatientService=PatientService,
         VisitService=VisitService,

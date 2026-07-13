@@ -492,3 +492,6 @@ Sprint 5.7 closes the Stage 5 prescription foundation with a cleanup and freeze 
 
 ## Sprint 6.1A — Investigation Dictionaries + Core Models
 Sprint 6.1A adds the backend foundation for investigations: categories, tests, orders, order items, results, historical results without prior orders, separate ordered/result visits, latest result lookup, pending ordered result lookup, missing test detection, and investigation RBAC permissions. No UI, presets, print, upload storage, lab integration, or AI behavior is added.
+
+## Sprint 6.1B — Investigation Orders From Visit UI
+Sprint 6.1B adds the first investigation UI workflow: doctors can create investigation orders from a Visit, add individual tests, view order details, see pending items from the Visit, and open a Patient Investigations page. It does not add result entry, presets, print requests, upload/storage, AI behavior, or a new migration.

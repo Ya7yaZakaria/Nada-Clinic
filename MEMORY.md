@@ -146,3 +146,13 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Added investigation RBAC permissions for Doctor/Admin while Reception remains blocked.
 - No UI, presets, print request, real upload/storage, lab integration, or AI behavior added.
 - Next action: verify migration/tests, then Sprint 6.1B Investigation Orders From Visit UI.
+
+## 2026-07-13 — Sprint 6.1B Investigation Orders From Visit UI
+- Added investigation order UI from Visit.
+- Added investigation blueprint/routes.
+- Added order detail page and add-test workflow.
+- Added patient investigations page with pending/latest sections.
+- Added investigations section inside Visit detail.
+- Added sidebar Investigations link.
+- Kept result entry, historical result UI, presets, print request, upload/storage, AI behavior, and migration out of scope.
+- Next action: verify tests/routes, then Sprint 6.2A Investigation Presets Backend or Sprint 6.3A Result Entry Backend depending on workflow priority.

@@ -1,0 +1,36 @@
+﻿{% extends "base.html" %}
+
+{% block title %}New Investigation Order — Nada Clinic System{% endblock %}
+{% block page_title %}New Investigation Order{% endblock %}
+{% block page_subtitle %}Order investigations from visit{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <p class="section-kicker">Investigation Order</p>
+    <h1 class="h4">
+        {{ PatientService.get_display_name(visit.patient) }}
+    </h1>
+    <p class="text-muted">
+        Visit: {{ visit.created_at.strftime("%Y-%m-%d") }}
+    </p>
+
+    <form method="post" action="{{ url_for('investigations.new_from_visit', visit_uuid=visit.uuid) }}">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.priority.id }}">{{ form.priority.label.text }}</label>
+            {{ form.priority(class="form-select") }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.order_notes.id }}">{{ form.order_notes.label.text }}</label>
+            {{ form.order_notes(class="form-control", rows="3", placeholder="Optional notes for requested investigations") }}
+        </div>
+
+        <div class="d-flex gap-2">
+            {{ form.submit(class="btn btn-primary") }}
+            <a class="btn btn-outline-secondary" href="{{ url_for('visits.detail', visit_uuid=visit.uuid) }}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -28,7 +28,7 @@
                 <a class="sidebar-link" href="{{ url_for('patients.index') }}">Patients</a>
                 <a class="sidebar-link" href="{{ url_for('appointments.calendar') }}">Appointments</a>
                 <a class="sidebar-link disabled" href="#">Visits</a>
-                <a class="sidebar-link disabled" href="#">Investigations</a>
+                <a class="sidebar-link" href="{{ url_for('investigations.index') }}">Investigations</a>
                 <a class="sidebar-link disabled" href="#">Reports</a>
                 <a class="sidebar-link" href="{{ url_for('drugs.index') }}">Drugs</a>
                 <a class="sidebar-link" href="{{ url_for('prescription_presets.index') }}">Prescription Presets</a>
@@ -38,7 +38,7 @@
 
             <div class="sidebar-footer">
                 <span class="status-dot"></span>
-                Stage 5 Prescriptions
+                Stage 6 Investigations
             </div>
         </aside>
 
@@ -86,7 +86,7 @@
                     <a class="sidebar-link" href="{{ url_for('patients.index') }}">Patients</a>
                     <a class="sidebar-link" href="{{ url_for('appointments.calendar') }}">Appointments</a>
                     <a class="sidebar-link disabled" href="#">Visits</a>
-                    <a class="sidebar-link disabled" href="#">Investigations</a>
+                    <a class="sidebar-link" href="{{ url_for('investigations.index') }}">Investigations</a>
                     <a class="sidebar-link" href="{{ url_for('drugs.index') }}">Drugs</a>
                     <a class="sidebar-link" href="{{ url_for('prescription_presets.index') }}">Prescription Presets</a>
                     <a class="sidebar-link" href="{{ url_for('drug_settings.index') }}">Drug Settings</a>

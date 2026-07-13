@@ -735,3 +735,25 @@ No diagnosis-linked preset behavior added.
 - No real file upload/storage added.
 - No lab integration added.
 - No AI behavior added.
+
+## 2026-07-13 — Sprint 6.1B Investigation Orders From Visit UI
+### Added
+- Investigation forms.
+- Investigation blueprint and routes.
+- Create investigation order from Visit workflow.
+- Investigation order detail page.
+- Add individual test to investigation order workflow.
+- Cancel investigation item workflow.
+- Patient investigations page with pending/latest sections.
+- Visit detail investigations section.
+- Sidebar Investigations link.
+- UI tests and Sprint 6.1B documentation.
+
+### Confirmed
+- No result entry UI added.
+- No historical result UI added.
+- No presets added.
+- No print request added.
+- No upload/storage added.
+- No AI behavior added.
+- No migration added.

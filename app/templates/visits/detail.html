@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Visit — Nada Clinic System{% endblock %}
 {% block page_title %}Visit{% endblock %}
@@ -80,5 +80,6 @@
     </div>
 </div>
 
+{% include "visits/_investigations_section.html" %}
 {% include "visits/_prescription_section.html" %}
 {% endblock %}

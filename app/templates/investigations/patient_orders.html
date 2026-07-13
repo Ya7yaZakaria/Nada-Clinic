@@ -1,0 +1,108 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Patient Investigations — Nada Clinic System{% endblock %}
+{% block page_title %}Patient Investigations{% endblock %}
+{% block page_subtitle %}Orders, pending items, and latest results{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <p class="section-kicker">Patient</p>
+    <h1 class="h4">
+        <a href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">
+            {{ PatientService.get_display_name(patient) }}
+        </a>
+    </h1>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Pending results</h2>
+            {% if pending_items %}
+                <ul class="list-group list-group-flush">
+                    {% for item in pending_items %}
+                        <li class="list-group-item px-0">
+                            <strong>{{ item.test.name_en }}</strong>
+                            <div class="small text-muted">
+                                Ordered: {{ item.order.created_at.strftime("%Y-%m-%d") }}
+                                {% if item.order.ordered_visit %}
+                                    · <a href="{{ url_for('visits.detail', visit_uuid=item.order.ordered_visit.uuid) }}">Visit</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted mb-0">No pending investigation results.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Latest results</h2>
+            {% if latest_results %}
+                <ul class="list-group list-group-flush">
+                    {% for result in latest_results %}
+                        <li class="list-group-item px-0">
+                            <strong>{{ result.test.name_en }}</strong>
+                            <div>
+                                {{ result.result_value or result.result_text or "Result entered" }}
+                                {% if result.unit %} {{ result.unit }}{% endif %}
+                            </div>
+                            <div class="small text-muted">
+                                {{ result.result_date }}
+                                {% if result.lab_name %} · {{ result.lab_name }}{% endif %}
+                                · {{ result.abnormal_flag }}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-muted mb-0">No investigation results recorded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="clinic-card mt-3">
+    <h2 class="h5">Orders</h2>
+    {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Ordered visit</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td><span class="badge text-bg-light">{{ order.status }}</span></td>
+                            <td>{{ order.priority }}</td>
+                            <td>
+                                {% if order.ordered_visit %}
+                                    <a href="{{ url_for('visits.detail', visit_uuid=order.ordered_visit.uuid) }}">Open visit</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="{{ url_for('investigations.detail', order_uuid=order.uuid) }}">
+                                    Open
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-0">No investigation orders yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

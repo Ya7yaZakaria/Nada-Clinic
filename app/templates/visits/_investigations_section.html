@@ -1,0 +1,74 @@
+﻿{% if can_view_investigations %}
+<div class="clinic-card mt-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Investigations</p>
+            <h2 class="h5 mb-0">Investigation orders</h2>
+        </div>
+        <div class="d-flex gap-2 align-items-start flex-wrap">
+            <span class="badge text-bg-light align-self-start">Orders: {{ investigation_orders|length }}</span>
+            {% if investigation_pending_items %}
+                <span class="badge text-bg-warning align-self-start">Pending: {{ investigation_pending_items|length }}</span>
+            {% endif %}
+            {% if can_manage_investigations %}
+                <a class="btn btn-sm btn-outline-primary"
+                   href="{{ url_for('investigations.new_from_visit', visit_uuid=visit.uuid) }}">
+                    New order
+                </a>
+            {% endif %}
+            <a class="btn btn-sm btn-outline-secondary"
+               href="{{ url_for('investigations.patient_orders', patient_uuid=visit.patient.uuid) }}">
+                Patient investigations
+            </a>
+        </div>
+    </div>
+
+    {% if investigation_orders %}
+        <div class="table-responsive mb-3">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Items</th>
+                        <th>Notes</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in investigation_orders %}
+                        <tr>
+                            <td><span class="badge text-bg-light">{{ order.status }}</span></td>
+                            <td>{{ order.priority }}</td>
+                            <td>{{ order.items.count() }}</td>
+                            <td>{{ order.order_notes or "—" }}</td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="{{ url_for('investigations.detail', order_uuid=order.uuid) }}">
+                                    Open
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-3">No investigation orders created from this visit yet.</p>
+    {% endif %}
+
+    {% if investigation_pending_items %}
+        <div class="border rounded p-3 bg-light">
+            <h3 class="h6 mb-2">Pending results from this visit</h3>
+            <ul class="mb-0">
+                {% for item in investigation_pending_items %}
+                    <li>
+                        {{ item.test.name_en }}
+                        <span class="text-muted">— {{ item.status }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+</div>
+{% endif %}

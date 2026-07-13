@@ -1,0 +1,56 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Investigations — Nada Clinic System{% endblock %}
+{% block page_title %}Investigations{% endblock %}
+{% block page_subtitle %}Recent investigation orders{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Investigations</p>
+            <h1 class="h4 mb-0">Recent orders</h1>
+        </div>
+    </div>
+
+    {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Ordered visit</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ PatientService.get_display_name(order.patient) }}</td>
+                            <td><span class="badge text-bg-light">{{ order.status }}</span></td>
+                            <td>{{ order.priority }}</td>
+                            <td>
+                                {% if order.ordered_visit %}
+                                    <a href="{{ url_for('visits.detail', visit_uuid=order.ordered_visit.uuid) }}">Open visit</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="{{ url_for('investigations.detail', order_uuid=order.uuid) }}">
+                                    Open
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="text-muted mb-0">No investigation orders yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
