@@ -1,0 +1,71 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Print Template Form — Nada Clinic System{% endblock %}
+{% block page_title %}Print Template{% endblock %}
+{% block page_subtitle %}Create or edit a reusable print layout{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+        <div>
+            <p class="section-kicker">Print Template</p>
+            <h1 class="h4 mb-0">
+                {% if mode == "edit" %}Edit template{% else %}New template{% endif %}
+            </h1>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('print_templates.index') }}">Back</a>
+    </div>
+
+    <form method="post">
+        {{ form.hidden_tag() }}
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <label class="form-label" for="{{ form.document_type.id }}">{{ form.document_type.label.text }}</label>
+                {{ form.document_type(class="form-select", disabled=(mode == "edit")) }}
+                {% if mode == "edit" %}
+                    <input type="hidden" name="{{ form.document_type.name }}" value="{{ form.document_type.data }}">
+                    <div class="form-text">Document type cannot be changed after creation.</div>
+                {% endif %}
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <label class="form-label" for="{{ form.name.id }}">{{ form.name.label.text }}</label>
+                {{ form.name(class="form-control", placeholder="e.g. Nada Small Rx") }}
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label" for="{{ form.paper_width_mm.id }}">{{ form.paper_width_mm.label.text }}</label>
+                {{ form.paper_width_mm(class="form-control", step="0.1") }}
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label" for="{{ form.paper_height_mm.id }}">{{ form.paper_height_mm.label.text }}</label>
+                {{ form.paper_height_mm(class="form-control", step="0.1") }}
+            </div>
+
+            <div class="col-12">
+                <div class="form-check">
+                    {{ form.is_default(class="form-check-input") }}
+                    <label class="form-check-label" for="{{ form.is_default.id }}">{{ form.is_default.label.text }}</label>
+                </div>
+                <div class="form-text">
+                    Setting this as default will clear the previous default for the same document type.
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="form-check">
+                    {{ form.is_active(class="form-check-input") }}
+                    <label class="form-check-label" for="{{ form.is_active.id }}">{{ form.is_active.label.text }}</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            {{ form.submit(class="btn btn-primary") }}
+            <a class="btn btn-outline-secondary" href="{{ url_for('print_templates.index') }}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

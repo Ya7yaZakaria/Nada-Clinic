@@ -860,3 +860,27 @@ No diagnosis-linked preset behavior added.
 - No print lock added.
 - No doctor signature added.
 - No AI behavior added.
+
+## 2026-07-13 — Sprint 6.5B Unified Visual Designer UI
+### Added
+- Print Templates blueprint and routes.
+- PrintTemplateForm.
+- Print template list/create/edit/deactivate/reactivate UI.
+- Seed default print templates action.
+- Generic visual designer page.
+- Drag-and-drop element positioning on paper canvas.
+- layout_json save workflow.
+- Sidebar Print Templates link.
+- Print template UI tests.
+- Sprint 6.5B documentation.
+
+### Confirmed
+- No new migration added.
+- Existing prescription print remains temporarily until Sprint 6.5C migration.
+- No investigation print route added.
+- No print preview rendering added.
+- No PDF generation added.
+- No print history added.
+- No print lock added.
+- No doctor signature added.
+- No AI behavior added.

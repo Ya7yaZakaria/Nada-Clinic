@@ -1,0 +1,98 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Print Templates — Nada Clinic System{% endblock %}
+{% block page_title %}Print Templates{% endblock %}
+{% block page_subtitle %}Reusable visual layouts for prescriptions and investigation requests{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3">
+        <div>
+            <p class="section-kicker">Unified Print Designer</p>
+            <h1 class="h4 mb-0">Print Templates</h1>
+            <p class="text-muted mb-0">
+                Manage paper sizes and visual element positions before connecting prescriptions and investigation requests.
+            </p>
+        </div>
+        <div class="d-flex gap-2 align-items-start flex-wrap">
+            <form method="post" action="{{ url_for('print_templates.seed_defaults') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-outline-secondary" type="submit">Seed defaults</button>
+            </form>
+            <a class="btn btn-primary" href="{{ url_for('print_templates.new') }}">New template</a>
+        </div>
+    </div>
+
+    {% if templates %}
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Document type</th>
+                        <th>Paper</th>
+                        <th>Status</th>
+                        <th>Default</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for template in templates %}
+                        <tr>
+                            <td>
+                                <strong>{{ template.name }}</strong>
+                                <div class="small text-muted">{{ template.uuid }}</div>
+                            </td>
+                            <td>{{ document_type_label(template.document_type) }}</td>
+                            <td>{{ template.paper_width_mm|round(1) }} × {{ template.paper_height_mm|round(1) }} mm</td>
+                            <td>
+                                {% if template.is_active %}
+                                    <span class="badge text-bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if template.is_default %}
+                                    <span class="badge text-bg-primary">Default</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary"
+                                   href="{{ url_for('print_templates.designer', template_uuid=template.uuid) }}">
+                                    Designer
+                                </a>
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   href="{{ url_for('print_templates.edit', template_uuid=template.uuid) }}">
+                                    Edit
+                                </a>
+                                {% if template.is_active %}
+                                    <form method="post"
+                                          action="{{ url_for('print_templates.deactivate', template_uuid=template.uuid) }}"
+                                          class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Deactivate</button>
+                                    </form>
+                                {% else %}
+                                    <form method="post"
+                                          action="{{ url_for('print_templates.reactivate', template_uuid=template.uuid) }}"
+                                          class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-sm btn-outline-success" type="submit">Reactivate</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info mb-0">
+            No print templates yet. Use <strong>Seed defaults</strong> to create one prescription layout and one investigation request layout.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

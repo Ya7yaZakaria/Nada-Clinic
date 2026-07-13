@@ -211,3 +211,16 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Existing prescription print remains temporarily until Sprint 6.5C migration.
 - Kept visual designer UI, prescription migration, investigation print route, print preview, PDF generation, print history, print lock, doctor signature, logo upload, and AI behavior out of scope.
 - Next action: verify migration/tests, then Sprint 6.5B Unified Visual Designer UI.
+
+## 2026-07-13 — Sprint 6.5B Unified Visual Designer UI
+- Added generic Print Templates UI.
+- Added print_templates blueprint/routes.
+- Added PrintTemplateForm.
+- Added default template seeding action from UI.
+- Added create/edit/deactivate/reactivate workflows.
+- Added visual drag-and-drop designer for layout_json.
+- Added sidebar Print Templates link.
+- Added UI tests for access control, defaults, creation, designer save, invalid JSON, toggle, and sidebar.
+- Existing prescription print remains temporarily until Sprint 6.5C migration.
+- No new migration, prescription migration, investigation print route, print preview rendering, PDF generation, print history, print lock, doctor signature, logo upload, or AI behavior added.
+- Next action: verify tests/routes, then Sprint 6.5C Prescription Migration to Unified Print.

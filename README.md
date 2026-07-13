@@ -510,3 +510,6 @@ Sprint 6.4 adds investigation result review workflows and Patient Workspace inve
 
 ## Sprint 6.5A — Unified Print Template Backend
 Sprint 6.5A adds the generic PrintTemplate backend foundation for future visual print design. It supports prescription and investigation request document types, millimeter paper sizes, JSON layout storage, active/default templates, service helpers, RBAC permission print_templates.manage, migration, and tests. The existing prescription print route/template remains temporarily until Sprint 6.5C migration. No visual designer UI, prescription route migration, investigation print route, preview, PDF generation, print history, print lock, doctor signature, or AI behavior is added.
+
+## Sprint 6.5B — Unified Visual Designer UI
+Sprint 6.5B adds a generic Print Templates UI and visual drag-and-drop designer for reusable print layouts. Doctors/Admins can seed default templates, create/edit templates, open a paper canvas, drag elements, fine-tune positions/sizes, and save layout_json. Existing prescription print remains unchanged until Sprint 6.5C migration. No new migration, prescription route migration, investigation print route, preview rendering, PDF generation, print history, print lock, doctor signature, or AI behavior is added.

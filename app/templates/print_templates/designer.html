@@ -1,0 +1,219 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Print Designer — Nada Clinic System{% endblock %}
+{% block page_title %}Print Designer{% endblock %}
+{% block page_subtitle %}Drag elements to match your clinic paper{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <p class="section-kicker">Unified Visual Designer</p>
+            <h1 class="h4 mb-0">{{ template.name }}</h1>
+            <p class="text-muted mb-0">
+                {{ document_type_label(template.document_type) }} ·
+                {{ template.paper_width_mm|round(1) }} × {{ template.paper_height_mm|round(1) }} mm
+            </p>
+        </div>
+        <div class="d-flex gap-2 align-items-start flex-wrap">
+            <a class="btn btn-outline-secondary" href="{{ url_for('print_templates.index') }}">Back</a>
+            <a class="btn btn-outline-secondary" href="{{ url_for('print_templates.edit', template_uuid=template.uuid) }}">Edit metadata</a>
+            <button class="btn btn-primary" type="button" onclick="document.getElementById('layout-save-button').click()">
+                Save layout
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3" x-data="printDesigner({
+    initialLayout: {{ template.layout_json|tojson }},
+    paperWidth: {{ template.paper_width_mm }},
+    paperHeight: {{ template.paper_height_mm }}
+})">
+    <div class="col-12 col-xl-8">
+        <div class="clinic-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h2 class="h5 mb-0">Paper canvas</h2>
+                    <p class="text-muted mb-0 small">Drag blocks. Position is saved in millimeters.</p>
+                </div>
+                <span class="badge text-bg-light border">Scale preview</span>
+            </div>
+
+            <div class="print-designer-stage">
+                <div class="print-designer-paper"
+                     :style="paperStyle()"
+                     @mousemove.window="dragMove($event)"
+                     @mouseup.window="dragEnd()">
+                    <template x-for="(element, key) in layout" :key="key">
+                        <div class="print-designer-element"
+                             x-show="element.visible !== false"
+                             :style="elementStyle(element)"
+                             @mousedown.prevent="dragStart(key, $event)">
+                            <div class="small fw-bold" x-text="element.label || key"></div>
+                            <div class="small text-muted" x-text="sampleText(key, element)"></div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <form method="post" action="{{ url_for('print_templates.save_layout', template_uuid=template.uuid) }}" class="mt-3">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <textarea class="d-none" name="layout_json" x-model="layoutJson"></textarea>
+                <button id="layout-save-button" class="btn btn-primary" type="submit">Save layout</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+        <div class="clinic-card">
+            <h2 class="h5">Elements</h2>
+            <p class="text-muted small">Fine tune after dragging.</p>
+
+            <template x-for="(element, key) in layout" :key="key">
+                <div class="border rounded p-2 mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong class="small" x-text="element.label || key"></strong>
+                        <label class="small">
+                            <input type="checkbox" x-model="element.visible" @change="syncJson()">
+                            visible
+                        </label>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label small">X</label>
+                            <input class="form-control form-control-sm" type="number" step="0.5" x-model.number="element.x" @input="syncJson()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Y</label>
+                            <input class="form-control form-control-sm" type="number" step="0.5" x-model.number="element.y" @input="syncJson()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Width</label>
+                            <input class="form-control form-control-sm" type="number" step="0.5" x-model.number="element.width" @input="syncJson()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Height</label>
+                            <input class="form-control form-control-sm" type="number" step="0.5" x-model.number="element.height" @input="syncJson()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Font</label>
+                            <input class="form-control form-control-sm" type="number" step="1" x-model.number="element.fontSize" @input="syncJson()">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Line height</label>
+                            <input class="form-control form-control-sm" type="number" step="0.5" x-model.number="element.lineHeight" @input="syncJson()">
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+
+<style>
+    .print-designer-stage {
+        overflow: auto;
+        border: 1px solid rgba(16, 42, 47, 0.12);
+        border-radius: 16px;
+        background:
+            linear-gradient(45deg, rgba(16, 42, 47, 0.04) 25%, transparent 25%),
+            linear-gradient(-45deg, rgba(16, 42, 47, 0.04) 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, rgba(16, 42, 47, 0.04) 75%),
+            linear-gradient(-45deg, transparent 75%, rgba(16, 42, 47, 0.04) 75%);
+        background-size: 24px 24px;
+        background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+        padding: 24px;
+    }
+
+    .print-designer-paper {
+        position: relative;
+        background: white;
+        border: 1px solid rgba(16, 42, 47, 0.25);
+        box-shadow: 0 16px 40px rgba(16, 42, 47, 0.16);
+        margin: 0 auto;
+    }
+
+    .print-designer-element {
+        position: absolute;
+        cursor: move;
+        border: 1px dashed rgba(13, 110, 253, 0.8);
+        background: rgba(13, 110, 253, 0.08);
+        border-radius: 8px;
+        padding: 4px 6px;
+        overflow: hidden;
+        user-select: none;
+    }
+</style>
+
+<script>
+function printDesigner(config) {
+    return {
+        layout: JSON.parse(JSON.stringify(config.initialLayout || {})),
+        layoutJson: "",
+        paperWidth: Number(config.paperWidth || 148),
+        paperHeight: Number(config.paperHeight || 210),
+        scale: 3,
+        draggingKey: null,
+        dragOffsetX: 0,
+        dragOffsetY: 0,
+
+        init() {
+            this.syncJson();
+        },
+
+        paperStyle() {
+            return `width: ${this.paperWidth * this.scale}px; height: ${this.paperHeight * this.scale}px;`;
+        },
+
+        elementStyle(element) {
+            const x = Number(element.x || 0) * this.scale;
+            const y = Number(element.y || 0) * this.scale;
+            const width = Number(element.width || 30) * this.scale;
+            const height = Number(element.height || 8) * this.scale;
+            const fontSize = Number(element.fontSize || 12);
+            return `left: ${x}px; top: ${y}px; width: ${width}px; min-height: ${height}px; font-size: ${fontSize}px;`;
+        },
+
+        sampleText(key, element) {
+            const samples = {
+                patient_name: "الاسم: Mona Ali",
+                mrn: "الرقم: 000001",
+                date: "التاريخ: 2026-07-13",
+                instruction: element.defaultText || "ثاني أيام الدورة",
+                investigation_items: "FSH · LH · PRL · TSH",
+                prescription_items: "Tavanic 500 mg"
+            };
+            return samples[key] || key;
+        },
+
+        dragStart(key, event) {
+            this.draggingKey = key;
+            const element = this.layout[key];
+            this.dragOffsetX = event.clientX - (Number(element.x || 0) * this.scale);
+            this.dragOffsetY = event.clientY - (Number(element.y || 0) * this.scale);
+        },
+
+        dragMove(event) {
+            if (!this.draggingKey) {
+                return;
+            }
+
+            const element = this.layout[this.draggingKey];
+            element.x = Math.max(0, Number(((event.clientX - this.dragOffsetX) / this.scale).toFixed(1)));
+            element.y = Math.max(0, Number(((event.clientY - this.dragOffsetY) / this.scale).toFixed(1)));
+            this.syncJson();
+        },
+
+        dragEnd() {
+            this.draggingKey = null;
+        },
+
+        syncJson() {
+            this.layoutJson = JSON.stringify(this.layout, null, 2);
+        }
+    }
+}
+</script>
+{% endblock %}
