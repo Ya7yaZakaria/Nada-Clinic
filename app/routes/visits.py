@@ -1,18 +1,20 @@
 from datetime import datetime
 
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.forms.investigation_forms import InvestigationOrderItemForm
 from app.forms.prescription_forms import PrescriptionItemForm
 from app.forms.prescription_preset_forms import PrescriptionPresetApplyForm
+from app.forms.ultrasound_forms import ClinicUltrasoundForm
 from app.forms.visit_forms import VisitForm, VisitJourneyLinkForm
-from app.models import Patient, Visit
+from app.models import ClinicUltrasoundExam, Patient, Visit
 from app.models.drug import Drug
 from app.models.drug_dictionary import DrugRoute
 from app.models.investigation import InvestigationOrder, InvestigationOrderItem
 from app.models.prescription import PrescriptionItem
 from app.models.prescription_preset import PrescriptionPreset
+from app.services.clinic_ultrasound_service import ClinicUltrasoundService
 from app.services.drug_dictionary_service import DrugDictionaryService
 from app.services.drug_service import DrugService
 from app.services.investigation_dictionary_service import InvestigationDictionaryService
@@ -165,6 +167,8 @@ def detail(visit_uuid):
     can_manage_prescription = RBACService.user_has_permission(current_user, "prescriptions.manage")
     can_view_investigations = RBACService.user_has_permission(current_user, "investigations.view")
     can_manage_investigations = RBACService.user_has_permission(current_user, "investigations.manage")
+    can_view_ultrasounds = RBACService.user_has_permission(current_user, "ultrasound.view")
+    can_manage_ultrasounds = RBACService.user_has_permission(current_user, "ultrasound.manage")
 
     prescription = None
     prescription_items = []
@@ -175,6 +179,11 @@ def detail(visit_uuid):
     investigation_pending_items = []
     patient_pending_investigation_items = []
     investigation_item_form = None
+
+    clinic_ultrasound_exams = []
+    ultrasound_form = None
+    ultrasound_edit_exam = None
+    ultrasound_edit_form = None
 
     if can_view_prescription:
         prescription = PrescriptionService.get_prescription_for_visit(visit)
@@ -218,6 +227,19 @@ def detail(visit_uuid):
         investigation_item_form = InvestigationOrderItemForm()
         _populate_investigation_item_form(investigation_item_form)
 
+    if can_view_ultrasounds:
+        clinic_ultrasound_exams = ClinicUltrasoundService.list_visit_exams(visit)
+
+    if can_manage_ultrasounds:
+        ultrasound_form = ClinicUltrasoundForm()
+        edit_ultrasound_uuid = request.args.get("edit_ultrasound")
+        if edit_ultrasound_uuid:
+            candidate = ClinicUltrasoundService.get_exam(edit_ultrasound_uuid)
+            if candidate and candidate.visit_id == visit.id:
+                ultrasound_edit_exam = candidate
+                ultrasound_edit_form = ClinicUltrasoundForm()
+                ultrasound_edit_form.apply_exam(candidate)
+
     return render_template(
         "visits/detail.html",
         visit=visit,
@@ -234,6 +256,13 @@ def detail(visit_uuid):
         investigation_item_form=investigation_item_form,
         can_view_investigations=can_view_investigations,
         can_manage_investigations=can_manage_investigations,
+        clinic_ultrasound_exams=clinic_ultrasound_exams,
+        ultrasound_form=ultrasound_form,
+        ultrasound_edit_exam=ultrasound_edit_exam,
+        ultrasound_edit_form=ultrasound_edit_form,
+        can_view_ultrasounds=can_view_ultrasounds,
+        can_manage_ultrasounds=can_manage_ultrasounds,
+        ClinicUltrasoundService=ClinicUltrasoundService,
         JourneyService=JourneyService,
         PatientService=PatientService,
         VisitService=VisitService,

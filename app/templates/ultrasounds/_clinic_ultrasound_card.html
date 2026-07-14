@@ -1,0 +1,84 @@
+<div class="border rounded p-3 mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-2">
+        <div>
+            <p class="section-kicker mb-1">Clinic Ultrasound</p>
+            <h3 class="h6 mb-1">
+                {{ exam.exam_type.upper().replace("_", "/") }}
+                <span class="text-muted">· {{ exam.exam_route }}</span>
+            </h3>
+            <div class="small text-muted">
+                Visit date:
+                {{ exam.visit.visit_date.date() if exam.visit and exam.visit.visit_date else "—" }}
+            </div>
+        </div>
+
+        {% if can_manage_ultrasounds %}
+            <div class="d-flex gap-2 flex-wrap align-items-start">
+                <a class="btn btn-sm btn-outline-secondary"
+                   href="{{ url_for('visits.detail', visit_uuid=exam.visit.uuid, edit_ultrasound=exam.uuid) }}">
+                    Edit
+                </a>
+                <form method="post" action="{{ url_for('ultrasounds.archive', ultrasound_uuid=exam.uuid) }}">
+                    {{ ultrasound_form.csrf_token if ultrasound_form is defined and ultrasound_form }}
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Archive</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if ultrasound_edit_exam is defined and ultrasound_edit_exam and ultrasound_edit_exam.id == exam.id %}
+        <form method="post" action="{{ url_for('ultrasounds.edit_inline', ultrasound_uuid=exam.uuid) }}" class="mt-3">
+            {% with form=ultrasound_edit_form, submit_label="Save changes", cancel_url=url_for('visits.detail', visit_uuid=exam.visit.uuid) %}
+                {% include "ultrasounds/_clinic_ultrasound_form.html" %}
+            {% endwith %}
+        </form>
+    {% else %}
+        {% set summary = ClinicUltrasoundService.build_summary(exam) %}
+        {% if summary %}
+            <p class="fw-semibold mb-2">{{ summary }}</p>
+        {% endif %}
+
+        {% if exam.findings_json %}
+            <div class="table-responsive">
+                <table class="table table-sm mb-2">
+                    <tbody>
+                        {% for key, value in exam.findings_json.items() %}
+                            <tr>
+                                <th class="text-muted" style="width: 35%;">{{ key.replace("_", " ").title() }}</th>
+                                <td>{{ value }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        {% if exam.findings_text %}
+            <div class="mb-2">
+                <div class="small text-muted">Findings</div>
+                <div>{{ exam.findings_text }}</div>
+            </div>
+        {% endif %}
+
+        {% if exam.extra_note %}
+            <div class="mb-2">
+                <div class="small text-muted">Extra note</div>
+                <div>{{ exam.extra_note }}</div>
+            </div>
+        {% endif %}
+
+        {% if exam.impression %}
+            <div class="mb-2">
+                <div class="small text-muted">Impression</div>
+                <div>{{ exam.impression }}</div>
+            </div>
+        {% endif %}
+
+        {% if exam.sketch_note %}
+            <div>
+                <div class="small text-muted">Sketch note</div>
+                <div>{{ exam.sketch_note }}</div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>

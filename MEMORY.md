@@ -326,3 +326,24 @@ Next Action:
 - Run migration/tests.
 - Review outputs.
 - Continue to Sprint 8.2 Clinic Ultrasound Visit UI after verification.
+
+## Sprint 8.2 — Inline Clinic Ultrasound Visit UI
+
+Current Stage: Stage 8 Ultrasound.
+
+Scope:
+- Added inline clinic ultrasound add form inside Visit Detail.
+- Added inline clinic ultrasound edit inside Visit cards.
+- Added archive action for clinic ultrasound cards.
+- Added Visit Detail ultrasound section.
+- Added Patient Workspace light recent clinic ultrasound summary.
+- No exam_date field.
+- No plan field inside ultrasound.
+- No external ultrasound request/upload UI.
+- No migration.
+
+Next Action:
+- Run Sprint 8.2 UI tests and full regression.
+- Verify routes.
+- Review git diff.
+- Continue to Sprint 8.3 External Ultrasound Request + Upload after verification.

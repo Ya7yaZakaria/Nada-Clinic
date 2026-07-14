@@ -1,0 +1,145 @@
+{{ form.hidden_tag() }}
+
+<div class="row g-3" x-data="{ examType: '{{ form.exam_type.data or "obs" }}' }">
+    <div class="col-12 col-md-6">
+        <label class="form-label" for="{{ form.exam_type.id }}">{{ form.exam_type.label.text }}</label>
+        {{ form.exam_type(class="form-select", **{"x-model": "examType"}) }}
+    </div>
+
+    <div class="col-12 col-md-6">
+        <label class="form-label" for="{{ form.exam_route.id }}">{{ form.exam_route.label.text }}</label>
+        {{ form.exam_route(class="form-select") }}
+    </div>
+
+    <div class="col-12" x-show="examType === 'obs'">
+        <div class="border rounded p-3 bg-light">
+            <h4 class="h6 mb-3">OBS ultrasound</h4>
+            <div class="row g-3">
+                {% for field in [
+                    form.pregnancy_count,
+                    form.viability,
+                    form.presentation,
+                    form.fetal_heart,
+                    form.fhr,
+                    form.bpd_ga,
+                    form.hc_ga,
+                    form.ac_ga,
+                    form.fl_ga,
+                    form.efw,
+                    form.ga_by_ultrasound,
+                    form.placenta,
+                    form.liquor,
+                    form.afi,
+                ] %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <label class="form-label" for="{{ field.id }}">{{ field.label.text }}</label>
+                        {{ field(class="form-control") }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12" x-show="examType === 'gyne'">
+        <div class="border rounded p-3 bg-light">
+            <h4 class="h6 mb-3">Gyne ultrasound</h4>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label" for="{{ form.uterus_note.id }}">{{ form.uterus_note.label.text }}</label>
+                    {{ form.uterus_note(class="form-control", rows="2") }}
+                </div>
+
+                {% for field in [
+                    form.endometrium_thickness,
+                    form.endometrium_appearance,
+                    form.right_ovary_status,
+                    form.left_ovary_status,
+                    form.free_fluid,
+                ] %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <label class="form-label" for="{{ field.id }}">{{ field.label.text }}</label>
+                        {{ field(class="form-control") }}
+                    </div>
+                {% endfor %}
+
+                {% for field in [
+                    form.endometrium_note,
+                    form.right_ovary_note,
+                    form.left_ovary_note,
+                    form.adnexa_note,
+                ] %}
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="{{ field.id }}">{{ field.label.text }}</label>
+                        {{ field(class="form-control", rows="2") }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12" x-show="examType === 'oi_ti'">
+        <div class="border rounded p-3 bg-light">
+            <h4 class="h6 mb-3">OI/TI ultrasound</h4>
+            <div class="row g-3">
+                {% for field in [
+                    form.cycle_day,
+                    form.stimulation_day,
+                    form.endometrium_thickness_oi,
+                    form.endometrium_pattern,
+                    form.right_follicle_sizes,
+                    form.left_follicle_sizes,
+                ] %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <label class="form-label" for="{{ field.id }}">{{ field.label.text }}</label>
+                        {{ field(class="form-control") }}
+                    </div>
+                {% endfor %}
+
+                {% for field in [
+                    form.right_ovary_extra,
+                    form.left_ovary_extra,
+                    form.uterus_myoma_note,
+                    form.cyst_endometrioma_note,
+                    form.adnexa_free_fluid_note,
+                ] %}
+                    <div class="col-12 col-md-6">
+                        <label class="form-label" for="{{ field.id }}">{{ field.label.text }}</label>
+                        {{ field(class="form-control", rows="2") }}
+                    </div>
+                {% endfor %}
+
+                <div class="col-12">
+                    <p class="small text-muted mb-0">
+                        Follicle sizes are simple text in Stage 8. Example: Right follicles 18, 16, 14.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12" x-show="examType === 'other'">
+        <div class="border rounded p-3 bg-light">
+            <h4 class="h6 mb-0">Other ultrasound</h4>
+            <p class="text-muted mb-0">Use the common findings fields below.</p>
+        </div>
+    </div>
+
+    {% for field in [
+        form.findings_text,
+        form.extra_note,
+        form.impression,
+        form.sketch_note,
+    ] %}
+        <div class="col-12 col-md-6">
+            <label class="form-label" for="{{ field.id }}">{{ field.label.text }}</label>
+            {{ field(class="form-control", rows="3") }}
+        </div>
+    {% endfor %}
+
+    <div class="col-12">
+        <button class="btn btn-primary" type="submit">{{ submit_label or "Save ultrasound" }}</button>
+        {% if cancel_url %}
+            <a class="btn btn-outline-secondary" href="{{ cancel_url }}">Cancel</a>
+        {% endif %}
+    </div>
+</div>

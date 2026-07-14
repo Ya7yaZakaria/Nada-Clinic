@@ -1083,3 +1083,19 @@ No diagnosis-linked preset behavior added.
 - Clinic ultrasound date is derived from the linked Visit.
 - No exam_date field was added.
 - No external ultrasound result table was added.
+
+## 2026-07-15 — Sprint 8.2 Inline Clinic Ultrasound Visit UI
+
+### Added
+- Inline clinic ultrasound form inside Visit Detail.
+- Inline clinic ultrasound edit inside Visit cards.
+- Clinic ultrasound cards inside Visit Detail.
+- Light clinic ultrasound summary inside Patient Workspace.
+- Clinic ultrasound UI tests.
+
+### Notes
+- No new migration.
+- No separate ultrasound new/edit/detail pages.
+- No exam_date field.
+- No plan field inside ultrasound.
+- External ultrasound request/upload remains deferred to Sprint 8.3.

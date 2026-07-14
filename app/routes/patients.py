@@ -6,6 +6,7 @@ from app.forms.appointment_forms import AppointmentForm
 from app.forms.patient_forms import MRNChangeForm, PatientForm
 from app.models import Patient
 from app.services.appointment_service import AppointmentService
+from app.services.clinic_ultrasound_service import ClinicUltrasoundService
 from app.services.document_service import DocumentService
 from app.services.investigation_preset_service import InvestigationPresetService
 from app.services.investigation_service import InvestigationService
@@ -63,6 +64,26 @@ def _get_patient_workspace_documents_context(patient):
         "patient_documents": DocumentService.list_patient_documents(patient),
         "can_view_documents": can_view_documents,
         "can_manage_documents": can_manage_documents,
+    }
+
+
+
+def _get_patient_workspace_ultrasound_context(patient):
+    can_view_ultrasounds = RBACService.user_has_permission(current_user, "ultrasound.view")
+    can_manage_ultrasounds = RBACService.user_has_permission(current_user, "ultrasound.manage")
+
+    if not can_view_ultrasounds:
+        return {
+            "recent_clinic_ultrasounds": [],
+            "can_view_ultrasounds": False,
+            "can_manage_ultrasounds": False,
+        }
+
+    return {
+        "recent_clinic_ultrasounds": ClinicUltrasoundService.list_patient_exams(patient)[:5],
+        "can_view_ultrasounds": can_view_ultrasounds,
+        "can_manage_ultrasounds": can_manage_ultrasounds,
+        "ClinicUltrasoundService": ClinicUltrasoundService,
     }
 
 
@@ -146,6 +167,7 @@ def detail(patient_uuid):
 
     investigation_context = _get_patient_workspace_investigation_context(patient)
     documents_context = _get_patient_workspace_documents_context(patient)
+    ultrasound_context = _get_patient_workspace_ultrasound_context(patient)
 
     return render_template(
         "patients/detail.html",
@@ -156,6 +178,7 @@ def detail(patient_uuid):
         TimelineService=TimelineService,
         timeline_events=TimelineService.get_patient_timeline(patient),
         **investigation_context,
+        **ultrasound_context,
         **documents_context,
     )
 

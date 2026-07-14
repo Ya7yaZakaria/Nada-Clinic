@@ -1,0 +1,21 @@
+{% if can_view_ultrasounds %}
+<div class="clinic-card mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Ultrasound</p>
+            <h2 class="h5 mb-0">Clinic Ultrasounds</h2>
+        </div>
+        <span class="badge text-bg-light align-self-start">
+            Recent: {{ recent_clinic_ultrasounds|length }}
+        </span>
+    </div>
+
+    {% if recent_clinic_ultrasounds %}
+        {% for exam in recent_clinic_ultrasounds %}
+            {% include "ultrasounds/_clinic_ultrasound_card.html" %}
+        {% endfor %}
+    {% else %}
+        <p class="text-muted mb-0">No clinic ultrasound recorded yet.</p>
+    {% endif %}
+</div>
+{% endif %}

@@ -550,3 +550,15 @@ Sprint 8.1 adds backend foundations for clinic ultrasound records and lightweigh
 - No `exam_date` column is added.
 - External ultrasound request is a one-textbox pending item.
 - External ultrasound result upload will reuse Stage 7 `PatientDocument` in a later sprint.
+
+## Stage 8.2 — Inline Clinic Ultrasound Visit UI
+
+Sprint 8.2 adds inline clinic ultrasound add/edit/archive workflows inside Visit Detail.
+
+- Clinic ultrasound is written directly inside the Visit page.
+- Add and edit are inline.
+- Ultrasound cards appear inside the Visit.
+- Patient Workspace shows a light recent clinic ultrasound summary.
+- No exam date field is shown; ultrasound date comes from `Visit.visit_date`.
+- No plan field is included in ultrasound.
+- No external ultrasound request/upload UI is included yet.

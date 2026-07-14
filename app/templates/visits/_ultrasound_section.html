@@ -1,0 +1,34 @@
+{% if can_view_ultrasounds %}
+<div class="clinic-card mt-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
+        <div>
+            <p class="section-kicker">Ultrasound</p>
+            <h2 class="h5 mb-0">Clinic Ultrasound</h2>
+        </div>
+        <div class="d-flex gap-2 align-items-start flex-wrap">
+            <span class="badge text-bg-light align-self-start">
+                Exams: {{ clinic_ultrasound_exams|length }}
+            </span>
+        </div>
+    </div>
+
+    {% if can_manage_ultrasounds and ultrasound_form %}
+        <div class="border rounded p-3 mb-3">
+            <h3 class="h6 mb-3">Add Clinic Ultrasound</h3>
+            <form method="post" action="{{ url_for('ultrasounds.create_from_visit', visit_uuid=visit.uuid) }}">
+                {% with form=ultrasound_form, submit_label="Save ultrasound", cancel_url=None %}
+                    {% include "ultrasounds/_clinic_ultrasound_form.html" %}
+                {% endwith %}
+            </form>
+        </div>
+    {% endif %}
+
+    {% if clinic_ultrasound_exams %}
+        {% for exam in clinic_ultrasound_exams %}
+            {% include "ultrasounds/_clinic_ultrasound_card.html" %}
+        {% endfor %}
+    {% else %}
+        <p class="text-muted mb-0">No clinic ultrasound recorded in this visit yet.</p>
+    {% endif %}
+</div>
+{% endif %}
