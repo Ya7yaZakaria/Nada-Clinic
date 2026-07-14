@@ -1116,3 +1116,15 @@ No diagnosis-linked preset behavior added.
 
 ### Migration
 - Added `20260715_0066_external_ultrasound_request_upload_metadata.py`.
+
+## 2026-07-15 — Stage 8 Ultrasound Frozen
+
+### Frozen
+- Stage 8 Ultrasound accepted as complete.
+- Verified clinic ultrasound, external ultrasound request, external upload, note-only result, thumbnails, Patient Workspace summary, RBAC, migration, and documentation.
+- Final regression: 407 passed.
+- Migration head: 20260715_0066.
+- Last Sprint 8 commit: 1fa5b88.
+
+### Next
+- Stage 9 Surgery.

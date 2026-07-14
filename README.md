@@ -574,3 +574,17 @@ Sprint 8.3 adds external ultrasound request and result workflows inside the Visi
 - Show image thumbnails and PDF/file cards.
 - Store files through PatientDocument.
 - Store doctor review note on external ultrasound result workflow.
+
+## Stage 8 — Ultrasound Frozen
+
+Stage 8 Ultrasound is frozen after Sprint 8.3.
+
+Final verified state:
+- Clinic ultrasound inside Visit.
+- External ultrasound requests.
+- External ultrasound upload / note-only result.
+- Patient Workspace ultrasound summary.
+- PatientDocument reuse for uploaded reports/images.
+- Full regression: 407 passed.
+- Migration head: 20260715_0066.
+- Last Sprint 8 commit: 1fa5b88.

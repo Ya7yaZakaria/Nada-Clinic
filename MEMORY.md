@@ -370,3 +370,34 @@ Next Action:
 - Run full regression.
 - Review routes, git diff, and migration head.
 - Perform Stage 8 freeze review after verification.
+
+## Stage 8 Ultrasound Frozen
+
+Current Stage:
+- Stage 8 Ultrasound completed and frozen.
+
+Completed Work:
+- Sprint 8.1 Ultrasound backend foundation.
+- Sprint 8.2 Inline clinic ultrasound UI.
+- Sprint 8.3 External ultrasound request/upload.
+- Clinic ultrasound records are managed inside Visit.
+- External ultrasound supports pending request, upload, note-only result, and direct result without request.
+- Uploaded external reports/images reuse PatientDocument.
+- Patient Workspace shows ultrasound summary.
+
+Verification:
+- Full regression: 407 passed.
+- Migration current/head: 20260715_0066.
+- Sprint 8.3 commit: 1fa5b88.
+- Working tree clean after Sprint 8.3 push.
+
+Deferred Features:
+- OCR.
+- AI extraction.
+- DICOM.
+- Growth charts.
+- Radiology center module.
+- Multiple-file bundle upload.
+
+Next Action:
+- Start Stage 9 Surgery planning.
