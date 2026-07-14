@@ -1099,3 +1099,20 @@ No diagnosis-linked preset behavior added.
 - No exam_date field.
 - No plan field inside ultrasound.
 - External ultrasound request/upload remains deferred to Sprint 8.3.
+
+## 2026-07-15 — Sprint 8.3 External Ultrasound Request + Upload
+
+### Added
+- External US request form inside Visit Ultrasound section.
+- Category/modality multi-select for external US requests.
+- Direct external US result workflow.
+- Pending request completion with file or note-only result.
+- Image thumbnail preview route for patient documents.
+- Patient Workspace external ultrasound request/result summaries.
+- Sprint 8.3 UI tests.
+
+### Changed
+- Extended ExternalUltrasoundRequest with request metadata and result note.
+
+### Migration
+- Added `20260715_0066_external_ultrasound_request_upload_metadata.py`.

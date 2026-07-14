@@ -1,0 +1,60 @@
+<div class="border rounded p-3 mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2">
+        <div>
+            <p class="section-kicker mb-1">Pending External US</p>
+            <h3 class="h6 mb-1">{{ request_record.request_note }}</h3>
+
+            <div class="small text-muted">
+                Requested:
+                {{ request_record.created_at.date() if request_record.created_at else "—" }}
+                · From visit:
+                {% if request_record.requested_visit %}
+                    <a href="{{ url_for('visits.detail', visit_uuid=request_record.requested_visit.uuid) }}">
+                        {{ request_record.requested_visit.visit_date.date() }}
+                    </a>
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+
+            {% if request_record.request_categories_json or request_record.request_modalities_json %}
+                <div class="mt-2 d-flex flex-wrap gap-1">
+                    {% for item in request_record.request_categories_json or [] %}
+                        <span class="badge text-bg-light">{{ item.upper().replace("_", "/") }}</span>
+                    {% endfor %}
+                    {% for item in request_record.request_modalities_json or [] %}
+                        <span class="badge text-bg-secondary">{{ item.upper() }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        {% if can_manage_ultrasounds and external_ultrasound_result_form %}
+            <div class="d-flex gap-2 align-items-start flex-wrap">
+                <button class="btn btn-sm btn-outline-primary"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#upload-external-us-{{ request_record.uuid }}">
+                    Upload / Note
+                </button>
+
+                <form method="post" action="{{ url_for('ultrasounds.cancel_external_request', request_uuid=request_record.uuid) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if can_manage_ultrasounds and external_ultrasound_result_form %}
+        <div class="collapse mt-3" id="upload-external-us-{{ request_record.uuid }}">
+            <form method="post"
+                  enctype="multipart/form-data"
+                  action="{{ url_for('ultrasounds.complete_external_request_from_visit', visit_uuid=visit.uuid, request_uuid=request_record.uuid) }}">
+                {% with form=external_ultrasound_result_form, show_request_select=False, show_metadata=False %}
+                    {% include "ultrasounds/_external_ultrasound_result_form.html" %}
+                {% endwith %}
+            </form>
+        </div>
+    {% endif %}
+</div>

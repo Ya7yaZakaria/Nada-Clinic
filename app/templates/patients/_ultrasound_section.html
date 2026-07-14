@@ -3,19 +3,53 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
         <div>
             <p class="section-kicker">Ultrasound</p>
-            <h2 class="h5 mb-0">Clinic Ultrasounds</h2>
+            <h2 class="h5 mb-0">Ultrasound</h2>
         </div>
-        <span class="badge text-bg-light align-self-start">
-            Recent: {{ recent_clinic_ultrasounds|length }}
-        </span>
+        <div class="d-flex gap-2 flex-wrap">
+            <span class="badge text-bg-light align-self-start">
+                Clinic: {{ recent_clinic_ultrasounds|length }}
+            </span>
+            <span class="badge text-bg-warning align-self-start">
+                Pending external: {{ recent_external_ultrasound_requests|length }}
+            </span>
+            <span class="badge text-bg-light align-self-start">
+                External results: {{ recent_external_ultrasound_results|length }}
+            </span>
+        </div>
     </div>
 
+    {% if recent_external_ultrasound_requests %}
+        <h3 class="h6 text-muted">Pending external ultrasound</h3>
+        {% for request_record in recent_external_ultrasound_requests %}
+            <div class="border rounded p-3 mb-2">
+                <div class="fw-semibold">{{ request_record.request_note }}</div>
+                <div class="small text-muted">
+                    Requested:
+                    {{ request_record.created_at.date() if request_record.created_at else "—" }}
+                    {% if request_record.requested_visit %}
+                        · <a href="{{ url_for('visits.detail', visit_uuid=request_record.requested_visit.uuid) }}">Open request visit</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if recent_external_ultrasound_results %}
+        <h3 class="h6 text-muted mt-3">Recent external ultrasound results</h3>
+        {% for result_record in recent_external_ultrasound_results %}
+            {% include "ultrasounds/_external_ultrasound_result_card.html" %}
+        {% endfor %}
+    {% endif %}
+
     {% if recent_clinic_ultrasounds %}
+        <h3 class="h6 text-muted mt-3">Clinic Ultrasounds</h3>
         {% for exam in recent_clinic_ultrasounds %}
             {% include "ultrasounds/_clinic_ultrasound_card.html" %}
         {% endfor %}
-    {% else %}
-        <p class="text-muted mb-0">No clinic ultrasound recorded yet.</p>
+    {% endif %}
+
+    {% if not recent_clinic_ultrasounds and not recent_external_ultrasound_requests and not recent_external_ultrasound_results %}
+        <p class="text-muted mb-0">No ultrasound records yet.</p>
     {% endif %}
 </div>
 {% endif %}

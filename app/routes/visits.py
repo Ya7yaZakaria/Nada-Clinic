@@ -6,7 +6,11 @@ from flask_login import current_user, login_required
 from app.forms.investigation_forms import InvestigationOrderItemForm
 from app.forms.prescription_forms import PrescriptionItemForm
 from app.forms.prescription_preset_forms import PrescriptionPresetApplyForm
-from app.forms.ultrasound_forms import ClinicUltrasoundForm
+from app.forms.ultrasound_forms import (
+    ClinicUltrasoundForm,
+    ExternalUltrasoundRequestForm,
+    ExternalUltrasoundResultForm,
+)
 from app.forms.visit_forms import VisitForm, VisitJourneyLinkForm
 from app.models import ClinicUltrasoundExam, Patient, Visit
 from app.models.drug import Drug
@@ -17,6 +21,7 @@ from app.models.prescription_preset import PrescriptionPreset
 from app.services.clinic_ultrasound_service import ClinicUltrasoundService
 from app.services.drug_dictionary_service import DrugDictionaryService
 from app.services.drug_service import DrugService
+from app.services.external_ultrasound_service import ExternalUltrasoundService
 from app.services.investigation_dictionary_service import InvestigationDictionaryService
 from app.services.investigation_service import InvestigationService
 from app.services.journey_service import JourneyService
@@ -184,6 +189,10 @@ def detail(visit_uuid):
     ultrasound_form = None
     ultrasound_edit_exam = None
     ultrasound_edit_form = None
+    external_ultrasound_pending_requests = []
+    external_ultrasound_results = []
+    external_ultrasound_request_form = None
+    external_ultrasound_result_form = None
 
     if can_view_prescription:
         prescription = PrescriptionService.get_prescription_for_visit(visit)
@@ -229,9 +238,14 @@ def detail(visit_uuid):
 
     if can_view_ultrasounds:
         clinic_ultrasound_exams = ClinicUltrasoundService.list_visit_exams(visit)
+        external_ultrasound_pending_requests = ExternalUltrasoundService.list_pending_for_patient(visit.patient)
+        external_ultrasound_results = ExternalUltrasoundService.list_visit_results(visit)
 
     if can_manage_ultrasounds:
         ultrasound_form = ClinicUltrasoundForm()
+        external_ultrasound_request_form = ExternalUltrasoundRequestForm()
+        external_ultrasound_result_form = ExternalUltrasoundResultForm()
+        external_ultrasound_result_form.set_request_choices(external_ultrasound_pending_requests)
         edit_ultrasound_uuid = request.args.get("edit_ultrasound")
         if edit_ultrasound_uuid:
             candidate = ClinicUltrasoundService.get_exam(edit_ultrasound_uuid)
@@ -262,6 +276,10 @@ def detail(visit_uuid):
         ultrasound_edit_form=ultrasound_edit_form,
         can_view_ultrasounds=can_view_ultrasounds,
         can_manage_ultrasounds=can_manage_ultrasounds,
+        external_ultrasound_pending_requests=external_ultrasound_pending_requests,
+        external_ultrasound_results=external_ultrasound_results,
+        external_ultrasound_request_form=external_ultrasound_request_form,
+        external_ultrasound_result_form=external_ultrasound_result_form,
         ClinicUltrasoundService=ClinicUltrasoundService,
         JourneyService=JourneyService,
         PatientService=PatientService,

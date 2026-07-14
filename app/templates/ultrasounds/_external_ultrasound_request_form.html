@@ -1,0 +1,36 @@
+{{ form.hidden_tag() }}
+
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <label class="form-label">{{ form.categories.label.text }}</label>
+        <div class="d-flex flex-wrap gap-3">
+            {% for value, label in form.categories.choices %}
+                <label class="form-check">
+                    <input class="form-check-input" type="checkbox" name="{{ form.categories.name }}" value="{{ value }}">
+                    <span class="form-check-label">{{ label }}</span>
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <label class="form-label">{{ form.modalities.label.text }}</label>
+        <div class="d-flex flex-wrap gap-3">
+            {% for value, label in form.modalities.choices %}
+                <label class="form-check">
+                    <input class="form-check-input" type="checkbox" name="{{ form.modalities.name }}" value="{{ value }}">
+                    <span class="form-check-label">{{ label }}</span>
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="{{ form.request_note.id }}">{{ form.request_note.label.text }}</label>
+        {{ form.request_note(class="form-control", rows="3", placeholder="Example: Pelvic US for endometrium and adnexa, or growth scan with Doppler.") }}
+    </div>
+
+    <div class="col-12">
+        <button class="btn btn-primary" type="submit">Save request</button>
+    </div>
+</div>

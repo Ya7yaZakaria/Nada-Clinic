@@ -347,3 +347,26 @@ Next Action:
 - Verify routes.
 - Review git diff.
 - Continue to Sprint 8.3 External Ultrasound Request + Upload after verification.
+
+## Sprint 8.3 — External Ultrasound Request + Upload
+
+Current Stage: Stage 8 Ultrasound.
+
+Scope:
+- Added external ultrasound request workflow inside Visit Ultrasound section.
+- Added request category/modality multi-select.
+- Added direct external ultrasound result workflow.
+- Added pending request completion with file or note-only.
+- Added doctor review note for external US results.
+- Added image thumbnail preview route.
+- Added Patient Workspace external US summaries.
+- Uses PatientDocument for uploaded ultrasound reports/images.
+
+Database:
+- Added migration `20260715_0066_external_ultrasound_request_upload_metadata`.
+
+Next Action:
+- Run migration and Sprint 8.3 tests.
+- Run full regression.
+- Review routes, git diff, and migration head.
+- Perform Stage 8 freeze review after verification.

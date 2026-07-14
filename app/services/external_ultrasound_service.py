@@ -5,11 +5,27 @@ from app.models import ExternalUltrasoundRequest, Patient, PatientDocument, Visi
 
 
 class ExternalUltrasoundService:
-    """Service layer for lightweight external ultrasound request tracking."""
+    """Service layer for lightweight external ultrasound request/result tracking."""
+
+    DIRECT_RESULT_NOTE = "Direct external ultrasound result"
 
     @staticmethod
     def _clean(value):
         return (value or "").strip()
+
+    @staticmethod
+    def _clean_list(values):
+        if not values:
+            return []
+
+        cleaned = []
+
+        for value in values:
+            item = (value or "").strip()
+            if item and item not in cleaned:
+                cleaned.append(item)
+
+        return cleaned
 
     @staticmethod
     def _require_text(value, message):
@@ -49,7 +65,15 @@ class ExternalUltrasoundService:
             raise ValueError("Invalid external ultrasound request")
 
     @classmethod
-    def create_request(cls, *, visit, request_note, actor_user=None):
+    def create_request(
+        cls,
+        *,
+        visit,
+        request_note,
+        categories=None,
+        modalities=None,
+        actor_user=None,
+    ):
         cls._validate_visit(visit)
 
         request = ExternalUltrasoundRequest(
@@ -59,6 +83,8 @@ class ExternalUltrasoundService:
                 request_note,
                 "External ultrasound request note is required",
             ),
+            request_categories_json=cls._clean_list(categories),
+            request_modalities_json=cls._clean_list(modalities),
             status=ExternalUltrasoundRequest.STATUS_PENDING,
             created_by_user=actor_user,
         )
@@ -82,17 +108,22 @@ class ExternalUltrasoundService:
         return request
 
     @classmethod
-    def complete_request_with_document(
+    def _complete_request(
         cls,
         *,
         request,
         result_visit,
-        result_document,
+        result_document=None,
+        result_note=None,
         actor_user=None,
     ):
         cls._validate_request(request)
         cls._validate_visit(result_visit)
-        cls._validate_document(result_document)
+
+        cleaned_note = cls._clean(result_note)
+
+        if not result_document and not cleaned_note:
+            raise ValueError("External ultrasound result requires a file or a doctor review note")
 
         if request.status == ExternalUltrasoundRequest.STATUS_CANCELLED:
             raise ValueError("Cannot complete cancelled external ultrasound request")
@@ -103,17 +134,107 @@ class ExternalUltrasoundService:
         if result_visit.patient_id != request.patient_id:
             raise ValueError("Result visit does not belong to request patient")
 
-        if result_document.patient_id != request.patient_id:
-            raise ValueError("Result document does not belong to request patient")
+        if result_document:
+            cls._validate_document(result_document)
+            if result_document.patient_id != request.patient_id:
+                raise ValueError("Result document does not belong to request patient")
 
         request.result_visit = result_visit
         request.result_document = result_document
+        request.result_note = cleaned_note or None
         request.status = ExternalUltrasoundRequest.STATUS_COMPLETED
         request.completed_by_user = actor_user
         request.completed_at = datetime.now(timezone.utc)
 
         db.session.commit()
         return request
+
+    @classmethod
+    def complete_request_with_document(
+        cls,
+        *,
+        request,
+        result_visit,
+        result_document,
+        result_note=None,
+        actor_user=None,
+    ):
+        return cls._complete_request(
+            request=request,
+            result_visit=result_visit,
+            result_document=result_document,
+            result_note=result_note,
+            actor_user=actor_user,
+        )
+
+    @classmethod
+    def complete_request_with_note(
+        cls,
+        *,
+        request,
+        result_visit,
+        result_note,
+        actor_user=None,
+    ):
+        return cls._complete_request(
+            request=request,
+            result_visit=result_visit,
+            result_document=None,
+            result_note=result_note,
+            actor_user=actor_user,
+        )
+
+    @classmethod
+    def create_direct_result(
+        cls,
+        *,
+        visit,
+        result_document=None,
+        result_note=None,
+        categories=None,
+        modalities=None,
+        actor_user=None,
+    ):
+        cls._validate_visit(visit)
+        cleaned_note = cls._clean(result_note)
+
+        if not result_document and not cleaned_note:
+            raise ValueError("External ultrasound result requires a file or a doctor review note")
+
+        if result_document:
+            cls._validate_document(result_document)
+            if result_document.patient_id != visit.patient_id:
+                raise ValueError("Result document does not belong to visit patient")
+
+        request = ExternalUltrasoundRequest(
+            patient=visit.patient,
+            requested_visit=visit,
+            result_visit=visit,
+            request_note=cleaned_note or cls.DIRECT_RESULT_NOTE,
+            request_categories_json=cls._clean_list(categories),
+            request_modalities_json=cls._clean_list(modalities),
+            status=ExternalUltrasoundRequest.STATUS_COMPLETED,
+            result_document=result_document,
+            result_note=cleaned_note or None,
+            created_by_user=actor_user,
+            completed_by_user=actor_user,
+            completed_at=datetime.now(timezone.utc),
+        )
+
+        db.session.add(request)
+        db.session.commit()
+        return request
+
+    @classmethod
+    def get_request(cls, request_uuid, *, include_cancelled=False):
+        query = ExternalUltrasoundRequest.query.filter_by(uuid=request_uuid)
+
+        if not include_cancelled:
+            query = query.filter(
+                ExternalUltrasoundRequest.status != ExternalUltrasoundRequest.STATUS_CANCELLED
+            )
+
+        return query.first()
 
     @classmethod
     def list_pending_for_patient(cls, patient):
@@ -145,6 +266,22 @@ class ExternalUltrasoundService:
         )
 
     @classmethod
+    def list_visit_results(cls, visit):
+        cls._validate_visit(visit)
+
+        return (
+            ExternalUltrasoundRequest.query.filter_by(
+                result_visit_id=visit.id,
+                status=ExternalUltrasoundRequest.STATUS_COMPLETED,
+            )
+            .order_by(
+                ExternalUltrasoundRequest.completed_at.desc(),
+                ExternalUltrasoundRequest.id.desc(),
+            )
+            .all()
+        )
+
+    @classmethod
     def list_patient_requests(cls, patient, *, include_cancelled=False):
         cls._validate_patient(patient)
 
@@ -159,3 +296,19 @@ class ExternalUltrasoundService:
             ExternalUltrasoundRequest.created_at.desc(),
             ExternalUltrasoundRequest.id.desc(),
         ).all()
+
+    @classmethod
+    def list_patient_results(cls, patient):
+        cls._validate_patient(patient)
+
+        return (
+            ExternalUltrasoundRequest.query.filter_by(
+                patient_id=patient.id,
+                status=ExternalUltrasoundRequest.STATUS_COMPLETED,
+            )
+            .order_by(
+                ExternalUltrasoundRequest.completed_at.desc(),
+                ExternalUltrasoundRequest.id.desc(),
+            )
+            .all()
+        )

@@ -162,6 +162,8 @@ class ExternalUltrasoundRequest(db.Model):
     )
 
     request_note = db.Column(db.Text, nullable=False)
+    request_categories_json = db.Column(db.JSON, nullable=True, default=list)
+    request_modalities_json = db.Column(db.JSON, nullable=True, default=list)
     status = db.Column(db.String(40), nullable=False, default=STATUS_PENDING, index=True)
 
     result_document_id = db.Column(
@@ -170,6 +172,8 @@ class ExternalUltrasoundRequest(db.Model):
         nullable=True,
         index=True,
     )
+
+    result_note = db.Column(db.Text, nullable=True)
 
     created_by_user_id = db.Column(
         db.Integer,

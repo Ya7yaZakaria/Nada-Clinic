@@ -7,6 +7,7 @@ from app.forms.patient_forms import MRNChangeForm, PatientForm
 from app.models import Patient
 from app.services.appointment_service import AppointmentService
 from app.services.clinic_ultrasound_service import ClinicUltrasoundService
+from app.services.external_ultrasound_service import ExternalUltrasoundService
 from app.services.document_service import DocumentService
 from app.services.investigation_preset_service import InvestigationPresetService
 from app.services.investigation_service import InvestigationService
@@ -75,12 +76,16 @@ def _get_patient_workspace_ultrasound_context(patient):
     if not can_view_ultrasounds:
         return {
             "recent_clinic_ultrasounds": [],
+            "recent_external_ultrasound_requests": [],
+            "recent_external_ultrasound_results": [],
             "can_view_ultrasounds": False,
             "can_manage_ultrasounds": False,
         }
 
     return {
         "recent_clinic_ultrasounds": ClinicUltrasoundService.list_patient_exams(patient)[:5],
+        "recent_external_ultrasound_requests": ExternalUltrasoundService.list_pending_for_patient(patient)[:5],
+        "recent_external_ultrasound_results": ExternalUltrasoundService.list_patient_results(patient)[:5],
         "can_view_ultrasounds": can_view_ultrasounds,
         "can_manage_ultrasounds": can_manage_ultrasounds,
         "ClinicUltrasoundService": ClinicUltrasoundService,

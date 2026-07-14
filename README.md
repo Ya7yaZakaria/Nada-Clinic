@@ -562,3 +562,15 @@ Sprint 8.2 adds inline clinic ultrasound add/edit/archive workflows inside Visit
 - No exam date field is shown; ultrasound date comes from `Visit.visit_date`.
 - No plan field is included in ultrasound.
 - No external ultrasound request/upload UI is included yet.
+
+## Stage 8.3 — External Ultrasound Request + Upload
+
+Sprint 8.3 adds external ultrasound request and result workflows inside the Visit Ultrasound section.
+
+- Request US with category/modality multi-select.
+- Upload external US report/image from Visit.
+- Complete pending request with uploaded file or doctor note only.
+- Add direct external US result without prior request.
+- Show image thumbnails and PDF/file cards.
+- Store files through PatientDocument.
+- Store doctor review note on external ultrasound result workflow.

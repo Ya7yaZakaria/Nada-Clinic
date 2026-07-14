@@ -124,6 +124,35 @@ def download(document_uuid):
     )
 
 
+@documents_bp.get("/documents/<document_uuid>/preview")
+@login_required
+@RBACService.require_permission("documents.view")
+def preview(document_uuid):
+    document = _get_document_or_404(document_uuid)
+
+    if not document.is_image:
+        abort(404)
+
+    path = Path(document.storage_path)
+
+    if not path.exists() or not path.is_file():
+        abort(404)
+
+    storage_root = DocumentService.get_storage_root().resolve()
+
+    try:
+        resolved_path = path.resolve()
+        resolved_path.relative_to(storage_root)
+    except ValueError:
+        abort(403)
+
+    return send_file(
+        resolved_path,
+        as_attachment=False,
+        mimetype=document.mime_type or "application/octet-stream",
+    )
+
+
 @documents_bp.post("/documents/<document_uuid>/archive")
 @login_required
 @RBACService.require_permission("documents.manage")

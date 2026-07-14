@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, Optional
+from flask_wtf.file import FileAllowed, FileField
+from wtforms import SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired, Length, Optional
 
-from app.models import ClinicUltrasoundExam
+from app.models import ClinicUltrasoundExam, PatientDocument
 
 
 class ClinicUltrasoundForm(FlaskForm):
@@ -165,3 +166,116 @@ class ClinicUltrasoundForm(FlaskForm):
         self.extra_note.data = exam.extra_note or ""
         self.impression.data = exam.impression or ""
         self.sketch_note.data = exam.sketch_note or ""
+
+
+class ExternalUltrasoundRequestForm(FlaskForm):
+    CATEGORY_CHOICES = [
+        ("obs", "OBS"),
+        ("gyne", "Gyne"),
+        ("oi_ti", "OI/TI"),
+        ("other", "Other"),
+    ]
+
+    MODALITY_CHOICES = [
+        ("2d", "2D"),
+        ("3d", "3D"),
+        ("4d", "4D"),
+        ("doppler", "Doppler"),
+        ("tvs", "TVS"),
+        ("tas", "TAS"),
+    ]
+
+    categories = SelectMultipleField(
+        "US category",
+        choices=CATEGORY_CHOICES,
+        validators=[Optional()],
+    )
+
+    modalities = SelectMultipleField(
+        "US modality",
+        choices=MODALITY_CHOICES,
+        validators=[Optional()],
+    )
+
+    request_note = TextAreaField(
+        "Request note",
+        validators=[DataRequired(), Length(max=2000)],
+    )
+
+    submit = SubmitField("Save request")
+
+
+class ExternalUltrasoundResultForm(FlaskForm):
+    document_type = SelectField(
+        "External US file type",
+        choices=[
+            (PatientDocument.TYPE_ULTRASOUND_REPORT, "Ultrasound report"),
+            (PatientDocument.TYPE_ULTRASOUND_IMAGE, "Ultrasound image"),
+        ],
+        validators=[DataRequired()],
+        default=PatientDocument.TYPE_ULTRASOUND_REPORT,
+    )
+
+    request_uuid = SelectField(
+        "Link to pending request",
+        choices=[("", "No linked pending request")],
+        validators=[Optional()],
+    )
+
+    categories = SelectMultipleField(
+        "US category",
+        choices=ExternalUltrasoundRequestForm.CATEGORY_CHOICES,
+        validators=[Optional()],
+    )
+
+    modalities = SelectMultipleField(
+        "US modality",
+        choices=ExternalUltrasoundRequestForm.MODALITY_CHOICES,
+        validators=[Optional()],
+    )
+
+    title = StringField("Title", validators=[Optional(), Length(max=160)])
+
+    result_note = TextAreaField(
+        "Doctor review note",
+        validators=[Optional(), Length(max=2000)],
+    )
+
+    file = FileField(
+        "File",
+        validators=[
+            Optional(),
+            FileAllowed(
+                ["pdf", "png", "jpg", "jpeg", "webp", "gif"],
+                "Unsupported ultrasound file type.",
+            ),
+        ],
+    )
+
+    submit = SubmitField("Save external US result")
+
+    def set_request_choices(self, pending_requests):
+        self.request_uuid.choices = [("", "No linked pending request")]
+
+        for request in pending_requests:
+            label = request.request_note[:80]
+            if len(request.request_note) > 80:
+                label += "..."
+            self.request_uuid.choices.append((request.uuid, label))
+
+    def has_file(self):
+        file_storage = self.file.data
+        return bool(file_storage and getattr(file_storage, "filename", None))
+
+    def has_note(self):
+        return bool((self.result_note.data or "").strip())
+
+    def validate(self, extra_validators=None):
+        if not super().validate(extra_validators=extra_validators):
+            return False
+
+        if not self.has_file() and not self.has_note():
+            self.result_note.errors.append("Add a file or write a doctor review note.")
+            return False
+
+        return True

@@ -3,32 +3,125 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-3">
         <div>
             <p class="section-kicker">Ultrasound</p>
-            <h2 class="h5 mb-0">Clinic Ultrasound</h2>
+            <h2 class="h5 mb-0">Ultrasound</h2>
         </div>
         <div class="d-flex gap-2 align-items-start flex-wrap">
             <span class="badge text-bg-light align-self-start">
-                Exams: {{ clinic_ultrasound_exams|length }}
+                Clinic exams: {{ clinic_ultrasound_exams|length }}
+            </span>
+            <span class="badge text-bg-warning align-self-start">
+                Pending external: {{ external_ultrasound_pending_requests|length }}
+            </span>
+            <span class="badge text-bg-light align-self-start">
+                External results: {{ external_ultrasound_results|length }}
             </span>
         </div>
     </div>
 
-    {% if can_manage_ultrasounds and ultrasound_form %}
-        <div class="border rounded p-3 mb-3">
-            <h3 class="h6 mb-3">Add Clinic Ultrasound</h3>
-            <form method="post" action="{{ url_for('ultrasounds.create_from_visit', visit_uuid=visit.uuid) }}">
-                {% with form=ultrasound_form, submit_label="Save ultrasound", cancel_url=None %}
-                    {% include "ultrasounds/_clinic_ultrasound_form.html" %}
-                {% endwith %}
-            </form>
+    {% if can_manage_ultrasounds %}
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <button class="btn btn-outline-primary"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#clinic-us-add">
+                Add Clinic Ultrasound
+            </button>
+
+            <button class="btn btn-outline-primary"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#external-us-request">
+                Request US
+            </button>
+
+            <button class="btn btn-outline-primary"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#external-us-result">
+                Add External US Result
+            </button>
         </div>
     {% endif %}
 
-    {% if clinic_ultrasound_exams %}
-        {% for exam in clinic_ultrasound_exams %}
-            {% include "ultrasounds/_clinic_ultrasound_card.html" %}
-        {% endfor %}
-    {% else %}
-        <p class="text-muted mb-0">No clinic ultrasound recorded in this visit yet.</p>
+    {% if can_manage_ultrasounds and ultrasound_form %}
+        <div class="collapse show" id="clinic-us-add">
+            <div class="border rounded p-3 mb-3">
+                <h3 class="h6 mb-3">Add Clinic Ultrasound</h3>
+                <form method="post" action="{{ url_for('ultrasounds.create_from_visit', visit_uuid=visit.uuid) }}">
+                    {% with form=ultrasound_form, submit_label="Save ultrasound", cancel_url=None %}
+                        {% include "ultrasounds/_clinic_ultrasound_form.html" %}
+                    {% endwith %}
+                </form>
+            </div>
+        </div>
     {% endif %}
+
+    {% if can_manage_ultrasounds and external_ultrasound_request_form %}
+        <div class="collapse" id="external-us-request">
+            <div class="border rounded p-3 mb-3">
+                <h3 class="h6 mb-3">Request External Ultrasound</h3>
+                <form method="post" action="{{ url_for('ultrasounds.create_external_request', visit_uuid=visit.uuid) }}">
+                    {% with form=external_ultrasound_request_form %}
+                        {% include "ultrasounds/_external_ultrasound_request_form.html" %}
+                    {% endwith %}
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if can_manage_ultrasounds and external_ultrasound_result_form %}
+        <div class="collapse" id="external-us-result">
+            <div class="border rounded p-3 mb-3">
+                <h3 class="h6 mb-3">Add External US Result</h3>
+                <form method="post"
+                      enctype="multipart/form-data"
+                      action="{{ url_for('ultrasounds.create_external_result', visit_uuid=visit.uuid) }}">
+                    {% with form=external_ultrasound_result_form, show_request_select=True, show_metadata=True %}
+                        {% include "ultrasounds/_external_ultrasound_result_form.html" %}
+                    {% endwith %}
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row g-3">
+        <div class="col-12 col-xl-6">
+            <div class="border rounded p-3 h-100">
+                <h3 class="h6 mb-3">Clinic Ultrasound</h3>
+
+                {% if clinic_ultrasound_exams %}
+                    {% for exam in clinic_ultrasound_exams %}
+                        {% include "ultrasounds/_clinic_ultrasound_card.html" %}
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mb-0">No clinic ultrasound recorded in this visit yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-6">
+            <div class="border rounded p-3 h-100">
+                <h3 class="h6 mb-3">External Ultrasound</h3>
+
+                {% if external_ultrasound_pending_requests %}
+                    <h4 class="h6 text-muted">Pending requests</h4>
+                    {% for request_record in external_ultrasound_pending_requests %}
+                        {% include "ultrasounds/_external_ultrasound_request_card.html" %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if external_ultrasound_results %}
+                    <h4 class="h6 text-muted mt-3">Uploaded / reviewed results</h4>
+                    {% for result_record in external_ultrasound_results %}
+                        {% include "ultrasounds/_external_ultrasound_result_card.html" %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if not external_ultrasound_pending_requests and not external_ultrasound_results %}
+                    <p class="text-muted mb-0">No external ultrasound requests or results yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endif %}

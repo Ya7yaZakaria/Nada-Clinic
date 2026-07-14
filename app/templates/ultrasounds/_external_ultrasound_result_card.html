@@ -1,0 +1,86 @@
+<div class="border rounded p-3 mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-2 mb-2">
+        <div>
+            <p class="section-kicker mb-1">External US Result</p>
+            <h3 class="h6 mb-1">
+                {% if result_record.result_document %}
+                    {{ result_record.result_document.title }}
+                {% else %}
+                    Note-only external ultrasound result
+                {% endif %}
+            </h3>
+
+            <div class="small text-muted">
+                Completed:
+                {{ result_record.completed_at.date() if result_record.completed_at else "—" }}
+                · Result visit:
+                {% if result_record.result_visit %}
+                    <a href="{{ url_for('visits.detail', visit_uuid=result_record.result_visit.uuid) }}">
+                        {{ result_record.result_visit.visit_date.date() }}
+                    </a>
+                {% else %}
+                    —
+                {% endif %}
+            </div>
+
+            {% if result_record.request_categories_json or result_record.request_modalities_json %}
+                <div class="mt-2 d-flex flex-wrap gap-1">
+                    {% for item in result_record.request_categories_json or [] %}
+                        <span class="badge text-bg-light">{{ item.upper().replace("_", "/") }}</span>
+                    {% endfor %}
+                    {% for item in result_record.request_modalities_json or [] %}
+                        <span class="badge text-bg-secondary">{{ item.upper() }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        {% if result_record.result_document %}
+            <div class="d-flex gap-2 flex-wrap align-items-start">
+                <a class="btn btn-sm btn-outline-secondary"
+                   href="{{ url_for('documents.detail', document_uuid=result_record.result_document.uuid) }}">
+                    Open document
+                </a>
+                <a class="btn btn-sm btn-outline-primary"
+                   href="{{ url_for('documents.download', document_uuid=result_record.result_document.uuid) }}">
+                    Download
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if result_record.result_document %}
+        {% set document = result_record.result_document %}
+
+        {% if document.is_image %}
+            <a href="{{ url_for('documents.detail', document_uuid=document.uuid) }}">
+                <img class="img-thumbnail mb-2"
+                     style="max-height: 180px;"
+                     src="{{ url_for('documents.preview', document_uuid=document.uuid) }}"
+                     alt="{{ document.title }}">
+            </a>
+        {% elif document.is_pdf %}
+            <div class="border rounded bg-light p-3 mb-2">
+                <strong>PDF report:</strong> {{ document.original_filename }}
+            </div>
+        {% else %}
+            <div class="border rounded bg-light p-3 mb-2">
+                <strong>File:</strong> {{ document.original_filename }}
+            </div>
+        {% endif %}
+    {% endif %}
+
+    {% if result_record.result_note %}
+        <div class="mb-2">
+            <div class="small text-muted">Doctor review note</div>
+            <div>{{ result_record.result_note }}</div>
+        </div>
+    {% endif %}
+
+    {% if result_record.request_note and result_record.request_note != "Direct external ultrasound result" %}
+        <div>
+            <div class="small text-muted">Original request</div>
+            <div>{{ result_record.request_note }}</div>
+        </div>
+    {% endif %}
+</div>

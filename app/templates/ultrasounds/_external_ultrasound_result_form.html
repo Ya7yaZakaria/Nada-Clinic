@@ -1,0 +1,62 @@
+{{ form.hidden_tag() }}
+
+<div class="row g-3">
+    {% if show_request_select %}
+        <div class="col-12">
+            <label class="form-label" for="{{ form.request_uuid.id }}">{{ form.request_uuid.label.text }}</label>
+            {{ form.request_uuid(class="form-select") }}
+        </div>
+    {% endif %}
+
+    {% if show_metadata %}
+        <div class="col-12 col-lg-6">
+            <label class="form-label">{{ form.categories.label.text }}</label>
+            <div class="d-flex flex-wrap gap-3">
+                {% for value, label in form.categories.choices %}
+                    <label class="form-check">
+                        <input class="form-check-input" type="checkbox" name="{{ form.categories.name }}" value="{{ value }}">
+                        <span class="form-check-label">{{ label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <label class="form-label">{{ form.modalities.label.text }}</label>
+            <div class="d-flex flex-wrap gap-3">
+                {% for value, label in form.modalities.choices %}
+                    <label class="form-check">
+                        <input class="form-check-input" type="checkbox" name="{{ form.modalities.name }}" value="{{ value }}">
+                        <span class="form-check-label">{{ label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="col-12 col-md-6">
+        <label class="form-label" for="{{ form.document_type.id }}">{{ form.document_type.label.text }}</label>
+        {{ form.document_type(class="form-select") }}
+    </div>
+
+    <div class="col-12 col-md-6">
+        <label class="form-label" for="{{ form.title.id }}">{{ form.title.label.text }}</label>
+        {{ form.title(class="form-control", placeholder="Optional title") }}
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="{{ form.file.id }}">{{ form.file.label.text }}</label>
+        {{ form.file(class="form-control") }}
+        <div class="form-text">Optional. Accepted: PDF, JPG, PNG, JPEG, WEBP, GIF.</div>
+    </div>
+
+    <div class="col-12">
+        <label class="form-label" for="{{ form.result_note.id }}">{{ form.result_note.label.text }}</label>
+        {{ form.result_note(class="form-control", rows="3", placeholder="Optional if file is uploaded. Required if no file.") }}
+        <div class="form-text">Save is allowed with file only, note only, or both.</div>
+    </div>
+
+    <div class="col-12">
+        <button class="btn btn-primary" type="submit">Save external US result</button>
+    </div>
+</div>
