@@ -1,4 +1,4 @@
-﻿# Nada Clinic System
+# Nada Clinic System
 
 Nada Clinic System is a doctor-first, patient-centered clinic operating system for OB/GYN workflows.
 
@@ -540,3 +540,13 @@ Sprint 7.3 links the Documents module to investigation results. Doctors can uplo
 
 ## Stage 7 - Documents & Storage Freeze Review
 Stage 7 freezes the Documents & Storage module after backend foundation, patient document UI, and investigation result attachment. The module supports local file storage, document metadata, secure filenames, validation, view/download/archive workflows, Patient Workspace integration, InvestigationResult attachment, RBAC, and tests. OCR, AI extraction, cloud storage, drawing tools, lab integration, PDF parsing, and ultrasound structured workflows remain out of scope.
+
+## Stage 8 — Ultrasound Backend Foundation
+
+Sprint 8.1 adds backend foundations for clinic ultrasound records and lightweight external ultrasound requests.
+
+- Clinic ultrasound is linked to Visit.
+- Clinic ultrasound date is derived from `Visit.visit_date`.
+- No `exam_date` column is added.
+- External ultrasound request is a one-textbox pending item.
+- External ultrasound result upload will reuse Stage 7 `PatientDocument` in a later sprint.

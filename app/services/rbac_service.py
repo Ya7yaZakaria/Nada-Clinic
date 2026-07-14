@@ -34,6 +34,8 @@ class RBACService:
         "print_templates.manage": "Manage print layout templates",
         "documents.view": "View patient documents",
         "documents.manage": "Manage patient documents",
+        "ultrasound.view": "View ultrasound records",
+        "ultrasound.manage": "Manage ultrasound records",
     }
 
     ROLE_PERMISSION_MATRIX = {
@@ -57,6 +59,8 @@ class RBACService:
             "print_templates.manage",
             "documents.view",
             "documents.manage",
+            "ultrasound.view",
+            "ultrasound.manage",
         ],
         "Reception": [
             "dashboard.view",

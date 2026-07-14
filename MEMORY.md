@@ -1,8 +1,8 @@
 
-## 2026-07-12 — Stage 4 Appointment & Today’s Clinic Frozen
+## 2026-07-12 â€” Stage 4 Appointment & Todayâ€™s Clinic Frozen
 - Completed Sprint 4.6 Freeze Review.
 - Stage 4 is frozen and accepted.
-- Verified appointment model, patient relationship, fixed appointment types, status workflow, booking, calendar, emergency unscheduled, arrival/waiting, cancel/reschedule, end-of-day no-show conversion, Today’s Clinic, and Previous Days Clinic.
+- Verified appointment model, patient relationship, fixed appointment types, status workflow, booking, calendar, emergency unscheduled, arrival/waiting, cancel/reschedule, end-of-day no-show conversion, Todayâ€™s Clinic, and Previous Days Clinic.
 - Confirmed Appointment does not create Visit automatically.
 - Confirmed Doctor opens Patient Workspace and starts Visit manually.
 - Confirmed Procedure is deferred as Visit add-on.
@@ -11,7 +11,7 @@
 - Last accepted commit before freeze docs: cb7b70c.
 - Next stage candidate: Stage 5 Prescription / Printing.
 
-## 2026-07-12 — Sprint 5.1A Drug Dictionaries Backend Foundation Completed
+## 2026-07-12 â€” Sprint 5.1A Drug Dictionaries Backend Foundation Completed
 - Added AI-ready medication dictionary backend foundation.
 - Added DrugCategory, DrugForm, DrugRoute, and DrugSafetyStatus models.
 - Added DrugDictionaryService with default seed lists and active dictionary helpers.
@@ -24,7 +24,7 @@
 - No Drug model, Prescription model, UI, routes, or print engine added yet.
 - Next action: Sprint 5.1B Drug Settings UI or Sprint 5.2 Drug Database Foundation.
 
-## 2026-07-12 — Sprint 5.1B Drug Settings UI Completed
+## 2026-07-12 â€” Sprint 5.1B Drug Settings UI Completed
 - Added Drug Settings UI for medication dictionaries.
 - Added forms for dictionary items and safety statuses.
 - Added Drug Settings routes.
@@ -39,7 +39,7 @@
 - No Drug model, Prescription model, or print engine added yet.
 - Next action: Sprint 5.2 Drug Database Foundation.
 
-## 2026-07-12 — Sprint 5.2A Drug Database Backend Foundation Completed
+## 2026-07-12 â€” Sprint 5.2A Drug Database Backend Foundation Completed
 - Added Drug model.
 - Added DrugService.
 - Added migration `20260712_0052_add_drugs`.
@@ -51,7 +51,7 @@
 - No Drug UI, Prescription model, Prescription UI, presets, or print engine added yet.
 - Next action: Sprint 5.2B Drug Database UI.
 
-## 2026-07-13 — Sprint 5.2B Drug Database UI Completed
+## 2026-07-13 â€” Sprint 5.2B Drug Database UI Completed
 - Added Drug Database UI.
 - Added DrugForm.
 - Added drugs blueprint and routes.
@@ -66,7 +66,7 @@
 - No Prescription model, Prescription UI, presets, or print engine added yet.
 - Next action: Sprint 5.3A Prescription Backend Foundation inside Visit.
 
-## 2026-07-13 — Sprint 5.3A Prescription Backend Foundation Completed
+## 2026-07-13 â€” Sprint 5.3A Prescription Backend Foundation Completed
 - Added Prescription model.
 - Added PrescriptionItem model.
 - Added PrescriptionService.
@@ -82,7 +82,7 @@
 - No Prescription UI, presets, or print engine added yet.
 - Next action: Sprint 5.4A Prescription UI Inside Visit.
 
-## 2026-07-13 — Sprint 5.4A Prescription UI Inside Visit Completed
+## 2026-07-13 â€” Sprint 5.4A Prescription UI Inside Visit Completed
 - Added Prescription UI section inside Visit detail.
 - Added PrescriptionItemForm.
 - Added add/edit/remove medication item routes.
@@ -96,7 +96,7 @@
 - Migration current/head: 20260713_0053.
 - Next action: Sprint 5.5 Prescription Presets, or optional 5.4B UI cleanup/partial extraction.
 
-2026-07-13 — Sprint 5.5A Prescription Presets Backend Foundation
+2026-07-13 â€” Sprint 5.5A Prescription Presets Backend Foundation
 Added PrescriptionPreset and PrescriptionPresetItem backend design.
 Added PrescriptionPresetService for preset CRUD, item management, and applying presets to prescriptions.
 Added prescription_presets.manage permission for Doctor/Admin.
@@ -105,7 +105,7 @@ Added migration 20260713_0054_add_prescription_presets.
 Added model/service tests.
 No UI, print, diagnosis-linked presets, or AI prescribing added.
 
-## 2026-07-13 — Sprint 5.5B Prescription Presets Management UI
+## 2026-07-13 â€” Sprint 5.5B Prescription Presets Management UI
 - Added Doctor/Admin UI for prescription preset management.
 - Added preset list/create/edit/toggle workflows.
 - Added preset detail page with medication item add/edit/remove.
@@ -113,7 +113,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Added UI tests for preset workflows and Reception blocking.
 - No apply-to-visit UI, print engine, migration, diagnosis-linked presets, or AI prescribing added.
 
-## 2026-07-13 — Sprint 5.5C Apply Prescription Preset Inside Visit UI
+## 2026-07-13 â€” Sprint 5.5C Apply Prescription Preset Inside Visit UI
 - Added apply-preset control inside Visit prescription section.
 - Added active preset dropdown and POST apply route.
 - Applying a preset creates editable PrescriptionItem rows.
@@ -121,14 +121,14 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Added UI tests for apply preset flow, Reception blocking, and empty preset error.
 - No migration, print engine, AI prescribing, diagnosis-linked suggestions, or locking added.
 
-## 2026-07-13 — Sprint 5.6 Prescription Print Engine v1
+## 2026-07-13 â€” Sprint 5.6 Prescription Print Engine v1
 - Added standalone prescription print page from Visit.
 - Added Print button when prescription has medication items.
 - Print page includes patient name, MRN, date, and medication lines.
 - Kept diagnosis, doctor identity, print locking, print history, PDF generation, and migration out of scope.
 - Reception print access remains blocked.
 
-## 2026-07-13 — Sprint 5.7 Prescription Module Freeze Review
+## 2026-07-13 â€” Sprint 5.7 Prescription Module Freeze Review
 - Performed Stage 5 Prescription + Printing cleanup/freeze review.
 - Fixed duplicate mobile sidebar Prescription Presets link.
 - Updated sidebar footer to Stage 5 Prescriptions.
@@ -137,7 +137,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Confirmed no migration, print locking, print history, doctor identity, diagnosis printing, PDF generation, or AI prescribing added.
 - Next action after verification: close Stage 5 and prepare Stage 6 Investigations.
 
-## 2026-07-13 — Sprint 6.1A Investigation Dictionaries + Core Models
+## 2026-07-13 â€” Sprint 6.1A Investigation Dictionaries + Core Models
 - Added investigation backend foundation: categories, tests, orders, order items, and results.
 - Supports historical/external results without prior order.
 - Supports separate ordered_visit and result_visit.
@@ -147,7 +147,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - No UI, presets, print request, real upload/storage, lab integration, or AI behavior added.
 - Next action: verify migration/tests, then Sprint 6.1B Investigation Orders From Visit UI.
 
-## 2026-07-13 — Sprint 6.1B Investigation Orders From Visit UI
+## 2026-07-13 â€” Sprint 6.1B Investigation Orders From Visit UI
 - Added investigation order UI from Visit.
 - Added investigation blueprint/routes.
 - Added order detail page and add-test workflow.
@@ -157,7 +157,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Kept result entry, historical result UI, presets, print request, upload/storage, AI behavior, and migration out of scope.
 - Next action: verify tests/routes, then Sprint 6.2A Investigation Presets Backend or Sprint 6.3A Result Entry Backend depending on workflow priority.
 
-## 2026-07-13 — Sprint 6.2A Investigation Presets Backend
+## 2026-07-13 â€” Sprint 6.2A Investigation Presets Backend
 - Added investigation preset backend foundation.
 - Added InvestigationPreset and InvestigationPresetItem models.
 - Added InvestigationPresetService.
@@ -168,7 +168,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - No preset UI, result entry UI, historical result UI, print request, upload/storage, lab integration, or AI behavior added.
 - Next action: verify migration/tests, then Sprint 6.2B Investigation Presets UI.
 
-## 2026-07-13 — Sprint 6.2B Investigation Presets UI
+## 2026-07-13 â€” Sprint 6.2B Investigation Presets UI
 - Added Doctor/Admin UI for investigation preset management.
 - Added investigation preset forms/routes/templates.
 - Added preset list/create/edit/detail workflows.
@@ -178,7 +178,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Kept result entry UI, historical result UI, print request, upload/storage, lab integration, AI behavior, and migration out of scope.
 - Next action: verify tests/routes, then Sprint 6.3A Result Entry Backend.
 
-## 2026-07-13 — Sprint 6.3 Investigation Result Entry
+## 2026-07-13 â€” Sprint 6.3 Investigation Result Entry
 - Added investigation result entry backend and UI.
 - Doctors can enter result for ordered investigation item.
 - Doctors can enter historical/external result from Patient or Visit context.
@@ -189,7 +189,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Kept result review UI, print request, upload/storage, timeline integration, lab integration, and AI behavior out of scope.
 - Next action: verify tests/routes, then Sprint 6.4 Result Review + Patient Workspace.
 
-## 2026-07-13 — Sprint 6.4 Result Review + Patient Workspace
+## 2026-07-13 â€” Sprint 6.4 Result Review + Patient Workspace
 - Added investigation result review workflow.
 - Doctors can review entered results, confirm abnormal flag, and store review note.
 - Review stores reviewed_by_user and reviewed_at.
@@ -200,7 +200,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Kept AI interpretation, automatic diagnosis, upload/storage, lab integration, alerts, and print request out of scope.
 - Next action: verify tests/routes, then Sprint 6.5 Investigation Print Request.
 
-## 2026-07-13 — Sprint 6.5A Unified Print Template Backend
+## 2026-07-13 â€” Sprint 6.5A Unified Print Template Backend
 - Added generic PrintTemplate backend foundation for future unified print designer.
 - Supports prescription and investigation_request document types.
 - Stores paper size in millimeters and visual layout positions in layout_json.
@@ -212,7 +212,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Kept visual designer UI, prescription migration, investigation print route, print preview, PDF generation, print history, print lock, doctor signature, logo upload, and AI behavior out of scope.
 - Next action: verify migration/tests, then Sprint 6.5B Unified Visual Designer UI.
 
-## 2026-07-13 — Sprint 6.5B Unified Visual Designer UI
+## 2026-07-13 â€” Sprint 6.5B Unified Visual Designer UI
 - Added generic Print Templates UI.
 - Added print_templates blueprint/routes.
 - Added PrintTemplateForm.
@@ -225,7 +225,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - No new migration, prescription migration, investigation print route, print preview rendering, PDF generation, print history, print lock, doctor signature, logo upload, or AI behavior added.
 - Next action: verify tests/routes, then Sprint 6.5C Prescription Migration to Unified Print.
 
-## 2026-07-13 — Sprint 6.5C Prescription Migration to Unified Print
+## 2026-07-13 â€” Sprint 6.5C Prescription Migration to Unified Print
 - Migrated prescription printing to the unified PrintTemplate-based print engine.
 - Added unified prescription preview route under /print/prescriptions/<visit_uuid>/preview.
 - Added prescription designer redirect route under /print/prescriptions/<visit_uuid>/designer.
@@ -238,7 +238,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - No new migration, investigation print route, PDF generation, print history, print lock, doctor signature, logo upload, or AI behavior added.
 - Next action: verify tests/routes, then Sprint 6.5D Investigation Print Using Unified Designer.
 
-## 2026-07-13 — Sprint 6.5D Investigation Print Using Unified Designer
+## 2026-07-13 â€” Sprint 6.5D Investigation Print Using Unified Designer
 - Added unified investigation request preview route under /print/investigations/<order_uuid>/preview.
 - Added investigation request designer redirect route under /print/investigations/<order_uuid>/designer.
 - Investigation order detail now shows Print request when the order has active items.
@@ -249,7 +249,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - No new migration, result report printing, PDF generation, print history, print lock, doctor signature, logo upload, lab integration, or AI behavior added.
 - Next action: verify tests/routes, then Sprint 6.5E Print Module Freeze Review.
 
-## 2026-07-13 — Sprint 6.5E Print Module Freeze Review
+## 2026-07-13 â€” Sprint 6.5E Print Module Freeze Review
 - Freeze-reviewed unified print module.
 - Confirmed PrintTemplate backend/service, UI, designer, prescription preview, and investigation request preview.
 - Confirmed prescription and investigation print routes are registered under /print.
@@ -259,7 +259,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Confirmed PDF generation, print history, print lock, doctor signature, logo upload, result report printing, lab integration, and AI remain out of scope.
 - Next action: commit freeze documentation after verification, then move to the next Stage 6 cleanup or Stage 7 Documents/Storage planning.
 
-## 2026-07-13 — Stage 6 Investigation Module Freeze Review
+## 2026-07-13 â€” Stage 6 Investigation Module Freeze Review
 - Freeze-reviewed Stage 6 Investigations.
 - Confirmed investigation dictionaries, orders, presets, result entry, historical results, result review, patient workspace investigation section, timeline events, and unified investigation request printing.
 - Confirmed Stage 5 prescription regression after unified print migration.
@@ -269,7 +269,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Confirmed upload/storage, result report printing, PDF generation, lab integration, alerts, billing, and AI remain out of scope.
 - Next action: commit freeze documentation and cleanup after verification, then plan Stage 7 Documents & Storage.
 
-## 2026-07-13 — Sprint 6.6A Enter Pending Result From Current Visit
+## 2026-07-13 â€” Sprint 6.6A Enter Pending Result From Current Visit
 - Fixed ordered investigation result Visit context.
 - Visit detail now exposes pending results from previous visits for the same patient.
 - Doctor can enter a pending result from the current Visit.
@@ -279,7 +279,7 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Investigation dictionary/settings UI remains deferred.
 - Next action: verify tests, commit Stage 6 freeze + 6.6A fix, then plan Stage 7 Documents & Storage.
 
-## 2026-07-13 — Sprint 7.1 Documents Backend Foundation
+## 2026-07-13 â€” Sprint 7.1 Documents Backend Foundation
 - Added PatientDocument backend model for patient file metadata.
 - Added DocumentService for local storage, validation, safe filename generation, listing, and archive.
 - Added optional links to Visit and InvestigationResult.
@@ -307,3 +307,22 @@ No UI, print, diagnosis-linked presets, or AI prescribing added.
 - Confirmed no OCR, AI extraction, cloud storage, drawing/annotation, lab integration, PDF parsing, or Ultrasound structured module added.
 - Current migration head remains 20260713_0064.
 - Next action: commit Sprint 7.3A cleanup plus Stage 7 freeze review, push, then start Stage 8 Ultrasound planning.
+
+## Sprint 8.1 â€” Ultrasound Backend Foundation
+
+Current Stage: Stage 8 Ultrasound.
+
+Scope:
+- Backend only.
+- Added ClinicUltrasoundExam for clinic ultrasound inside Visit.
+- Added ExternalUltrasoundRequest for one-textbox external ultrasound requests.
+- Clinic ultrasound date is derived from Visit.visit_date.
+- No exam_date column.
+- No external ultrasound result table.
+- External upload/result remains for Sprint 8.3 using PatientDocument.
+- Sketch remains sketch_note only.
+
+Next Action:
+- Run migration/tests.
+- Review outputs.
+- Continue to Sprint 8.2 Clinic Ultrasound Visit UI after verification.

@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 ## 2026-07-07 — Stage 3 / Sprint 3.4 Timeline Foundation
 
@@ -1067,3 +1067,19 @@ No diagnosis-linked preset behavior added.
 
 ### Next
 - Stage 8 Ultrasound.
+
+## 2026-07-14 — Sprint 8.1 Ultrasound Backend Foundation
+
+### Added
+- ClinicUltrasoundExam model.
+- ExternalUltrasoundRequest model.
+- ClinicUltrasoundService.
+- ExternalUltrasoundService.
+- Ultrasound RBAC permissions.
+- Ultrasound backend migration.
+- Sprint 8.1 model and service tests.
+
+### Notes
+- Clinic ultrasound date is derived from the linked Visit.
+- No exam_date field was added.
+- No external ultrasound result table was added.
