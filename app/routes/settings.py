@@ -14,12 +14,14 @@ settings_bp = Blueprint("settings", __name__, url_prefix="/settings")
 def index():
     grouped_settings = SettingsService.grouped_settings_for_ui()
     summary = SettingsService.get_stage_12_summary()
+    workflow_preferences = SettingsService.get_workflow_preferences()
     seed_form = SettingsSeedDefaultsForm()
 
     return render_template(
         "settings/index.html",
         grouped_settings=grouped_settings,
         summary=summary,
+        workflow_preferences=workflow_preferences,
         seed_form=seed_form,
         SettingsService=SettingsService,
     )

@@ -1265,3 +1265,16 @@ No diagnosis-linked preset behavior added.
 - No database schema migration.
 - No logo upload/storage yet.
 - No doctor profile table yet.
+
+## 2026-07-15 — Sprint 12.4 Workflow Defaults
+
+### Added
+- Workflow landing resolver in SettingsService.
+- Successful login redirect support for `workflow.default_landing_page`.
+- Workflow defaults summary on Settings dashboard.
+- Sprint 12.4 workflow default tests and documentation.
+
+### Unchanged
+- No database schema migration.
+- No dashboard/admin redesign in this sprint.
+- No per-user preferences yet.

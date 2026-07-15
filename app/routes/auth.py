@@ -1,4 +1,4 @@
-﻿from datetime import datetime, timezone
+from datetime import datetime, timezone
 from urllib.parse import urljoin, urlparse
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -7,6 +7,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from app.extensions import db
 from app.forms.auth_forms import LoginForm
 from app.services.auth_service import AuthService
+from app.services.settings_service import SettingsService
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -20,11 +21,18 @@ def is_safe_url(target):
 
     return test_url.scheme in ("http", "https") and ref_url.netloc == test_url.netloc
 
+def default_landing_url_for_user(user):
+    try:
+        endpoint = SettingsService.get_default_landing_endpoint_for_user(user)
+        return url_for(endpoint)
+    except Exception:
+        return url_for("main.index")
+
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("main.index"))
+        return redirect(default_landing_url_for_user(current_user))
 
     form = LoginForm()
 
@@ -46,7 +54,7 @@ def login():
         if is_safe_url(next_url):
             return redirect(next_url)
 
-        return redirect(url_for("main.index"))
+        return redirect(default_landing_url_for_user(user))
 
     return render_template("auth/login.html", form=form)
 

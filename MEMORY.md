@@ -648,3 +648,30 @@ Deferred:
 
 Next Action:
 - Run Sprint 12.3 focused tests and full regression.
+
+## Sprint 12.4 Workflow Defaults Implemented
+
+Current Stage:
+- Stage 12 Settings & Personalization.
+
+Completed Work:
+- Added SettingsService workflow landing resolver.
+- Successful login now respects `workflow.default_landing_page`.
+- Added safe dashboard fallback for invalid landing targets.
+- Added workflow preferences helper.
+- Settings dashboard shows current workflow landing page.
+- Added Sprint 12.4 tests and documentation.
+
+Database Impact:
+- No schema migration required.
+- Reused existing workflow settings keys.
+
+Deferred:
+- Dashboard redesign.
+- Admin Home redesign.
+- Per-user landing preferences.
+- Notifications.
+- Follow-up engine implementation.
+
+Next Action:
+- Run Sprint 12.4 focused tests and full regression.

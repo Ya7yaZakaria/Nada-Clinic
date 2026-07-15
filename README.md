@@ -681,3 +681,12 @@ Sprint 12.3 adds a dedicated clinic profile settings page:
 - Clinic profile values are injected globally into templates.
 - Base shell brand uses clinic profile settings.
 - No database migration is required.
+
+## Sprint 12.4 — Workflow Defaults
+
+Sprint 12.4 makes the existing workflow default landing setting operational:
+- Login redirects to the configured default landing page.
+- Supported landing pages: Dashboard, Today Clinic, Patients, Appointments, Finance.
+- Invalid landing targets safely fall back to Dashboard.
+- Settings dashboard shows workflow default status.
+- No database migration is required.

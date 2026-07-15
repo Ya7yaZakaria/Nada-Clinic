@@ -386,6 +386,29 @@ class SettingsService:
         ],
     }
 
+    WORKFLOW_LANDING_TARGETS = {
+        "dashboard": {
+            "label": "Dashboard",
+            "endpoint": "main.index",
+        },
+        "today_clinic": {
+            "label": "Today Clinic",
+            "endpoint": "today_clinic.index",
+        },
+        "patients": {
+            "label": "Patients",
+            "endpoint": "patients.index",
+        },
+        "appointments": {
+            "label": "Appointments Calendar",
+            "endpoint": "appointments.calendar",
+        },
+        "finance": {
+            "label": "Finance",
+            "endpoint": "finance.index",
+        },
+    }
+
     GROUP_LABELS = {
         "clinic": "Clinic",
         "localization": "Localization",
@@ -511,6 +534,33 @@ class SettingsService:
         }
 
     @classmethod
+    def get_landing_target(cls, landing_key=None):
+        landing_key = landing_key or cls.get("workflow.default_landing_page", "dashboard")
+        return cls.WORKFLOW_LANDING_TARGETS.get(
+            landing_key,
+            cls.WORKFLOW_LANDING_TARGETS["dashboard"],
+        )
+
+    @classmethod
+    def get_default_landing_endpoint_for_user(cls, user=None):
+        target = cls.get_landing_target()
+        return target["endpoint"]
+
+    @classmethod
+    def get_workflow_preferences(cls):
+        landing_key = cls.get("workflow.default_landing_page", "dashboard")
+        target = cls.get_landing_target(landing_key)
+
+        return {
+            "default_landing_page": landing_key,
+            "default_landing_label": target["label"],
+            "default_landing_endpoint": target["endpoint"],
+            "enable_today_clinic": cls.get("workflow.enable_today_clinic", True),
+            "enable_patient_workspace": cls.get("workflow.enable_patient_workspace", True),
+            "enable_followup_tracker": cls.get("workflow.enable_followup_tracker", True),
+        }
+
+    @classmethod
     def get_stage_12_summary(cls):
         return {
             "theme": cls.get("appearance.theme", "light"),
@@ -519,6 +569,7 @@ class SettingsService:
             "sidebar_density": cls.get("appearance.sidebar_density", "comfortable"),
             "font_size": cls.get("appearance.font_size", "normal"),
             "default_landing_page": cls.get("workflow.default_landing_page", "dashboard"),
+            "default_landing_label": cls.get_landing_target()["label"],
         }
 
     @staticmethod
