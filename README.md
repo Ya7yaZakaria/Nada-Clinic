@@ -1,5 +1,38 @@
 # Nada Clinic System
 
+## Current Project Status — Pause After Stage 12
+
+Current development is paused after Stage 12 Settings & Personalization freeze so the system can be tested in real personal clinic-style use before adding more stages.
+
+Latest known good state:
+
+- Latest commit: `cb73a9a docs(settings): freeze stage 12 settings personalization`
+- Migration current/head: `20260715_0069`
+- Full regression at freeze: `450 passed`
+- Working tree should be clean after handoff commit
+
+Frozen stages:
+
+- Stage 0–1 Foundation/Auth/RBAC/Settings base
+- Stage 2 Patients/Search/Workspace
+- Stage 3 Journey/Visit
+- Stage 4 Appointments/Today Clinic
+- Stage 5 Prescription/Printing
+- Stage 6 Investigations
+- Stage 7 Documents/Storage
+- Stage 8 Ultrasound
+- Stage 9 Surgery
+- Stage 10 Partner
+- Stage 11 Finance
+- Stage 12 Settings & Personalization
+
+Next action:
+
+- Do not start Stage 13 immediately.
+- Run the app locally and test the real daily workflow.
+- Capture trial notes in `docs/Project_Handoff_Pause_After_Stage_12.md`.
+- Plan the next sprint only after reviewing real trial notes.
+
 Nada Clinic System is a doctor-first, patient-centered clinic operating system for OB/GYN workflows.
 
 ## Current Stage

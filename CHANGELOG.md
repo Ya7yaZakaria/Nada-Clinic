@@ -1305,3 +1305,22 @@ No diagnosis-linked preset behavior added.
 - Notifications.
 - Advanced permission builder.
 - Complex theme designer.
+
+## 2026-07-15 — Project Pause After Stage 12
+
+### Added
+- Project handoff document for pausing after Stage 12.
+- Real personal trial checklist.
+- Next-chat continuation instructions.
+- README current status block.
+- MEMORY update for paused development state.
+
+### Decision
+- Stop feature development temporarily.
+- Test the system in real personal clinic-style use.
+- Collect workflow/UX/bug notes before Stage 13 or any new module.
+
+### Latest Known Good State
+- Latest freeze commit before handoff: cb73a9a.
+- Migration current/head: 20260715_0069.
+- Full regression at Stage 12 freeze: 450 passed.
