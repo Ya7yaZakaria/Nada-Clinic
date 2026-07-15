@@ -444,3 +444,43 @@ Verification:
 Next Action:
 - Run verification commands.
 - Commit as docs/workflow cleanup if tests pass.
+
+## Stage 9 Surgery Frozen
+
+Current Stage:
+- Stage 9 Surgery completed and frozen.
+
+Completed Work:
+- Surgery module committed and pushed.
+- Freeze cleanup committed and pushed.
+- Added Postponed / Cancelled dashboard section.
+- Added Mark Scheduled workflow for postponed surgeries.
+- Added Stage 9 Surgery Freeze Review document.
+
+Verification:
+- Full regression: 412 passed.
+- Migration current/head: 20260715_0067.
+- Latest Stage 9 freeze commit: 14c4ea7.
+- Working tree clean after push.
+
+## Stage 10 Partner Module Implemented
+
+Current Stage:
+- Stage 10 Partner implemented as one script.
+
+Completed Work:
+- Added Partner model.
+- Added PartnerSemenAnalysis notes/upload history.
+- Added Patient Workspace Partner card.
+- Added Prescription target support for patient/partner.
+- Partner prescriptions reuse existing PrescriptionItem medication rows.
+
+Deferred Features:
+- Structured SA parameters.
+- OCR/AI SA interpretation.
+- Partner prescription printing.
+- Partner dashboard.
+- Full male infertility module.
+
+Next Action:
+- Run Stage 10 migration/tests and review outputs.

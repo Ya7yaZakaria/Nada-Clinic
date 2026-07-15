@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Add SA — Nada Clinic System{% endblock %}
+{% block page_title %}Add Semen Analysis{% endblock %}
+{% block page_subtitle %}Upload image/PDF and write notes only{% endblock %}
+{% block content %}
+<div class="clinic-card">
+    <h1 class="h5">Add SA for {{ partner.name }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.analysis_date.label(class="form-label") }}
+            {{ form.analysis_date(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.notes.label(class="form-label") }}
+            {{ form.notes(class="form-control", rows="4") }}
+        </div>
+        <div class="mb-3">
+            {{ form.file.label(class="form-label") }}
+            {{ form.file(class="form-control") }}
+        </div>
+        <button class="btn btn-primary" type="submit">Save SA</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('partners.detail', partner_uuid=partner.uuid) }}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

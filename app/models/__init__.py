@@ -7,6 +7,7 @@ from app.models.investigation_preset import InvestigationPreset, InvestigationPr
 from app.models.investigation import (InvestigationCategory, InvestigationTest, InvestigationOrder, InvestigationOrderItem, InvestigationResult)
 from app.models.journey import Journey
 from app.models.patient import Patient
+from app.models.partner import Partner, PartnerSemenAnalysis
 from app.models.prescription import Prescription, PrescriptionItem
 from app.models.prescription_preset import PrescriptionPreset, PrescriptionPresetItem
 from app.models.print_template import PrintTemplate
@@ -31,6 +32,8 @@ __all__ = [
     "InvestigationPreset",
     "Journey",
     "Patient",
+    "Partner",
+    "PartnerSemenAnalysis",
     "PatientDocument",
     "ClinicUltrasoundExam",
     "SurgeryCase",

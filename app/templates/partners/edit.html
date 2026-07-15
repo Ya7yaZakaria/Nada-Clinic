@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Edit Partner — Nada Clinic System{% endblock %}
+{% block page_title %}Edit Partner{% endblock %}
+{% block page_subtitle %}Update partner clinical companion record{% endblock %}
+{% block content %}
+<div class="clinic-card">
+    <h1 class="h5">Edit {{ partner.name }}</h1>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {% include "partners/_partner_form_fields.html" %}
+        <button class="btn btn-primary" type="submit">Save Changes</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('patients.detail', patient_uuid=partner.patient.uuid) }}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

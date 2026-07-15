@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Partner — Nada Clinic System{% endblock %}
+{% block page_title %}Partner / Husband{% endblock %}
+{% block page_subtitle %}Partner details, semen analysis history, and partner prescriptions{% endblock %}
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex justify-content-between gap-2">
+        <div>
+            <p class="section-kicker">Partner</p>
+            <h1 class="h4">{{ partner.name }}</h1>
+            <p class="text-muted mb-0">
+                Linked patient:
+                <a href="{{ url_for('patients.detail', patient_uuid=partner.patient.uuid) }}">{{ partner.patient.name_ar or partner.patient.name_en }}</a>
+            </p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-start">
+            <a class="btn btn-outline-secondary" href="{{ url_for('partners.edit', partner_uuid=partner.uuid) }}">Edit</a>
+            <a class="btn btn-outline-success" href="{{ url_for('partners.new_semen_analysis', partner_uuid=partner.uuid) }}">Add SA</a>
+            <a class="btn btn-primary" href="{{ url_for('partners.new_prescription', partner_uuid=partner.uuid) }}">Write Prescription</a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Latest SA</h2>
+            {% if latest_sa %}
+                <p class="fw-semibold">{{ latest_sa.analysis_date.strftime("%Y-%m-%d") }}</p>
+                <p>{{ latest_sa.notes or "No notes." }}</p>
+                {% if latest_sa.document %}
+                    <a href="{{ url_for('documents.detail', document_uuid=latest_sa.document.uuid) }}">Open uploaded report</a>
+                {% endif %}
+            {% else %}
+                <div class="placeholder-box">No semen analysis yet.</div>
+            {% endif %}
+            <a class="btn btn-sm btn-outline-primary mt-2" href="{{ url_for('partners.semen_analysis_list', partner_uuid=partner.uuid) }}">SA History</a>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Partner Prescriptions</h2>
+            {% if prescriptions %}
+                <div class="list-group list-group-flush">
+                    {% for prescription in prescriptions %}
+                        <a class="list-group-item list-group-item-action" href="{{ url_for('partners.prescription_detail', prescription_uuid=prescription.uuid) }}">
+                            {{ prescription.created_at.strftime("%Y-%m-%d") }} · {{ prescription.items.count() }} medications
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="placeholder-box">No partner prescriptions yet.</div>
+            {% endif %}
+            <a class="btn btn-sm btn-outline-primary mt-2" href="{{ url_for('partners.prescriptions_list', partner_uuid=partner.uuid) }}">Prescription History</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}SA History — Nada Clinic System{% endblock %}
+{% block page_title %}Semen Analysis History{% endblock %}
+{% block page_subtitle %}Old and latest SA records{% endblock %}
+{% block content %}
+<div class="clinic-card">
+    <div class="d-flex justify-content-between gap-2 mb-3">
+        <h1 class="h5">SA History — {{ partner.name }}</h1>
+        <a class="btn btn-sm btn-primary" href="{{ url_for('partners.new_semen_analysis', partner_uuid=partner.uuid) }}">Add SA</a>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for analysis in analyses %}
+            <a class="list-group-item list-group-item-action" href="{{ url_for('partners.semen_analysis_detail', sa_uuid=analysis.uuid) }}">
+                <div class="fw-semibold">{{ analysis.analysis_date.strftime("%Y-%m-%d") }}</div>
+                <div class="small text-muted">{{ analysis.notes or "No notes." }}</div>
+                {% if analysis.document %}<div class="small">Uploaded report attached</div>{% endif %}
+            </a>
+        {% else %}
+            <div class="placeholder-box">No SA records yet.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

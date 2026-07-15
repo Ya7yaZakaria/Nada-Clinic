@@ -1,0 +1,66 @@
+{% if can_view_partners %}
+<div class="clinic-card mb-3">
+    <div class="d-flex justify-content-between gap-2 mb-2">
+        <div>
+            <p class="section-kicker">Partner</p>
+            <h2 class="h5">Partner / Husband</h2>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            {% if partner %}
+                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('partners.detail', partner_uuid=partner.uuid) }}">Open</a>
+                {% if can_manage_partners %}
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('partners.edit', partner_uuid=partner.uuid) }}">Edit</a>
+                    <a class="btn btn-sm btn-outline-success" href="{{ url_for('partners.new_semen_analysis', partner_uuid=partner.uuid) }}">Add SA</a>
+                    <a class="btn btn-sm btn-outline-primary" href="{{ url_for('partners.new_prescription', partner_uuid=partner.uuid) }}">Write Partner Prescription</a>
+                {% endif %}
+            {% elif can_manage_partners %}
+                <a class="btn btn-sm btn-primary" href="{{ url_for('partners.new_for_patient', patient_uuid=patient.uuid) }}">Add Partner</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if partner %}
+        <div class="row g-3">
+            <div class="col-12 col-lg-4">
+                <div class="fw-semibold">{{ partner.name }}</div>
+                <div class="small text-muted">
+                    {% if partner.age_years is not none %}{{ partner.age_years }} y{% else %}Age —{% endif %}
+                    · {{ partner.phone or "No phone" }}
+                    · {{ partner.occupation or "No occupation" }}
+                </div>
+                <div class="small mt-2">
+                    <strong>Previous children:</strong> {{ partner.previous_children or "—" }}
+                </div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="small text-muted">Fertility notes</div>
+                <div>{{ partner.fertility_notes or "—" }}</div>
+                <div class="small text-muted mt-2">Medical notes</div>
+                <div>{{ partner.medical_notes or "—" }}</div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="small text-muted">Latest SA</div>
+                {% if latest_partner_sa %}
+                    <div class="fw-semibold">{{ latest_partner_sa.analysis_date.strftime("%Y-%m-%d") }}</div>
+                    <div>{{ latest_partner_sa.notes or "No notes." }}</div>
+                    {% if latest_partner_sa.document %}
+                        <a class="small" href="{{ url_for('documents.detail', document_uuid=latest_partner_sa.document.uuid) }}">Open uploaded report</a>
+                    {% endif %}
+                {% else %}
+                    <div class="placeholder-box">No semen analysis recorded.</div>
+                {% endif %}
+                <div class="small text-muted mt-2">Follow-up</div>
+                <div>
+                    {% if partner.follow_up_date %}{{ partner.follow_up_date.strftime("%Y-%m-%d") }} · {% endif %}
+                    {{ partner.follow_up_note or "—" }}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="placeholder-box">
+            <p class="fw-semibold mb-1">No partner recorded yet.</p>
+            <p class="text-muted mb-0">Add partner details, SA uploads/notes, and partner prescriptions from here.</p>
+        </div>
+    {% endif %}
+</div>
+{% endif %}

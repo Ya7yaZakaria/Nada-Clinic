@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Edit Partner Medication — Nada Clinic System{% endblock %}
+{% block page_title %}Edit Partner Medication{% endblock %}
+{% block content %}
+<div class="clinic-card">
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="row g-2">
+            <div class="col-12 col-lg-6">{{ form.drug_id.label(class="form-label") }}{{ form.drug_id(class="form-select") }}</div>
+            <div class="col-12 col-lg-6">{{ form.route_id.label(class="form-label") }}{{ form.route_id(class="form-select") }}</div>
+            <div class="col-12 col-md-4">{{ form.dose.label(class="form-label") }}{{ form.dose(class="form-control") }}</div>
+            <div class="col-12 col-md-4">{{ form.frequency.label(class="form-label") }}{{ form.frequency(class="form-control") }}</div>
+            <div class="col-12 col-md-4">{{ form.duration.label(class="form-label") }}{{ form.duration(class="form-control") }}</div>
+            <div class="col-12">{{ form.instructions_ar.label(class="form-label") }}{{ form.instructions_ar(class="form-control", rows="2") }}</div>
+        </div>
+        <button class="btn btn-primary mt-3" type="submit">Save Medication</button>
+        <a class="btn btn-outline-secondary mt-3" href="{{ url_for('partners.prescription_detail', prescription_uuid=item.prescription.uuid) }}">Cancel</a>
+    </form>
+</div>
+{% endblock %}

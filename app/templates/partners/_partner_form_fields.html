@@ -1,0 +1,39 @@
+<div class="row g-3">
+    <div class="col-12 col-md-6">
+        {{ form.name.label(class="form-label") }}
+        {{ form.name(class="form-control") }}
+    </div>
+    <div class="col-12 col-md-3">
+        {{ form.phone.label(class="form-label") }}
+        {{ form.phone(class="form-control") }}
+    </div>
+    <div class="col-12 col-md-3">
+        {{ form.age_years.label(class="form-label") }}
+        {{ form.age_years(class="form-control") }}
+    </div>
+    <div class="col-12 col-md-6">
+        {{ form.occupation.label(class="form-label") }}
+        {{ form.occupation(class="form-control") }}
+    </div>
+    <div class="col-12 col-md-6">
+        {{ form.follow_up_date.label(class="form-label") }}
+        {{ form.follow_up_date(class="form-control") }}
+    </div>
+    <div class="col-12">
+        {{ form.previous_children.label(class="form-label") }}
+        {{ form.previous_children(class="form-control", rows="2") }}
+    </div>
+    <div class="col-12">
+        {{ form.fertility_notes.label(class="form-label") }}
+        {{ form.fertility_notes(class="form-control", rows="3") }}
+    </div>
+    <div class="col-12">
+        {{ form.medical_notes.label(class="form-label") }}
+        {{ form.medical_notes(class="form-control", rows="3") }}
+    </div>
+    <div class="col-12">
+        {{ form.follow_up_note.label(class="form-label") }}
+        {{ form.follow_up_note(class="form-control", rows="2") }}
+    </div>
+</div>
+<hr>

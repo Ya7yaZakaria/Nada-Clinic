@@ -1159,3 +1159,19 @@ No diagnosis-linked preset behavior added.
 - Surgery workflow cleanup tests.
 - RBAC and patient workspace regression.
 - Full suite expected before freeze.
+
+## 2026-07-15 — Stage 10 Partner Module
+
+### Added
+- Partner model and Patient Workspace section.
+- PartnerSemenAnalysis notes/upload history.
+- `semen_analysis` document type.
+- Prescription target support for patient/partner.
+- Partner prescription workflow using existing medication items.
+- Stage 10 tests and documentation.
+
+### Deferred
+- Structured SA parameters.
+- OCR/AI SA interpretation.
+- Partner prescription printing.
+- Partner dashboard.

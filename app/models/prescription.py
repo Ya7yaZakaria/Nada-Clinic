@@ -1,13 +1,21 @@
-﻿import uuid as uuid_lib
+import uuid as uuid_lib
 from datetime import datetime, timezone
 
 from app.extensions import db
 
 
 class Prescription(db.Model):
-    """Structured prescription linked to a clinical Visit."""
+    """Structured prescription linked to a patient or partner target.
+
+    Patient prescriptions remain Visit-based.
+    Partner prescriptions are linked to patient + partner and may not have a Visit.
+    """
 
     __tablename__ = "prescriptions"
+
+    TARGET_PATIENT = "patient"
+    TARGET_PARTNER = "partner"
+    VALID_TARGETS = {TARGET_PATIENT, TARGET_PARTNER}
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -29,8 +37,22 @@ class Prescription(db.Model):
     visit_id = db.Column(
         db.Integer,
         db.ForeignKey("visits.id"),
-        nullable=False,
+        nullable=True,
         unique=True,
+        index=True,
+    )
+
+    prescription_target = db.Column(
+        db.String(40),
+        nullable=False,
+        default=TARGET_PATIENT,
+        index=True,
+    )
+
+    partner_id = db.Column(
+        db.Integer,
+        db.ForeignKey("partners.id"),
+        nullable=True,
         index=True,
     )
 
@@ -68,11 +90,26 @@ class Prescription(db.Model):
         "Visit",
         backref=db.backref("prescription", uselist=False),
     )
+    partner = db.relationship(
+        "Partner",
+        backref=db.backref("prescriptions", lazy="dynamic"),
+    )
     created_by_user = db.relationship("User", foreign_keys=[created_by_user_id])
     updated_by_user = db.relationship("User", foreign_keys=[updated_by_user_id])
 
+    @property
+    def is_partner_target(self):
+        return self.prescription_target == self.TARGET_PARTNER
+
+    @property
+    def is_patient_target(self):
+        return self.prescription_target == self.TARGET_PATIENT
+
     def __repr__(self):
-        return f"<Prescription {self.uuid} visit={self.visit_id} patient={self.patient_id}>"
+        return (
+            f"<Prescription {self.uuid} target={self.prescription_target} "
+            f"visit={self.visit_id} partner={self.partner_id} patient={self.patient_id}>"
+        )
 
 
 class PrescriptionItem(db.Model):

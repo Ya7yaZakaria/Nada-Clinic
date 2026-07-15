@@ -607,3 +607,11 @@ Stage 9 freeze cleanup adds:
 - Postponed / Cancelled dashboard section.
 - Mark Scheduled action for postponed surgeries.
 - Freeze review documentation.
+
+## Stage 10 — Partner Module
+
+Stage 10 adds Partner/Husband support inside Patient Workspace:
+- Partner card.
+- SA history as upload + notes only.
+- Partner prescriptions using the existing PrescriptionItem structure.
+- Prescription target support: patient / partner.

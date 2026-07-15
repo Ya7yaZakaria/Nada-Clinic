@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}SA Detail — Nada Clinic System{% endblock %}
+{% block page_title %}Semen Analysis Detail{% endblock %}
+{% block content %}
+<div class="clinic-card">
+    <h1 class="h5">{{ analysis.analysis_date.strftime("%Y-%m-%d") }}</h1>
+    <p>{{ analysis.notes or "No notes." }}</p>
+    {% if analysis.document %}
+        <a class="btn btn-outline-primary" href="{{ url_for('documents.detail', document_uuid=analysis.document.uuid) }}">Open uploaded report</a>
+    {% endif %}
+    <a class="btn btn-outline-secondary" href="{{ url_for('partners.semen_analysis_list', partner_uuid=analysis.partner.uuid) }}">Back</a>
+</div>
+{% endblock %}

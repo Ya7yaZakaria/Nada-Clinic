@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Partner Prescription — Nada Clinic System{% endblock %}
+{% block page_title %}Partner Prescription{% endblock %}
+{% block page_subtitle %}Prescription for partner/husband, linked to patient record{% endblock %}
+{% block content %}
+<div class="clinic-card mb-3">
+    <p class="section-kicker">Prescription target</p>
+    <h1 class="h5">Partner / Husband: {{ prescription.partner.name }}</h1>
+    <p class="text-muted mb-0">
+        Linked patient:
+        <a href="{{ url_for('patients.detail', patient_uuid=prescription.patient.uuid) }}">{{ prescription.patient.name_ar or prescription.patient.name_en }}</a>
+    </p>
+</div>
+
+<div class="clinic-card mb-3">
+    <h2 class="h5">Medication Items</h2>
+    <div class="list-group list-group-flush mb-3">
+        {% for item in prescription_items %}
+            <div class="list-group-item">
+                <div class="fw-semibold">{{ item.drug.trade_name }} {{ item.drug.strength }}</div>
+                <div class="small text-muted">{{ item.dose }} · {{ item.frequency }} · {{ item.duration }}</div>
+                <div>{{ item.instructions_ar }}</div>
+                {% if item_form %}
+                    <div class="mt-2">
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('partners.edit_prescription_item', item_uuid=item.uuid) }}">Edit</a>
+                        <form method="post" action="{{ url_for('partners.remove_prescription_item', item_uuid=item.uuid) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="placeholder-box">No medications yet.</div>
+        {% endfor %}
+    </div>
+
+    {% if item_form %}
+        <form method="post" action="{{ url_for('partners.add_prescription_item', prescription_uuid=prescription.uuid) }}">
+            {{ item_form.hidden_tag() }}
+            <div class="row g-2">
+                <div class="col-12 col-lg-6">{{ item_form.drug_id.label(class="form-label") }}{{ item_form.drug_id(class="form-select") }}</div>
+                <div class="col-12 col-lg-6">{{ item_form.route_id.label(class="form-label") }}{{ item_form.route_id(class="form-select") }}</div>
+                <div class="col-12 col-md-4">{{ item_form.dose.label(class="form-label") }}{{ item_form.dose(class="form-control") }}</div>
+                <div class="col-12 col-md-4">{{ item_form.frequency.label(class="form-label") }}{{ item_form.frequency(class="form-control") }}</div>
+                <div class="col-12 col-md-4">{{ item_form.duration.label(class="form-label") }}{{ item_form.duration(class="form-control") }}</div>
+                <div class="col-12">{{ item_form.instructions_ar.label(class="form-label") }}{{ item_form.instructions_ar(class="form-control", rows="2") }}</div>
+            </div>
+            <button class="btn btn-primary mt-3" type="submit">Add Medication</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

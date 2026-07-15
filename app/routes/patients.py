@@ -13,6 +13,8 @@ from app.services.investigation_preset_service import InvestigationPresetService
 from app.services.investigation_service import InvestigationService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
+from app.services.partner_service import PartnerService
+from app.services.partner_semen_analysis_service import PartnerSemenAnalysisService
 from app.services.rbac_service import RBACService
 from app.services.surgery_service import SurgeryService
 from app.services.timeline_service import TimelineService
@@ -112,6 +114,29 @@ def _get_patient_workspace_surgery_context(patient):
     }
 
 
+def _get_patient_workspace_partner_context(patient):
+    can_view_partners = RBACService.user_has_permission(current_user, "partners.view")
+    can_manage_partners = RBACService.user_has_permission(current_user, "partners.manage")
+
+    if not can_view_partners:
+        return {
+            "partner": None,
+            "latest_partner_sa": None,
+            "can_view_partners": False,
+            "can_manage_partners": False,
+        }
+
+    partner = PartnerService.get_patient_partner(patient)
+    latest_sa = PartnerSemenAnalysisService.latest_for_partner(partner) if partner else None
+
+    return {
+        "partner": partner,
+        "latest_partner_sa": latest_sa,
+        "can_view_partners": can_view_partners,
+        "can_manage_partners": can_manage_partners,
+    }
+
+
 @patients_bp.get("/")
 @login_required
 @RBACService.require_permission("patients.basic.view")
@@ -194,6 +219,7 @@ def detail(patient_uuid):
     documents_context = _get_patient_workspace_documents_context(patient)
     ultrasound_context = _get_patient_workspace_ultrasound_context(patient)
     surgery_context = _get_patient_workspace_surgery_context(patient)
+    partner_context = _get_patient_workspace_partner_context(patient)
 
     return render_template(
         "patients/detail.html",
@@ -207,6 +233,7 @@ def detail(patient_uuid):
         **ultrasound_context,
         **documents_context,
         **surgery_context,
+        **partner_context,
     )
 
 

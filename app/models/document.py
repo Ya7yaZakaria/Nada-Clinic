@@ -1,4 +1,4 @@
-﻿import uuid as uuid_lib
+import uuid as uuid_lib
 from datetime import datetime, timezone
 
 from app.extensions import db
@@ -17,6 +17,7 @@ class PatientDocument(db.Model):
     TYPE_ID_DOCUMENT = "id_document"
     TYPE_INSURANCE = "insurance"
     TYPE_EXTERNAL_PRESCRIPTION = "external_prescription"
+    TYPE_SEMEN_ANALYSIS = "semen_analysis"
     TYPE_PHOTO = "photo"
     TYPE_OTHER = "other"
 
@@ -29,6 +30,7 @@ class PatientDocument(db.Model):
         TYPE_ID_DOCUMENT,
         TYPE_INSURANCE,
         TYPE_EXTERNAL_PRESCRIPTION,
+        TYPE_SEMEN_ANALYSIS,
         TYPE_PHOTO,
         TYPE_OTHER,
     }
