@@ -690,3 +690,7 @@ Sprint 12.4 makes the existing workflow default landing setting operational:
 - Invalid landing targets safely fall back to Dashboard.
 - Settings dashboard shows workflow default status.
 - No database migration is required.
+
+## Stage 12 — Settings & Personalization Freeze Review
+
+Stage 12 freezes the Settings & Personalization foundation after Settings UI, Appearance/Night Mode/RTL, Clinic Profile Settings, and Workflow Defaults. The system now supports grouped settings, global UI preferences, clinic identity settings, language direction foundation, workflow default login landing, RBAC protection, tests, and documentation. Per-user preferences, full translation, notifications, and logo upload remain deferred.

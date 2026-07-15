@@ -675,3 +675,32 @@ Deferred:
 
 Next Action:
 - Run Sprint 12.4 focused tests and full regression.
+
+## Stage 12 Settings Personalization Frozen
+
+Current Stage:
+- Stage 12 Settings & Personalization completed and frozen.
+
+Completed Work:
+- Sprint 12.1 Settings UI Foundation.
+- Sprint 12.2 Appearance, Night Mode, and RTL foundation.
+- Sprint 12.3 Clinic Profile Settings.
+- Sprint 12.4 Workflow Defaults.
+- Added Stage 12 freeze review documentation.
+
+Verification:
+- Pending final local focused tests and full regression after freeze doc script.
+- Expected migration current/head: 20260715_0069.
+- Latest implementation commit before freeze: 1589f8d.
+
+Deferred:
+- Full Arabic translation.
+- Per-user preferences.
+- Logo upload pipeline.
+- Notifications.
+- Advanced permission builder.
+- Complex theme designer.
+
+Next Action:
+- Run Stage 12 freeze verification commands.
+- Commit freeze documentation if tests pass.

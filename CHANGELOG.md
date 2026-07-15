@@ -1278,3 +1278,30 @@ No diagnosis-linked preset behavior added.
 - No database schema migration.
 - No dashboard/admin redesign in this sprint.
 - No per-user preferences yet.
+
+## 2026-07-15 — Stage 12 Settings & Personalization Freeze Review
+
+### Frozen
+- Settings UI Foundation.
+- Appearance, Night Mode, and RTL foundation.
+- Clinic Profile Settings.
+- Workflow Defaults.
+- Settings RBAC protection.
+- Stage 12 tests and documentation.
+
+### Verified
+- Settings dashboard and grouped settings editor.
+- Single setting edit workflow.
+- Seed defaults action.
+- Global UI preferences context.
+- Clinic profile context and page.
+- Login redirect via workflow.default_landing_page.
+- No migration drift.
+
+### Deferred
+- Full Arabic translation.
+- Per-user preferences.
+- Logo upload pipeline.
+- Notifications.
+- Advanced permission builder.
+- Complex theme designer.
