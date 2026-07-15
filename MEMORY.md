@@ -519,3 +519,25 @@ Deferred Features:
 
 Next Action:
 - Run Stage 11 migration/tests and review outputs.
+
+## Stage 11.2 Finance Insights Implemented
+
+Current Stage:
+- Stage 11 Sprint 11.2 implemented.
+
+Completed Work:
+- Added FinanceService insights aggregation.
+- Added `/finance/insights`.
+- Added date-range filters.
+- Added revenue by service type.
+- Added expenses by category.
+- Added payment method breakdown.
+- Added daily summary.
+- Added outstanding balances.
+- Added tests and documentation.
+
+Database Impact:
+- No migration required.
+
+Next Action:
+- Run Stage 11.2 focused tests and full regression.

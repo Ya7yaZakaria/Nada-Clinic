@@ -625,3 +625,13 @@ Stage 11 adds a central Finance layer with embedded capture:
 - Clinic expenses.
 - Patient finance summary.
 - Finance dashboard.
+
+## Stage 11.2 — Finance Insights
+
+Stage 11.2 adds date-range finance insights:
+- Revenue by service type.
+- Expenses by category.
+- Payment methods.
+- Daily summary.
+- Outstanding balances.
+- No new database migration.

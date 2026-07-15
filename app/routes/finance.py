@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, timedelta
 
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.forms.finance_forms import FinanceExpenseForm
@@ -21,6 +21,41 @@ def index():
         FinanceService=FinanceService,
     )
 
+
+
+def _parse_date(value, fallback=None):
+    if not value:
+        return fallback
+
+    try:
+        return date.fromisoformat(value)
+    except ValueError:
+        return fallback
+
+
+@finance_bp.get("/insights")
+@login_required
+@RBACService.require_permission("finance.insights")
+def insights():
+    today = date.today()
+    default_from = today - timedelta(days=30)
+
+    date_from = _parse_date(request.args.get("date_from"), default_from)
+    date_to = _parse_date(request.args.get("date_to"), today)
+
+    if date_from and date_to and date_from > date_to:
+        flash("Invalid date range. Start date must be before end date.", "danger")
+        date_from, date_to = default_from, today
+
+    summary = FinanceService.get_insights_summary(date_from=date_from, date_to=date_to)
+
+    return render_template(
+        "finance/insights.html",
+        summary=summary,
+        date_from=date_from,
+        date_to=date_to,
+        FinanceService=FinanceService,
+    )
 
 @finance_bp.get("/expenses")
 @login_required

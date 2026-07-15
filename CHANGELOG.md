@@ -1193,3 +1193,18 @@ No diagnosis-linked preset behavior added.
 - Refunds.
 - Full accounting ledger.
 - Export.
+
+## 2026-07-15 — Stage 11.2 Finance Insights
+
+### Added
+- Finance insights date-range dashboard.
+- Revenue by service type.
+- Expenses by category.
+- Payment method breakdown.
+- Daily finance summary.
+- Outstanding balances table.
+- Finance insights tests.
+
+### Unchanged
+- No migration required.
+- No refunds/export/accounting ledger added.

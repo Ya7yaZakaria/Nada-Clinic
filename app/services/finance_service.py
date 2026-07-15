@@ -382,6 +382,212 @@ class FinanceService:
             query = query.filter(FinanceExpense.category == category)
         return query.order_by(FinanceExpense.expense_date.desc(), FinanceExpense.id.desc()).all()
 
+
+    @staticmethod
+    def _date_range_query(model, column, date_from=None, date_to=None):
+        query = model.query
+        if date_from:
+            query = query.filter(column >= date_from)
+        if date_to:
+            query = query.filter(column <= date_to)
+        return query
+
+    @classmethod
+    def _breakdown_by_service(cls, charges):
+        rows = {
+            key: {
+                "key": key,
+                "label": label,
+                "count": 0,
+                "amount": Decimal("0.00"),
+                "paid": Decimal("0.00"),
+                "remaining": Decimal("0.00"),
+                "net": Decimal("0.00"),
+            }
+            for key, label in cls.SERVICE_LABELS.items()
+        }
+
+        for charge in charges:
+            key = charge.service_type or FinanceCharge.SERVICE_OTHER
+            if key not in rows:
+                rows[key] = {
+                    "key": key,
+                    "label": cls.get_service_label(key),
+                    "count": 0,
+                    "amount": Decimal("0.00"),
+                    "paid": Decimal("0.00"),
+                    "remaining": Decimal("0.00"),
+                    "net": Decimal("0.00"),
+                }
+
+            rows[key]["count"] += 1
+            rows[key]["amount"] += Decimal(str(charge.net_amount or 0))
+            rows[key]["paid"] += Decimal(str(charge.paid_amount or 0))
+            rows[key]["remaining"] += Decimal(str(charge.remaining_amount or 0))
+            rows[key]["net"] = rows[key]["paid"]
+
+        return sorted(rows.values(), key=lambda row: (row["paid"], row["amount"]), reverse=True)
+
+    @classmethod
+    def _breakdown_by_payment_method(cls, payments):
+        rows = {
+            key: {
+                "key": key,
+                "label": label,
+                "count": 0,
+                "amount": Decimal("0.00"),
+                "paid": Decimal("0.00"),
+                "remaining": Decimal("0.00"),
+                "net": Decimal("0.00"),
+            }
+            for key, label in cls.PAYMENT_METHOD_LABELS.items()
+        }
+
+        for payment in payments:
+            key = payment.payment_method or FinancePayment.METHOD_OTHER
+            if key not in rows:
+                rows[key] = {
+                    "key": key,
+                    "label": cls.get_payment_method_label(key),
+                    "count": 0,
+                    "amount": Decimal("0.00"),
+                    "paid": Decimal("0.00"),
+                    "remaining": Decimal("0.00"),
+                    "net": Decimal("0.00"),
+                }
+
+            rows[key]["count"] += 1
+            rows[key]["amount"] += Decimal(str(payment.amount or 0))
+            rows[key]["paid"] = rows[key]["amount"]
+            rows[key]["net"] = rows[key]["amount"]
+
+        return sorted(rows.values(), key=lambda row: row["amount"], reverse=True)
+
+    @classmethod
+    def _breakdown_by_expense_category(cls, expenses):
+        rows = {
+            key: {
+                "key": key,
+                "label": label,
+                "count": 0,
+                "amount": Decimal("0.00"),
+                "paid": Decimal("0.00"),
+                "remaining": Decimal("0.00"),
+                "net": Decimal("0.00"),
+            }
+            for key, label in cls.EXPENSE_CATEGORY_LABELS.items()
+        }
+
+        for expense in expenses:
+            key = expense.category or FinanceExpense.CATEGORY_OTHER
+            if key not in rows:
+                rows[key] = {
+                    "key": key,
+                    "label": cls.get_expense_category_label(key),
+                    "count": 0,
+                    "amount": Decimal("0.00"),
+                    "paid": Decimal("0.00"),
+                    "remaining": Decimal("0.00"),
+                    "net": Decimal("0.00"),
+                }
+
+            rows[key]["count"] += 1
+            rows[key]["amount"] += Decimal(str(expense.amount or 0))
+            rows[key]["net"] = rows[key]["amount"]
+
+        return sorted(rows.values(), key=lambda row: row["amount"], reverse=True)
+
+    @classmethod
+    def _daily_rows(cls, charges, expenses):
+        rows = {}
+
+        for charge in charges:
+            day = charge.service_date
+            rows.setdefault(
+                day,
+                {
+                    "date": day,
+                    "charges": Decimal("0.00"),
+                    "collected": Decimal("0.00"),
+                    "remaining": Decimal("0.00"),
+                    "expenses": Decimal("0.00"),
+                    "net": Decimal("0.00"),
+                },
+            )
+            rows[day]["charges"] += Decimal(str(charge.net_amount or 0))
+            rows[day]["collected"] += Decimal(str(charge.paid_amount or 0))
+            rows[day]["remaining"] += Decimal(str(charge.remaining_amount or 0))
+
+        for expense in expenses:
+            day = expense.expense_date
+            rows.setdefault(
+                day,
+                {
+                    "date": day,
+                    "charges": Decimal("0.00"),
+                    "collected": Decimal("0.00"),
+                    "remaining": Decimal("0.00"),
+                    "expenses": Decimal("0.00"),
+                    "net": Decimal("0.00"),
+                },
+            )
+            rows[day]["expenses"] += Decimal(str(expense.amount or 0))
+
+        for row in rows.values():
+            row["net"] = row["collected"] - row["expenses"]
+
+        return [rows[key] for key in sorted(rows.keys(), reverse=True)]
+
+    @classmethod
+    def get_insights_summary(cls, date_from=None, date_to=None):
+        charges = (
+            cls._date_range_query(FinanceCharge, FinanceCharge.service_date, date_from, date_to)
+            .filter(FinanceCharge.status != FinanceCharge.STATUS_CANCELLED)
+            .order_by(FinanceCharge.service_date.desc(), FinanceCharge.id.desc())
+            .all()
+        )
+        payments = (
+            cls._date_range_query(FinancePayment, FinancePayment.payment_date, date_from, date_to)
+            .order_by(FinancePayment.payment_date.desc(), FinancePayment.id.desc())
+            .all()
+        )
+        expenses = (
+            cls._date_range_query(FinanceExpense, FinanceExpense.expense_date, date_from, date_to)
+            .order_by(FinanceExpense.expense_date.desc(), FinanceExpense.id.desc())
+            .all()
+        )
+
+        total_charges = cls.sum_money(charge.net_amount for charge in charges)
+        total_collected = cls.sum_money(payment.amount for payment in payments)
+        total_remaining = cls.sum_money(charge.remaining_amount for charge in charges)
+        total_expenses = cls.sum_money(expense.amount for expense in expenses)
+
+        outstanding_charges = [
+            charge
+            for charge in charges
+            if charge.status in {FinanceCharge.STATUS_UNPAID, FinanceCharge.STATUS_PARTIAL}
+        ]
+
+        return {
+            "date_from": date_from,
+            "date_to": date_to,
+            "total_charges": total_charges,
+            "total_collected": total_collected,
+            "total_remaining": total_remaining,
+            "total_expenses": total_expenses,
+            "net_profit": total_collected - total_expenses,
+            "charge_count": len(charges),
+            "payment_count": len(payments),
+            "expense_count": len(expenses),
+            "service_breakdown": cls._breakdown_by_service(charges),
+            "payment_method_breakdown": cls._breakdown_by_payment_method(payments),
+            "expense_category_breakdown": cls._breakdown_by_expense_category(expenses),
+            "daily_rows": cls._daily_rows(charges, expenses),
+            "outstanding_charges": outstanding_charges[:20],
+            "recent_charges": charges[:20],
+            "recent_expenses": expenses[:20],
+        }
+
     @classmethod
     def get_dashboard_summary(cls, clinic_date=None):
         clinic_date = clinic_date or date.today()
