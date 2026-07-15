@@ -426,3 +426,21 @@ Deferred Features:
 
 Next Action:
 - Run migration/tests and review Stage 9 outputs.
+
+## Stage 9 Surgery Freeze Cleanup
+
+Current Stage:
+- Stage 9 Surgery freeze cleanup.
+
+Completed Work:
+- Added Postponed / Cancelled section to Surgery Dashboard.
+- Added Mark Scheduled action for postponed surgeries.
+- Added tests for postponed-to-scheduled workflow.
+- Added Stage 9 Surgery Freeze Review document.
+
+Verification:
+- Pending local focused and full regression after cleanup script.
+
+Next Action:
+- Run verification commands.
+- Commit as docs/workflow cleanup if tests pass.

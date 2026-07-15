@@ -19,6 +19,12 @@
             <a class="btn btn-sm btn-outline-primary" href="{{ url_for('surgeries.detail', surgery_uuid=surgery.uuid) }}">Open</a>
             {% if surgery.status in ["scheduled", "postponed"] %}
                 <a class="btn btn-sm btn-outline-success" href="{{ url_for('surgeries.complete', surgery_uuid=surgery.uuid) }}">Complete</a>
+                {% if surgery.status == "postponed" %}
+                    <form method="post" action="{{ url_for('surgeries.mark_scheduled', surgery_uuid=surgery.uuid) }}" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Mark Scheduled</button>
+                    </form>
+                {% endif %}
             {% endif %}
         </div>
     </div>

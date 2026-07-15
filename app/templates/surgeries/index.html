@@ -18,7 +18,7 @@
 </div>
 
 <div class="row g-3">
-    <div class="col-12 col-xl-4">
+    <div class="col-12 col-xl-3">
         <div class="clinic-card h-100">
             <p class="section-kicker">Today</p>
             <h2 class="h5">Today Surgeries</h2>
@@ -31,7 +31,7 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-xl-4">
+    <div class="col-12 col-xl-3">
         <div class="clinic-card h-100">
             <p class="section-kicker">Upcoming</p>
             <h2 class="h5">Upcoming</h2>
@@ -44,7 +44,7 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-xl-4">
+    <div class="col-12 col-xl-3">
         <div class="clinic-card h-100">
             <p class="section-kicker">Completed</p>
             <h2 class="h5">Recently Completed</h2>
@@ -53,6 +53,20 @@
                     {% include "surgeries/_surgery_card.html" %}
                 {% else %}
                     <div class="placeholder-box">No completed surgeries yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-3">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Attention</p>
+            <h2 class="h5">Postponed / Cancelled</h2>
+            <div class="list-group list-group-flush">
+                {% for surgery in postponed_cancelled_surgeries %}
+                    {% include "surgeries/_surgery_card.html" %}
+                {% else %}
+                    <div class="placeholder-box">No postponed or cancelled surgeries.</div>
                 {% endfor %}
             </div>
         </div>

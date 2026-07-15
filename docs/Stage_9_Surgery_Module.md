@@ -66,3 +66,11 @@ Run:
 - flask db current
 - flask db heads
 - flask routes
+
+## Freeze Cleanup
+
+Added before freeze:
+- Dashboard Postponed / Cancelled section.
+- Mark Scheduled action for postponed surgeries.
+- Tests for postponed-to-scheduled workflow.
+- Stage 9 freeze review document.

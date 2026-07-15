@@ -600,3 +600,10 @@ Stage 9 adds an operational Surgery module:
 - Patient surgical history / surgery records section.
 - Basic module-level surgery insights.
 - Light finance fields only.
+
+## Stage 9 Freeze Cleanup
+
+Stage 9 freeze cleanup adds:
+- Postponed / Cancelled dashboard section.
+- Mark Scheduled action for postponed surgeries.
+- Freeze review documentation.

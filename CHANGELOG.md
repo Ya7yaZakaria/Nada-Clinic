@@ -1147,3 +1147,15 @@ No diagnosis-linked preset behavior added.
 - Operation report print.
 - Full finance module.
 - AI/OCR.
+
+## 2026-07-15 — Stage 9 Surgery Freeze Cleanup
+
+### Added
+- Postponed / Cancelled section on Surgery Dashboard.
+- Mark Scheduled action for postponed surgeries.
+- Freeze review document for Stage 9 Surgery.
+
+### Verified
+- Surgery workflow cleanup tests.
+- RBAC and patient workspace regression.
+- Full suite expected before freeze.

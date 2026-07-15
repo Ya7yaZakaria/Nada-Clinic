@@ -229,3 +229,62 @@ def test_doctor_can_use_surgery_ui_and_reception_blocked():
         login(client, "reception-surgery-ui@example.com")
         response = client.get("/surgeries", follow_redirects=True)
         assert response.status_code == 403
+
+def test_stage_9_freeze_cleanup_dashboard_and_mark_scheduled():
+    for app, doctor, patient, visit in setup_context("doctor-surgery-freeze@example.com", "01099000005"):
+        surgery = SurgeryService.create_surgery(
+            patient=patient,
+            source_visit=visit,
+            procedure_name="Laparoscopic cystectomy",
+            procedure_category=SurgeryCase.CATEGORY_LAPAROSCOPY,
+            scheduled_at=scheduled_time(days=4),
+            priority=SurgeryCase.PRIORITY_ROUTINE,
+            actor_user=doctor,
+        )
+        SurgeryService.postpone_surgery(
+            surgery,
+            new_scheduled_at=scheduled_time(days=8),
+            postponed_reason="Hospital list moved.",
+            actor_user=doctor,
+        )
+        assert surgery.status == SurgeryCase.STATUS_POSTPONED
+
+        client = app.test_client()
+        login(client, "doctor-surgery-freeze@example.com")
+
+        dashboard_response = client.get("/surgeries", follow_redirects=True)
+        assert dashboard_response.status_code == 200
+        assert b"Postponed / Cancelled" in dashboard_response.data
+        assert b"Laparoscopic cystectomy" in dashboard_response.data
+        assert b"Mark Scheduled" in dashboard_response.data
+
+        response = client.post(
+            f"/surgeries/{surgery.uuid}/mark-scheduled",
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        assert b"Surgery marked as scheduled" in response.data
+        assert SurgeryCase.query.filter_by(uuid=surgery.uuid).first().status == SurgeryCase.STATUS_SCHEDULED
+
+
+def test_stage_9_freeze_cleanup_mark_scheduled_rejects_non_postponed():
+    for app, doctor, patient, visit in setup_context("doctor-surgery-freeze-reject@example.com", "01099000006"):
+        surgery = SurgeryService.create_surgery(
+            patient=patient,
+            procedure_name="D&C",
+            procedure_category=SurgeryCase.CATEGORY_D_AND_C,
+            scheduled_at=scheduled_time(days=2),
+            priority=SurgeryCase.PRIORITY_ROUTINE,
+            actor_user=doctor,
+        )
+
+        client = app.test_client()
+        login(client, "doctor-surgery-freeze-reject@example.com")
+
+        response = client.post(
+            f"/surgeries/{surgery.uuid}/mark-scheduled",
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+        assert b"Only postponed surgery can be marked scheduled" in response.data
+        assert SurgeryCase.query.filter_by(uuid=surgery.uuid).first().status == SurgeryCase.STATUS_SCHEDULED

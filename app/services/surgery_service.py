@@ -329,6 +329,16 @@ class SurgeryService:
         )
 
     @staticmethod
+    def list_by_statuses(statuses, limit=10):
+        return (
+            SurgeryService.base_query()
+            .filter(SurgeryCase.status.in_(statuses))
+            .order_by(SurgeryCase.scheduled_at.desc(), SurgeryCase.id.desc())
+            .limit(limit)
+            .all()
+        )
+
+    @staticmethod
     def list_by_date_range(date_from=None, date_to=None, status=None, category=None, patient_query=None):
         query = SurgeryService.base_query()
 

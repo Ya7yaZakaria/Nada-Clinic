@@ -62,12 +62,20 @@ def index():
     today_surgeries = SurgeryService.list_today_surgeries()
     upcoming_surgeries = SurgeryService.list_upcoming_surgeries(limit=10)
     recent_completed = SurgeryService.list_recent_completed(limit=10)
+    postponed_cancelled_surgeries = SurgeryService.list_by_statuses(
+        [
+            SurgeryCase.STATUS_POSTPONED,
+            SurgeryCase.STATUS_CANCELLED,
+        ],
+        limit=10,
+    )
 
     return render_template(
         "surgeries/index.html",
         today_surgeries=today_surgeries,
         upcoming_surgeries=upcoming_surgeries,
         recent_completed=recent_completed,
+        postponed_cancelled_surgeries=postponed_cancelled_surgeries,
         SurgeryService=SurgeryService,
     )
 
@@ -326,6 +334,25 @@ def cancel(surgery_uuid):
         return redirect(url_for("surgeries.detail", surgery_uuid=surgery.uuid))
 
     return render_template("surgeries/cancel.html", surgery=surgery, form=form)
+
+
+@surgeries_bp.post("/<surgery_uuid>/mark-scheduled")
+@login_required
+@RBACService.require_permission("surgeries.manage")
+def mark_scheduled(surgery_uuid):
+    surgery = SurgeryService.get_surgery(surgery_uuid)
+    if not surgery:
+        flash("Surgery not found.", "danger")
+        return redirect(url_for("surgeries.index"))
+
+    try:
+        SurgeryService.mark_postponed_as_scheduled(surgery)
+    except ValueError as exc:
+        flash(str(exc), "danger")
+        return redirect(url_for("surgeries.detail", surgery_uuid=surgery.uuid))
+
+    flash("Surgery marked as scheduled.", "success")
+    return redirect(url_for("surgeries.detail", surgery_uuid=surgery.uuid))
 
 
 @surgeries_bp.route("/<surgery_uuid>/postpone", methods=["GET", "POST"])
