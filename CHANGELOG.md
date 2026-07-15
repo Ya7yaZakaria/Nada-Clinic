@@ -1217,3 +1217,20 @@ No diagnosis-linked preset behavior added.
 - Finance insights dashboard verified.
 - Full regression passed: 425 tests.
 - Migration current/head: 20260715_0069.
+
+## 2026-07-15 — Sprint 12.1 Settings UI Foundation
+
+### Added
+- Settings dashboard at `/settings/`.
+- Grouped settings pages.
+- Single setting edit workflow.
+- Seed defaults action.
+- Appearance personalization keys.
+- Localization language choices.
+- Stage 12 settings UI tests.
+- Stage 12 documentation.
+
+### Unchanged
+- No new database table.
+- No migration required.
+- Legacy `/admin/settings` behavior preserved.

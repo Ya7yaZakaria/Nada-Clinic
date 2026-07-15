@@ -572,3 +572,26 @@ Deferred Features:
 
 Next Action:
 - Start Stage 12 Notifications planning.
+
+## Sprint 12.1 Settings UI Foundation Implemented
+
+Current Stage:
+- Stage 12 Settings & Personalization.
+
+Completed Work:
+- Added `/settings/` dashboard.
+- Added grouped settings pages.
+- Added single setting edit workflow.
+- Added seed defaults action.
+- Added appearance personalization keys.
+- Added localization language choices.
+- Reused existing Setting model and SettingsService.
+- Preserved legacy `/admin/settings` behavior.
+- Added Stage 12.1 tests and documentation.
+
+Database Impact:
+- No schema migration expected.
+- New keys are seeded through SettingsService.DEFAULT_SETTINGS.
+
+Next Action:
+- Run Sprint 12.1 focused tests and full regression.

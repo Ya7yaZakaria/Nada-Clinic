@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ SettingsService.group_label(group) }} Settings — Nada Clinic System{% endblock %}
+{% block page_title %}{{ SettingsService.group_label(group) }} Settings{% endblock %}
+{% block page_subtitle %}{{ SettingsService.group_description(group) }}{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex justify-content-between align-items-start gap-3">
+        <div>
+            <p class="section-kicker">{{ group }}</p>
+            <h1 class="h4">{{ SettingsService.group_label(group) }}</h1>
+            <p class="text-muted mb-0">{{ SettingsService.group_description(group) }}</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('settings.index') }}">Back to Settings</a>
+    </div>
+</div>
+
+<div class="clinic-card">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Setting</th>
+                    <th>Current value</th>
+                    <th>Type</th>
+                    <th>Editable</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for setting in settings_list %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">{{ setting.label }}</div>
+                            {% if setting.description %}
+                                <div class="small text-muted">{{ setting.description }}</div>
+                            {% endif %}
+                            <code class="small">{{ setting.key }}</code>
+                        </td>
+                        <td>
+                            {% if setting.value_type == "boolean" %}
+                                <span class="badge text-bg-{{ 'success' if setting.cast_value() else 'secondary' }}">
+                                    {{ 'Enabled' if setting.cast_value() else 'Disabled' }}
+                                </span>
+                            {% else %}
+                                <span>{{ setting.value or "—" }}</span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge text-bg-light border">{{ setting.value_type }}</span></td>
+                        <td>{{ "Yes" if setting.is_editable else "No" }}</td>
+                        <td class="text-end">
+                            {% if setting.is_editable %}
+                                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('settings.edit', setting_key=setting.key) }}">
+                                    Edit
+                                </a>
+                            {% else %}
+                                <span class="text-muted small">Locked</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-muted">No settings found in this group.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

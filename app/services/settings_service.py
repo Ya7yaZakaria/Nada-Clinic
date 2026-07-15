@@ -147,6 +147,36 @@ class SettingsService:
             "sort_order": 230,
         },
         {
+            "key": "appearance.font_size",
+            "value": "normal",
+            "value_type": "string",
+            "group": "appearance",
+            "label": "Font size",
+            "description": "Default interface font size.",
+            "is_public": False,
+            "sort_order": 240,
+        },
+        {
+            "key": "appearance.card_density",
+            "value": "comfortable",
+            "value_type": "string",
+            "group": "appearance",
+            "label": "Card density",
+            "description": "Default spacing inside cards.",
+            "is_public": False,
+            "sort_order": 250,
+        },
+        {
+            "key": "appearance.table_density",
+            "value": "comfortable",
+            "value_type": "string",
+            "group": "appearance",
+            "label": "Table density",
+            "description": "Default table row spacing.",
+            "is_public": False,
+            "sort_order": 260,
+        },
+        {
             "key": "workflow.default_landing_page",
             "value": "dashboard",
             "value_type": "string",
@@ -287,6 +317,145 @@ class SettingsService:
             "sort_order": 630,
         },
     ]
+
+
+    CHOICE_SETTINGS = {
+        "appearance.theme": [
+            ("light", "Light"),
+            ("dark", "Dark / Night mode"),
+            ("auto", "Auto"),
+        ],
+        "appearance.accent_color": [
+            ("teal", "Teal"),
+            ("blue", "Blue"),
+            ("purple", "Purple"),
+            ("rose", "Rose"),
+            ("slate", "Slate"),
+        ],
+        "appearance.sidebar_density": [
+            ("compact", "Compact"),
+            ("comfortable", "Comfortable"),
+        ],
+        "appearance.font_size": [
+            ("small", "Small"),
+            ("normal", "Normal"),
+            ("large", "Large"),
+        ],
+        "appearance.card_density": [
+            ("compact", "Compact"),
+            ("comfortable", "Comfortable"),
+        ],
+        "appearance.table_density": [
+            ("compact", "Compact"),
+            ("comfortable", "Comfortable"),
+        ],
+        "localization.language": [
+            ("en", "English"),
+            ("ar", "Arabic"),
+        ],
+        "localization.time_format": [
+            ("24h", "24-hour"),
+            ("12h", "12-hour"),
+        ],
+        "workflow.default_landing_page": [
+            ("dashboard", "Dashboard"),
+            ("today_clinic", "Today Clinic"),
+            ("patients", "Patients"),
+            ("appointments", "Appointments"),
+            ("finance", "Finance"),
+        ],
+        "printing.default_paper_size": [
+            ("A4", "A4"),
+            ("A5", "A5"),
+            ("Letter", "Letter"),
+        ],
+        "printing.prescription_template": [
+            ("default", "Default"),
+            ("minimal", "Minimal"),
+            ("letterhead", "Letterhead"),
+        ],
+    }
+
+    GROUP_LABELS = {
+        "clinic": "Clinic",
+        "localization": "Localization",
+        "appearance": "Appearance",
+        "workflow": "Workflow",
+        "printing": "Printing",
+        "security": "Security",
+        "system": "System",
+    }
+
+    GROUP_DESCRIPTIONS = {
+        "clinic": "Clinic identity, contact information, and public profile.",
+        "localization": "Language, timezone, dates, and time format.",
+        "appearance": "Theme, night mode, accent color, font size, and layout density.",
+        "workflow": "Default workflow preferences and module switches.",
+        "printing": "Printing defaults and document display options.",
+        "security": "Login and session policy settings.",
+        "system": "Application-level system settings.",
+    }
+
+    @classmethod
+    def group_label(cls, group):
+        return cls.GROUP_LABELS.get(group, str(group).replace("_", " ").title())
+
+    @classmethod
+    def group_description(cls, group):
+        return cls.GROUP_DESCRIPTIONS.get(group, "")
+
+    @classmethod
+    def allowed_choices_for_key(cls, key):
+        return cls.CHOICE_SETTINGS.get(key, [])
+
+    @classmethod
+    def is_choice_setting(cls, key):
+        return key in cls.CHOICE_SETTINGS
+
+    @staticmethod
+    def get_setting(key):
+        if not key:
+            return None
+        return Setting.query.filter_by(key=key).first()
+
+    @classmethod
+    def validate_choice_value(cls, key, value):
+        choices = cls.allowed_choices_for_key(key)
+        if not choices:
+            return value
+
+        allowed_values = {choice_value for choice_value, _label in choices}
+        if value not in allowed_values:
+            raise ValueError(f"Invalid value for {key}.")
+
+        return value
+
+    @classmethod
+    def update_setting(cls, key, value):
+        setting = cls.get_setting(key)
+        if not setting:
+            raise ValueError(f"Setting does not exist: {key}")
+
+        if not setting.is_editable:
+            raise ValueError(f"Setting is not editable: {key}")
+
+        value = cls.validate_choice_value(key, value)
+        return cls.set(key, value)
+
+    @classmethod
+    def grouped_settings_for_ui(cls):
+        return cls.get_grouped_settings()
+
+    @classmethod
+    def get_stage_12_summary(cls):
+        return {
+            "theme": cls.get("appearance.theme", "light"),
+            "language": cls.get("localization.language", "en"),
+            "accent_color": cls.get("appearance.accent_color", "teal"),
+            "sidebar_density": cls.get("appearance.sidebar_density", "comfortable"),
+            "font_size": cls.get("appearance.font_size", "normal"),
+            "default_landing_page": cls.get("workflow.default_landing_page", "dashboard"),
+        }
 
     @staticmethod
     def get(key, default=None, cast=True):

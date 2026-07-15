@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en" data-bs-theme="light">
 <head>
     <meta charset="utf-8">
@@ -38,7 +38,7 @@
                 <a class="sidebar-link" href="{{ url_for('prescription_presets.index') }}">Prescription Presets</a>
                 <a class="sidebar-link" href="{{ url_for('print_templates.index') }}">Print Templates</a>
                 <a class="sidebar-link" href="{{ url_for('drug_settings.index') }}">Drug Settings</a>
-                <a class="sidebar-link" href="{{ url_for('admin.settings') }}">Settings</a>
+                <a class="sidebar-link" href="{{ url_for('settings.index') }}">Settings</a>
             </nav>
 
             <div class="sidebar-footer">
@@ -100,6 +100,7 @@
                     <a class="sidebar-link" href="{{ url_for('prescription_presets.index') }}">Prescription Presets</a>
                     <a class="sidebar-link" href="{{ url_for('print_templates.index') }}">Print Templates</a>
                     <a class="sidebar-link" href="{{ url_for('drug_settings.index') }}">Drug Settings</a>
+                    <a class="sidebar-link" href="{{ url_for('settings.index') }}">Settings</a>
                 </nav>
 
                 <button class="btn btn-sm btn-outline-secondary mt-3" type="button" @click="sidebarOpen = false">

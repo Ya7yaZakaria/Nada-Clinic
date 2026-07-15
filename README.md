@@ -650,3 +650,15 @@ Included:
 Verification:
 - Full regression: 425 passed.
 - Migration current/head: 20260715_0069.
+
+## Stage 12 — Settings & Personalization
+
+Stage 12 adds a practical global settings layer for clinic profile, appearance, localization, workflow, printing, security, and system settings.
+
+Sprint 12.1 adds:
+- Settings dashboard.
+- Grouped settings pages.
+- Single setting edit workflow.
+- Seed defaults action.
+- Appearance and localization choice settings.
+- No schema migration expected.
