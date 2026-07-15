@@ -541,3 +541,34 @@ Database Impact:
 
 Next Action:
 - Run Stage 11.2 focused tests and full regression.
+
+## Stage 11 Finance Frozen
+
+Current Stage:
+- Stage 11 Finance completed and frozen.
+
+Completed Work:
+- Sprint 11.1 Embedded Finance Capture.
+- Sprint 11.2 Finance Insights Dashboard.
+- Embedded finance capture from Appointment, Visit/procedure, and Surgery.
+- Clinic expenses.
+- Finance dashboard.
+- Finance insights with date range, revenue by service type, expenses by category, payment method breakdown, daily summary, and outstanding balances.
+
+Verification:
+- Full regression: 425 passed.
+- Migration current/head: 20260715_0069.
+- Stage 11.1 commit: 9dc854e.
+- Stage 11.2 commit: d63a7e2.
+- Working tree clean after push.
+
+Deferred Features:
+- Refunds.
+- Export.
+- Full accounting ledger.
+- Payroll automation.
+- Tax accounting.
+- Installments.
+
+Next Action:
+- Start Stage 12 Notifications planning.

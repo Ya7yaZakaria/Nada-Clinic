@@ -1208,3 +1208,12 @@ No diagnosis-linked preset behavior added.
 ### Unchanged
 - No migration required.
 - No refunds/export/accounting ledger added.
+
+## 2026-07-15 — Stage 11 Finance Frozen
+
+### Frozen
+- Stage 11 Finance completed and frozen.
+- Embedded finance capture verified.
+- Finance insights dashboard verified.
+- Full regression passed: 425 tests.
+- Migration current/head: 20260715_0069.

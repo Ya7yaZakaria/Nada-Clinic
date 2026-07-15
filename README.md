@@ -635,3 +635,18 @@ Stage 11.2 adds date-range finance insights:
 - Daily summary.
 - Outstanding balances.
 - No new database migration.
+
+## Stage 11 Finance Frozen
+
+Stage 11 Finance is completed and frozen.
+
+Included:
+- Embedded finance capture from Appointment, Visit/procedure, and Surgery.
+- Clinic expenses.
+- Patient Workspace finance summary.
+- Finance dashboard.
+- Finance insights dashboard.
+
+Verification:
+- Full regression: 425 passed.
+- Migration current/head: 20260715_0069.
