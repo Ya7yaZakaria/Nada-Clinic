@@ -43,13 +43,24 @@ def register_context_processors(app):
             "card_density": "comfortable",
             "table_density": "comfortable",
         }
+        default_clinic_profile = {
+            "name": "Nada Clinic System",
+            "short_name": "Nada Clinic",
+            "phone": "",
+            "whatsapp": "",
+            "address": "",
+            "logo_path": "",
+            "default_doctor_name": "",
+        }
 
         try:
             from app.services.settings_service import SettingsService
 
             ui_preferences = SettingsService.get_ui_preferences()
+            clinic_profile = SettingsService.get_clinic_profile()
         except Exception:
             ui_preferences = defaults
+            clinic_profile = default_clinic_profile
 
         return {
             "ui_preferences": ui_preferences,
@@ -62,6 +73,17 @@ def register_context_processors(app):
             "ui_sidebar_density": ui_preferences.get("sidebar_density", defaults["sidebar_density"]),
             "ui_card_density": ui_preferences.get("card_density", defaults["card_density"]),
             "ui_table_density": ui_preferences.get("table_density", defaults["table_density"]),
+            "clinic_profile": clinic_profile,
+            "clinic_name": clinic_profile.get("name", default_clinic_profile["name"]),
+            "clinic_short_name": clinic_profile.get("short_name", default_clinic_profile["short_name"]),
+            "clinic_phone": clinic_profile.get("phone", default_clinic_profile["phone"]),
+            "clinic_whatsapp": clinic_profile.get("whatsapp", default_clinic_profile["whatsapp"]),
+            "clinic_address": clinic_profile.get("address", default_clinic_profile["address"]),
+            "clinic_logo_path": clinic_profile.get("logo_path", default_clinic_profile["logo_path"]),
+            "clinic_default_doctor_name": clinic_profile.get(
+                "default_doctor_name",
+                default_clinic_profile["default_doctor_name"],
+            ),
         }
 
 

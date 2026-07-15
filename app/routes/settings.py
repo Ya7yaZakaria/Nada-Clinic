@@ -88,6 +88,20 @@ def edit(setting_key):
     )
 
 
+@settings_bp.get("/clinic-profile")
+@login_required
+@RBACService.require_permission("settings.view")
+def clinic_profile():
+    profile = SettingsService.get_clinic_profile()
+    profile_settings = SettingsService.get_clinic_profile_settings()
+
+    return render_template(
+        "settings/clinic_profile.html",
+        profile=profile,
+        profile_settings=profile_settings,
+        SettingsService=SettingsService,
+    )
+
 @settings_bp.get("/<group>")
 @login_required
 @RBACService.require_permission("settings.view")

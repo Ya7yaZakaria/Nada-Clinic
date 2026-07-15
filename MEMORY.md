@@ -621,3 +621,30 @@ Deferred:
 
 Next Action:
 - Run Sprint 12.2 focused tests and full regression.
+
+## Sprint 12.3 Clinic Profile Settings Implemented
+
+Current Stage:
+- Stage 12 Settings & Personalization.
+
+Completed Work:
+- Added SettingsService clinic profile helpers.
+- Added global clinic profile template context.
+- Applied clinic name and short name to the base shell brand/title.
+- Added dedicated `/settings/clinic-profile` page.
+- Added Clinic Profile shortcut from Settings dashboard.
+- Added Sprint 12.3 tests and documentation.
+
+Database Impact:
+- No schema migration required.
+- Reused existing clinic settings keys.
+
+Deferred:
+- Logo upload/storage.
+- Doctor profile records.
+- Print-specific clinic identity review.
+- Full Arabic translation.
+- Per-user preferences.
+
+Next Action:
+- Run Sprint 12.3 focused tests and full regression.

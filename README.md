@@ -672,3 +672,12 @@ Sprint 12.2 applies global settings to the UI shell:
 - Accent color data attributes.
 - Font and density data attributes.
 - CSS foundation for dark mode, accent colors, density, and RTL.
+
+## Sprint 12.3 — Clinic Profile Settings
+
+Sprint 12.3 adds a dedicated clinic profile settings page:
+- Clinic full name and short name.
+- Phone, WhatsApp, address, logo path, and default doctor name.
+- Clinic profile values are injected globally into templates.
+- Base shell brand uses clinic profile settings.
+- No database migration is required.

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Clinic Profile — {{ clinic_name|default('Nada Clinic System') }}{% endblock %}
+{% block page_title %}Clinic Profile Settings{% endblock %}
+{% block page_subtitle %}Clinic identity, contact information, logo path, and default doctor identity{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <p class="section-kicker">Stage 12 / Sprint 12.3</p>
+            <h1 class="h4">{{ profile.short_name or "Nada Clinic" }}</h1>
+            <p class="text-muted mb-0">{{ profile.name or "Nada Clinic System" }}</p>
+        </div>
+        <a class="btn btn-outline-secondary align-self-start" href="{{ url_for('settings.index') }}">Back to Settings</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-12 col-lg-8">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Identity Preview</p>
+            <h2 class="h5">{{ profile.name or "—" }}</h2>
+            <div class="text-muted">{{ profile.short_name or "—" }}</div>
+
+            <hr>
+
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <div class="small text-muted">Phone</div>
+                    <div class="fw-semibold">{{ profile.phone or "Not set" }}</div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="small text-muted">WhatsApp</div>
+                    <div class="fw-semibold">{{ profile.whatsapp or "Not set" }}</div>
+                </div>
+                <div class="col-12">
+                    <div class="small text-muted">Address</div>
+                    <div class="fw-semibold">{{ profile.address or "Not set" }}</div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="small text-muted">Default doctor</div>
+                    <div class="fw-semibold">{{ profile.default_doctor_name or "Not set" }}</div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="small text-muted">Logo path</div>
+                    <code>{{ profile.logo_path or "Not set" }}</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Usage</p>
+            <ul class="mb-0">
+                <li>Brand title in the main shell uses clinic short name.</li>
+                <li>Default page title uses clinic full name.</li>
+                <li>Phone, WhatsApp, address, logo path, and default doctor are prepared for later print/profile usage.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="clinic-card">
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+        <div>
+            <p class="section-kicker">Editable fields</p>
+            <h2 class="h5 mb-0">Clinic profile settings</h2>
+        </div>
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('settings.group', group='clinic') }}">Open clinic group</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Current value</th>
+                    <th>Key</th>
+                    <th class="text-end">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for setting in profile_settings %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">{{ setting.label }}</div>
+                            {% if setting.description %}
+                                <div class="small text-muted">{{ setting.description }}</div>
+                            {% endif %}
+                        </td>
+                        <td>{{ setting.value or "—" }}</td>
+                        <td><code class="small">{{ setting.key }}</code></td>
+                        <td class="text-end">
+                            {% if setting.is_editable %}
+                                <a class="btn btn-sm btn-outline-primary" href="{{ url_for('settings.edit', setting_key=setting.key) }}">
+                                    Edit
+                                </a>
+                            {% else %}
+                                <span class="text-muted small">Locked</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-muted">No clinic profile settings found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

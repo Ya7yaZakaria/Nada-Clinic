@@ -1,4 +1,4 @@
-﻿from app.extensions import db
+from app.extensions import db
 from app.models import Setting
 
 
@@ -319,6 +319,16 @@ class SettingsService:
     ]
 
 
+    CLINIC_PROFILE_KEYS = [
+        "clinic.name",
+        "clinic.short_name",
+        "clinic.phone",
+        "clinic.whatsapp",
+        "clinic.address",
+        "clinic.logo_path",
+        "clinic.default_doctor_name",
+    ]
+
     CHOICE_SETTINGS = {
         "appearance.theme": [
             ("light", "Light"),
@@ -445,6 +455,26 @@ class SettingsService:
     @classmethod
     def grouped_settings_for_ui(cls):
         return cls.get_grouped_settings()
+
+    @classmethod
+    def get_clinic_profile(cls):
+        return {
+            "name": cls.get("clinic.name", "Nada Clinic System"),
+            "short_name": cls.get("clinic.short_name", "Nada Clinic"),
+            "phone": cls.get("clinic.phone", ""),
+            "whatsapp": cls.get("clinic.whatsapp", ""),
+            "address": cls.get("clinic.address", ""),
+            "logo_path": cls.get("clinic.logo_path", ""),
+            "default_doctor_name": cls.get("clinic.default_doctor_name", ""),
+        }
+
+    @classmethod
+    def get_clinic_profile_settings(cls):
+        return [
+            setting
+            for setting in cls.get_group("clinic")
+            if setting.key in cls.CLINIC_PROFILE_KEYS
+        ]
 
     @classmethod
     def get_language_direction(cls, language=None):

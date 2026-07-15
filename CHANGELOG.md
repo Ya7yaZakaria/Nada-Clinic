@@ -1250,3 +1250,18 @@ No diagnosis-linked preset behavior added.
 - No database schema migration.
 - No full Arabic translation yet.
 - No per-user preferences yet.
+
+## 2026-07-15 — Sprint 12.3 Clinic Profile Settings
+
+### Added
+- Dedicated `/settings/clinic-profile` page.
+- Clinic profile helper methods in SettingsService.
+- Global clinic profile template context.
+- Base shell brand/title support for clinic name and short name.
+- Clinic Profile shortcut card on Settings dashboard.
+- Sprint 12.3 clinic profile tests and documentation.
+
+### Unchanged
+- No database schema migration.
+- No logo upload/storage yet.
+- No doctor profile table yet.
