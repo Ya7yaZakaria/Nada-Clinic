@@ -1175,3 +1175,21 @@ No diagnosis-linked preset behavior added.
 - OCR/AI SA interpretation.
 - Partner prescription printing.
 - Partner dashboard.
+
+## 2026-07-15 — Stage 11 Embedded Finance
+
+### Added
+- FinanceCharge, FinancePayment, and FinanceExpense models.
+- FinanceService for embedded income and expenses.
+- Appointment embedded payment fields.
+- Visit embedded payment fields.
+- Surgery payment method and finance sync.
+- Finance dashboard and expenses page.
+- Patient Workspace finance card.
+- Finance permissions and tests.
+
+### Deferred
+- Advanced insights/charts.
+- Refunds.
+- Full accounting ledger.
+- Export.

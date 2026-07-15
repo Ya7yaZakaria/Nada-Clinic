@@ -1,0 +1,46 @@
+{% if can_view_finance %}
+<div class="clinic-card mb-3">
+    <div class="d-flex justify-content-between gap-2 mb-2">
+        <div>
+            <p class="section-kicker">Finance</p>
+            <h2 class="h5">Patient Finance Summary</h2>
+        </div>
+        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('finance.index') }}">Finance Dashboard</a>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-md-4">
+            <div class="placeholder-box">
+                <div class="small text-muted">Total charges</div>
+                <div class="fw-semibold">{{ patient_finance_summary.total_charges }}</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="placeholder-box">
+                <div class="small text-muted">Total paid</div>
+                <div class="fw-semibold">{{ patient_finance_summary.total_paid }}</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="placeholder-box">
+                <div class="small text-muted">Remaining</div>
+                <div class="fw-semibold">{{ patient_finance_summary.total_remaining }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="list-group list-group-flush">
+        {% for charge in patient_finance_summary.charges %}
+            <div class="list-group-item px-0">
+                <div class="fw-semibold">{{ charge.title }}</div>
+                <div class="small text-muted">
+                    {{ charge.service_date }} · {{ FinanceService.get_service_label(charge.service_type) }}
+                    · Net {{ charge.net_amount }} · Paid {{ charge.paid_amount }} · Remaining {{ charge.remaining_amount }} · {{ charge.status }}
+                </div>
+            </div>
+        {% else %}
+            <div class="placeholder-box">No finance records yet.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

@@ -40,6 +40,10 @@ class RBACService:
         "surgeries.manage": "Manage surgery records",
         "partners.view": "View partner records",
         "partners.manage": "Manage partner records",
+        "finance.collect": "Collect embedded clinic payments",
+        "finance.view": "View finance summaries",
+        "finance.manage": "Manage clinic finance and expenses",
+        "finance.insights": "View finance insights",
     }
 
     ROLE_PERMISSION_MATRIX = {
@@ -69,6 +73,10 @@ class RBACService:
             "surgeries.manage",
             "partners.view",
             "partners.manage",
+            "finance.collect",
+            "finance.view",
+            "finance.manage",
+            "finance.insights",
         ],
         "Reception": [
             "dashboard.view",
@@ -76,6 +84,8 @@ class RBACService:
             "patients.basic.create",
             "appointments.view",
             "appointments.manage",
+            "finance.collect",
+            "finance.view",
         ],
     }
 

@@ -1,4 +1,4 @@
-﻿{{ form.hidden_tag() }}
+{{ form.hidden_tag() }}
 
 <div class="row g-3">
     <div class="col-12 col-lg-4">
@@ -42,6 +42,29 @@
     <div class="col-12 col-lg-4">
         <label class="form-label" for="{{ form.follow_up_date.id }}">{{ form.follow_up_date.label.text }}</label>
         {{ form.follow_up_date(class="form-control", placeholder="YYYY-MM-DD") }}
+    </div>
+
+    <div class="col-12">
+        <hr>
+        <p class="section-kicker">Embedded Finance</p>
+        <h2 class="h6">Payment for this visit / procedure</h2>
+    </div>
+
+    <div class="col-12 col-md-3">
+        <label class="form-label" for="{{ form.billing_service_type.id }}">{{ form.billing_service_type.label.text }}</label>
+        {{ form.billing_service_type(class="form-select") }}
+    </div>
+    <div class="col-12 col-md-3">
+        <label class="form-label" for="{{ form.fee_amount.id }}">{{ form.fee_amount.label.text }}</label>
+        {{ form.fee_amount(class="form-control") }}
+    </div>
+    <div class="col-12 col-md-3">
+        <label class="form-label" for="{{ form.paid_amount.id }}">{{ form.paid_amount.label.text }}</label>
+        {{ form.paid_amount(class="form-control") }}
+    </div>
+    <div class="col-12 col-md-3">
+        <label class="form-label" for="{{ form.payment_method.id }}">{{ form.payment_method.label.text }}</label>
+        {{ form.payment_method(class="form-select") }}
     </div>
 </div>
 

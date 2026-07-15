@@ -2,6 +2,8 @@ from datetime import UTC, date, datetime
 
 from app.extensions import db
 from app.models.appointment import Appointment
+from app.models.finance import FinanceCharge
+from app.services.finance_service import FinanceService
 
 
 class AppointmentService:
@@ -58,6 +60,9 @@ class AppointmentService:
         source=None,
         notes=None,
         created_by_user_id=None,
+        fee_amount=None,
+        paid_amount=None,
+        payment_method=None,
     ):
         if not patient_id:
             raise ValueError("Appointment must belong to a patient")
@@ -82,11 +87,15 @@ class AppointmentService:
             status=status,
             source=source,
             notes=notes,
+            fee_amount=FinanceService.normalize_money(fee_amount, None),
+            paid_amount=FinanceService.normalize_money(paid_amount, None),
+            payment_method=FinanceService.validate_payment_method(payment_method),
             created_by_user_id=created_by_user_id,
         )
 
         db.session.add(appointment)
         db.session.commit()
+        cls.sync_finance_for_appointment(appointment)
         return appointment
 
     @classmethod
@@ -96,6 +105,9 @@ class AppointmentService:
             "appointment_time",
             "duration_minutes",
             "notes",
+            "fee_amount",
+            "paid_amount",
+            "payment_method",
             "updated_by_user_id",
         ):
             if key in kwargs:
@@ -110,7 +122,31 @@ class AppointmentService:
             appointment.source = kwargs["source"]
 
         db.session.commit()
+        cls.sync_finance_for_appointment(appointment)
         return appointment
+
+    @classmethod
+    def sync_finance_for_appointment(cls, appointment):
+        if appointment.fee_amount in (None, ""):
+            return None
+
+        service_map = {
+            Appointment.TYPE_NEW_CONSULTATION: FinanceCharge.SERVICE_CONSULTATION,
+            Appointment.TYPE_FOLLOW_UP: FinanceCharge.SERVICE_FOLLOW_UP,
+            Appointment.TYPE_EMERGENCY: FinanceCharge.SERVICE_EMERGENCY,
+        }
+        return FinanceService.create_or_update_source_charge(
+            patient=appointment.patient,
+            source_type=FinanceCharge.SOURCE_APPOINTMENT,
+            source_id=appointment.id,
+            service_type=service_map.get(appointment.appointment_type, FinanceCharge.SERVICE_OTHER),
+            title=cls.get_type_label(appointment.appointment_type),
+            gross_amount=appointment.fee_amount,
+            paid_amount=appointment.paid_amount,
+            payment_method=appointment.payment_method,
+            service_date=appointment.appointment_date,
+            actor_user=appointment.updated_by_user or appointment.created_by_user,
+        )
 
     @staticmethod
     def mark_arrived(appointment):
@@ -132,6 +168,7 @@ class AppointmentService:
         appointment.cancel_reason = reason
         appointment.cancelled_at = datetime.now(UTC)
         db.session.commit()
+        FinanceService.cancel_source_charge(FinanceCharge.SOURCE_APPOINTMENT, appointment.id)
         return appointment
 
     @staticmethod

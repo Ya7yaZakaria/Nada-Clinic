@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Finance — Nada Clinic System{% endblock %}
+{% block page_title %}Finance{% endblock %}
+{% block page_subtitle %}Embedded income and clinic expenses{% endblock %}
+{% block content %}
+<div class="row g-3 mb-3">
+    <div class="col-12 col-md-3"><div class="clinic-card h-100"><p class="section-kicker">Today</p><h2 class="h5">Collected</h2><div class="fs-4">{{ summary.total_revenue }}</div></div></div>
+    <div class="col-12 col-md-3"><div class="clinic-card h-100"><p class="section-kicker">Today</p><h2 class="h5">Charges</h2><div class="fs-4">{{ summary.total_charges }}</div></div></div>
+    <div class="col-12 col-md-3"><div class="clinic-card h-100"><p class="section-kicker">Today</p><h2 class="h5">Remaining</h2><div class="fs-4">{{ summary.total_remaining }}</div></div></div>
+    <div class="col-12 col-md-3"><div class="clinic-card h-100"><p class="section-kicker">Today</p><h2 class="h5">Net</h2><div class="fs-4">{{ summary.net }}</div></div></div>
+</div>
+
+<div class="d-flex gap-2 mb-3">
+    <a class="btn btn-primary" href="{{ url_for('finance.expenses') }}">Clinic Expenses</a>
+    <a class="btn btn-outline-secondary disabled" href="#">Insights in Sprint 11.2</a>
+</div>
+
+<div class="clinic-card">
+    <h2 class="h5">Recent embedded charges</h2>
+    <div class="list-group list-group-flush">
+        {% for charge in summary.recent_charges %}
+            <div class="list-group-item">
+                <div class="fw-semibold">{{ charge.title }} · {{ FinanceService.get_service_label(charge.service_type) }}</div>
+                <div class="small text-muted">
+                    {{ charge.service_date }} · Net {{ charge.net_amount }} · Paid {{ charge.paid_amount }} · Remaining {{ charge.remaining_amount }} · {{ charge.status }}
+                </div>
+            </div>
+        {% else %}
+            <div class="placeholder-box">No finance data today.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

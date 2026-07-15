@@ -21,13 +21,15 @@ class SurgeryForm(FlaskForm):
     fee_amount = DecimalField("Fee", places=2, validators=[Optional()])
     paid_amount = DecimalField("Paid", places=2, validators=[Optional()])
     payment_status = SelectField("Payment status", validators=[Optional()])
+    payment_method = SelectField("Payment method", validators=[Optional()])
     submit = SubmitField("Save Surgery")
 
     def set_choices(self, patient_choices=None):
         self.patient_id.choices = patient_choices or [(0, "Select patient...")]
         self.procedure_category.choices = SurgeryService.category_choices()
         self.priority.choices = SurgeryService.priority_choices()
-        self.payment_status.choices = [("", "Not recorded")] + SurgeryService.payment_choices()
+        self.payment_status.choices = [("", "Auto / not recorded")] + SurgeryService.payment_choices()
+        self.payment_method.choices = [("", "Not paid")] + SurgeryService.payment_method_choices()
 
     def scheduled_at(self):
         if not self.scheduled_date.data or not self.scheduled_time.data:
@@ -46,6 +48,7 @@ class SurgeryForm(FlaskForm):
         self.fee_amount.data = surgery.fee_amount
         self.paid_amount.data = surgery.paid_amount
         self.payment_status.data = surgery.payment_status or ""
+        self.payment_method.data = surgery.payment_method or ""
 
 
 class SurgeryCompleteForm(FlaskForm):
@@ -58,10 +61,12 @@ class SurgeryCompleteForm(FlaskForm):
     fee_amount = DecimalField("Fee", places=2, validators=[Optional()])
     paid_amount = DecimalField("Paid", places=2, validators=[Optional()])
     payment_status = SelectField("Payment status", validators=[Optional()])
+    payment_method = SelectField("Payment method", validators=[Optional()])
     submit = SubmitField("Complete Surgery")
 
     def set_choices(self):
-        self.payment_status.choices = [("", "Keep current")] + SurgeryService.payment_choices()
+        self.payment_status.choices = [("", "Auto / keep current")] + SurgeryService.payment_choices()
+        self.payment_method.choices = [("", "Keep current / not paid")] + SurgeryService.payment_method_choices()
 
     def completed_at(self):
         if not self.completed_date.data or not self.completed_time.data:

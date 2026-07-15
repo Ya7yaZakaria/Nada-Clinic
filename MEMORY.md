@@ -484,3 +484,38 @@ Deferred Features:
 
 Next Action:
 - Run Stage 10 migration/tests and review outputs.
+
+## Stage 10 Partner Frozen
+
+Current Stage:
+- Stage 10 Partner completed and frozen.
+
+Verification:
+- Full regression: 417 passed.
+- Migration current/head: 20260715_0068.
+- Commit: 5501e22.
+
+## Stage 11 Embedded Finance Implemented
+
+Current Stage:
+- Stage 11 Sprint 11.1 implemented.
+
+Completed Work:
+- Added FinanceCharge, FinancePayment, FinanceExpense.
+- Added FinanceService.
+- Embedded Appointment fee/payment capture.
+- Embedded Visit/procedure fee/payment capture.
+- Synced Surgery fee/paid/payment method to Finance.
+- Added clinic expenses.
+- Added Patient Workspace finance summary.
+- Added Finance dashboard.
+- Added finance RBAC.
+
+Deferred Features:
+- Advanced finance insights/charts.
+- Export.
+- Refunds.
+- Full accounting ledger.
+
+Next Action:
+- Run Stage 11 migration/tests and review outputs.

@@ -3,6 +3,8 @@ from decimal import Decimal
 
 from app.extensions import db
 from app.models.surgery import SurgeryCase
+from app.models.finance import FinanceCharge
+from app.services.finance_service import FinanceService
 
 
 class SurgeryService:
@@ -41,19 +43,23 @@ class SurgeryService:
 
     @staticmethod
     def get_category_label(value):
-        return SurgeryService.CATEGORY_LABELS.get(value, value or "—")
+        return SurgeryService.CATEGORY_LABELS.get(value, value or "â€”")
 
     @staticmethod
     def get_status_label(value):
-        return SurgeryService.STATUS_LABELS.get(value, value or "—")
+        return SurgeryService.STATUS_LABELS.get(value, value or "â€”")
 
     @staticmethod
     def get_priority_label(value):
-        return SurgeryService.PRIORITY_LABELS.get(value, value or "—")
+        return SurgeryService.PRIORITY_LABELS.get(value, value or "â€”")
 
     @staticmethod
     def get_payment_label(value):
-        return SurgeryService.PAYMENT_LABELS.get(value, value or "—")
+        return SurgeryService.PAYMENT_LABELS.get(value, value or "â€”")
+
+    @staticmethod
+    def payment_method_choices():
+        return FinanceService.payment_method_choices()
 
     @staticmethod
     def category_choices():
@@ -114,6 +120,7 @@ class SurgeryService:
         fee_amount=None,
         paid_amount=None,
         payment_status=None,
+        payment_method=None,
         actor_user=None,
     ):
         SurgeryService.validate_required(
@@ -140,11 +147,13 @@ class SurgeryService:
             fee_amount=SurgeryService.normalize_money(fee_amount),
             paid_amount=SurgeryService.normalize_money(paid_amount),
             payment_status=payment_status,
+            payment_method=FinanceService.validate_payment_method(payment_method),
             status=SurgeryCase.STATUS_SCHEDULED,
             created_by_user=actor_user,
         )
         db.session.add(surgery)
         db.session.commit()
+        SurgeryService.sync_finance_for_surgery(surgery, actor_user=actor_user)
         return surgery
 
     @staticmethod
@@ -168,6 +177,7 @@ class SurgeryService:
         fee_amount=None,
         paid_amount=None,
         payment_status=None,
+        payment_method=None,
     ):
         if surgery.status == SurgeryCase.STATUS_CANCELLED:
             raise ValueError("Cancelled surgery cannot be edited.")
@@ -191,7 +201,9 @@ class SurgeryService:
         surgery.fee_amount = SurgeryService.normalize_money(fee_amount)
         surgery.paid_amount = SurgeryService.normalize_money(paid_amount)
         surgery.payment_status = SurgeryService.validate_payment_status(payment_status)
+        surgery.payment_method = FinanceService.validate_payment_method(payment_method)
         db.session.commit()
+        SurgeryService.sync_finance_for_surgery(surgery)
         return surgery
 
     @staticmethod
@@ -206,6 +218,7 @@ class SurgeryService:
         fee_amount=None,
         paid_amount=None,
         payment_status=None,
+        payment_method=None,
         actor_user=None,
     ):
         if surgery.status not in {SurgeryCase.STATUS_SCHEDULED, SurgeryCase.STATUS_POSTPONED}:
@@ -223,9 +236,34 @@ class SurgeryService:
         surgery.paid_amount = SurgeryService.normalize_money(paid_amount) if paid_amount not in ("", None) else surgery.paid_amount
         if payment_status not in ("", None):
             surgery.payment_status = SurgeryService.validate_payment_status(payment_status)
+        if payment_method not in ("", None):
+            surgery.payment_method = FinanceService.validate_payment_method(payment_method)
         surgery.completed_by_user = actor_user
         db.session.commit()
+        SurgeryService.sync_finance_for_surgery(surgery, actor_user=actor_user)
         return surgery
+
+    @staticmethod
+    def sync_finance_for_surgery(surgery, actor_user=None):
+        if surgery.fee_amount in (None, ""):
+            return None
+
+        charge = FinanceService.create_or_update_source_charge(
+            patient=surgery.patient,
+            source_type=FinanceCharge.SOURCE_SURGERY,
+            source_id=surgery.id,
+            service_type=FinanceCharge.SERVICE_SURGERY,
+            title=surgery.procedure_name,
+            gross_amount=surgery.fee_amount,
+            paid_amount=surgery.paid_amount,
+            payment_method=surgery.payment_method or "cash",
+            service_date=(surgery.completed_at or surgery.scheduled_at).date(),
+            actor_user=actor_user or surgery.completed_by_user or surgery.created_by_user,
+        )
+        if charge:
+            surgery.payment_status = charge.status
+            db.session.commit()
+        return charge
 
     @staticmethod
     def cancel_surgery(surgery, *, cancel_reason, actor_user=None):
@@ -241,6 +279,7 @@ class SurgeryService:
         surgery.cancelled_at = datetime.now(timezone.utc)
         surgery.cancelled_by_user = actor_user
         db.session.commit()
+        FinanceService.cancel_source_charge(FinanceCharge.SOURCE_SURGERY, surgery.id, actor_user=actor_user)
         return surgery
 
     @staticmethod
@@ -360,3 +399,7 @@ class SurgeryService:
             )
 
         return query.order_by(SurgeryCase.scheduled_at.desc(), SurgeryCase.id.desc()).all()
+
+
+
+

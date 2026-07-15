@@ -1,4 +1,4 @@
-﻿import uuid as uuid_lib
+import uuid as uuid_lib
 from datetime import datetime, timezone
 
 from app.extensions import db
@@ -72,6 +72,11 @@ class Visit(db.Model):
     assessment = db.Column(db.Text, nullable=True)
     plan = db.Column(db.Text, nullable=True)
     follow_up_date = db.Column(db.Date, nullable=True)
+
+    billing_service_type = db.Column(db.String(40), nullable=True, index=True)
+    fee_amount = db.Column(db.Numeric(12, 2), nullable=True)
+    paid_amount = db.Column(db.Numeric(12, 2), nullable=True)
+    payment_method = db.Column(db.String(40), nullable=True, index=True)
 
     is_locked = db.Column(db.Boolean, nullable=False, default=False)
 

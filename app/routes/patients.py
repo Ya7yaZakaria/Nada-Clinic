@@ -8,6 +8,7 @@ from app.models import Patient
 from app.services.appointment_service import AppointmentService
 from app.services.clinic_ultrasound_service import ClinicUltrasoundService
 from app.services.external_ultrasound_service import ExternalUltrasoundService
+from app.services.finance_service import FinanceService
 from app.services.document_service import DocumentService
 from app.services.investigation_preset_service import InvestigationPresetService
 from app.services.investigation_service import InvestigationService
@@ -137,6 +138,23 @@ def _get_patient_workspace_partner_context(patient):
     }
 
 
+def _get_patient_workspace_finance_context(patient):
+    can_view_finance = RBACService.user_has_permission(current_user, "finance.view")
+
+    if not can_view_finance:
+        return {
+            "can_view_finance": False,
+            "patient_finance_summary": None,
+            "FinanceService": FinanceService,
+        }
+
+    return {
+        "can_view_finance": True,
+        "patient_finance_summary": FinanceService.get_patient_finance_summary(patient),
+        "FinanceService": FinanceService,
+    }
+
+
 @patients_bp.get("/")
 @login_required
 @RBACService.require_permission("patients.basic.view")
@@ -220,6 +238,7 @@ def detail(patient_uuid):
     ultrasound_context = _get_patient_workspace_ultrasound_context(patient)
     surgery_context = _get_patient_workspace_surgery_context(patient)
     partner_context = _get_patient_workspace_partner_context(patient)
+    finance_context = _get_patient_workspace_finance_context(patient)
 
     return render_template(
         "patients/detail.html",
@@ -234,6 +253,7 @@ def detail(patient_uuid):
         **documents_context,
         **surgery_context,
         **partner_context,
+        **finance_context,
     )
 
 

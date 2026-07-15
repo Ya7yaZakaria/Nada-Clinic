@@ -1,4 +1,4 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Appointment Detail — Nada Clinic System{% endblock %}
 {% block page_title %}Appointment Detail{% endblock %}
@@ -43,6 +43,13 @@
 
         <dt class="col-sm-3">Notes</dt>
         <dd class="col-sm-9">{{ appointment.notes or "—" }}</dd>
+
+        <dt class="col-sm-3">Finance</dt>
+        <dd class="col-sm-9">
+            Fee {{ appointment.fee_amount or "—" }}
+            · Paid {{ appointment.paid_amount or "—" }}
+            · Method {{ appointment.payment_method or "—" }}
+        </dd>
 
         <dt class="col-sm-3">Arrived at</dt>
         <dd class="col-sm-9">{{ appointment.arrived_at or "—" }}</dd>

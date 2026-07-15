@@ -1,4 +1,4 @@
-﻿<form method="post">
+<form method="post">
     {{ form.hidden_tag() }}
 
     {% if patient %}
@@ -56,6 +56,27 @@
             <div class="col-12 col-md-6">
                 {{ form.source.label(class="form-label") }}
                 {{ form.source(class="form-select") }}
+            </div>
+
+            <div class="col-12">
+                <hr>
+                <p class="section-kicker">Embedded Finance</p>
+                <h2 class="h6">Payment for this appointment</h2>
+            </div>
+
+            <div class="col-12 col-md-4">
+                {{ form.fee_amount.label(class="form-label") }}
+                {{ form.fee_amount(class="form-control") }}
+            </div>
+
+            <div class="col-12 col-md-4">
+                {{ form.paid_amount.label(class="form-label") }}
+                {{ form.paid_amount(class="form-control") }}
+            </div>
+
+            <div class="col-12 col-md-4">
+                {{ form.payment_method.label(class="form-label") }}
+                {{ form.payment_method(class="form-select") }}
             </div>
 
             <div class="col-12">

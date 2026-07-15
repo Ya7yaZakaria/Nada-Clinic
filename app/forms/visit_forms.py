@@ -1,7 +1,8 @@
-﻿from flask_wtf import FlaskForm
-from wtforms import SelectField, StringField, SubmitField, TextAreaField
+from flask_wtf import FlaskForm
+from wtforms import DecimalField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Optional
 
+from app.services.finance_service import FinanceService
 from app.services.journey_service import JourneyService
 
 
@@ -33,6 +34,11 @@ class VisitForm(FlaskForm):
     assessment = TextAreaField("Assessment", validators=[Optional()])
     plan = TextAreaField("Plan", validators=[Optional()])
     follow_up_date = StringField("Follow-up date", validators=[Optional()])
+
+    billing_service_type = SelectField("Billing service", choices=[("", "No visit payment")] + FinanceService.service_type_choices(), validators=[Optional()])
+    fee_amount = DecimalField("Fee", places=2, validators=[Optional()])
+    paid_amount = DecimalField("Paid", places=2, validators=[Optional()])
+    payment_method = SelectField("Payment method", choices=[("", "Not paid")] + FinanceService.payment_method_choices(), validators=[Optional()])
 
     submit = SubmitField("Save visit")
 

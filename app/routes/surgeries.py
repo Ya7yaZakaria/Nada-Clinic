@@ -42,6 +42,7 @@ def _apply_form_to_service(form, patient, source_visit=None, surgery=None):
         "fee_amount": form.fee_amount.data,
         "paid_amount": form.paid_amount.data,
         "payment_status": form.payment_status.data,
+        "payment_method": form.payment_method.data,
     }
 
     if surgery:
@@ -254,6 +255,7 @@ def edit(surgery_uuid):
                 fee_amount=form.fee_amount.data,
                 paid_amount=form.paid_amount.data,
                 payment_status=form.payment_status.data,
+                payment_method=form.payment_method.data,
             )
         except ValueError as exc:
             flash(str(exc), "danger")
@@ -283,6 +285,7 @@ def complete(surgery_uuid):
         form.fee_amount.data = surgery.fee_amount
         form.paid_amount.data = surgery.paid_amount
         form.payment_status.data = ""
+        form.payment_method.data = surgery.payment_method or ""
 
     if form.validate_on_submit():
         try:
@@ -296,6 +299,7 @@ def complete(surgery_uuid):
                 fee_amount=form.fee_amount.data,
                 paid_amount=form.paid_amount.data,
                 payment_status=form.payment_status.data,
+                payment_method=form.payment_method.data,
                 actor_user=current_user,
             )
         except ValueError as exc:

@@ -134,6 +134,10 @@ def new(patient_uuid):
                 assessment=form.assessment.data,
                 plan=form.plan.data,
                 follow_up_date=_parse_follow_up_date(form.follow_up_date.data),
+                billing_service_type=form.billing_service_type.data or None,
+                fee_amount=form.fee_amount.data,
+                paid_amount=form.paid_amount.data,
+                payment_method=form.payment_method.data,
             )
         except ValueError as exc:
             flash(str(exc), "danger")

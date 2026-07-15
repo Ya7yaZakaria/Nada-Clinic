@@ -1,7 +1,9 @@
-﻿from datetime import datetime, timezone
+from datetime import datetime, timezone
 
 from app.extensions import db
 from app.models import Journey, Patient, Visit, VisitAuditLog
+from app.models.finance import FinanceCharge
+from app.services.finance_service import FinanceService
 
 
 class VisitService:
@@ -84,11 +86,16 @@ class VisitService:
             assessment=data.get("assessment"),
             plan=data.get("plan"),
             follow_up_date=data.get("follow_up_date"),
+            billing_service_type=data.get("billing_service_type") or None,
+            fee_amount=FinanceService.normalize_money(data.get("fee_amount"), None),
+            paid_amount=FinanceService.normalize_money(data.get("paid_amount"), None),
+            payment_method=FinanceService.validate_payment_method(data.get("payment_method")),
             is_locked=bool(data.get("is_locked", False)),
         )
 
         db.session.add(visit)
         db.session.commit()
+        VisitService.sync_finance_for_visit(visit)
 
         return visit
 
@@ -107,6 +114,10 @@ class VisitService:
             "assessment",
             "plan",
             "follow_up_date",
+            "billing_service_type",
+            "fee_amount",
+            "paid_amount",
+            "payment_method",
         ]
 
         candidate = {
@@ -124,8 +135,31 @@ class VisitService:
             VisitService.assign_journey(visit, data["journey_id"], commit=False)
 
         db.session.commit()
+        VisitService.sync_finance_for_visit(visit)
 
         return visit
+
+    @staticmethod
+    def sync_finance_for_visit(visit):
+        if visit.fee_amount in (None, ""):
+            return None
+
+        service_type = visit.billing_service_type
+        if not service_type:
+            service_type = FinanceCharge.SERVICE_PROCEDURE if visit.visit_type == "procedure" else FinanceCharge.SERVICE_OTHER
+
+        return FinanceService.create_or_update_source_charge(
+            patient=visit.patient,
+            source_type=FinanceCharge.SOURCE_VISIT,
+            source_id=visit.id,
+            service_type=service_type,
+            title=FinanceService.get_service_label(service_type),
+            gross_amount=visit.fee_amount,
+            paid_amount=visit.paid_amount,
+            payment_method=visit.payment_method,
+            service_date=visit.visit_date.date(),
+            actor_user=None,
+        )
 
     @staticmethod
     def assign_journey(visit, journey_or_id, commit=True):

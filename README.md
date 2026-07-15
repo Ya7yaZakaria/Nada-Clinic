@@ -615,3 +615,13 @@ Stage 10 adds Partner/Husband support inside Patient Workspace:
 - SA history as upload + notes only.
 - Partner prescriptions using the existing PrescriptionItem structure.
 - Prescription target support: patient / partner.
+
+## Stage 11 — Embedded Finance
+
+Stage 11 adds a central Finance layer with embedded capture:
+- Appointment fee/payment.
+- Visit/procedure fee/payment.
+- Surgery fee/deposit/payment sync.
+- Clinic expenses.
+- Patient finance summary.
+- Finance dashboard.

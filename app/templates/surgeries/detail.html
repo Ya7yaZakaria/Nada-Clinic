@@ -61,6 +61,7 @@
                 <dt class="col-4">Fee</dt><dd class="col-8">{{ surgery.fee_amount or "—" }}</dd>
                 <dt class="col-4">Paid</dt><dd class="col-8">{{ surgery.paid_amount or "—" }}</dd>
                 <dt class="col-4">Payment</dt><dd class="col-8">{{ SurgeryService.get_payment_label(surgery.payment_status) }}</dd>
+                <dt class="col-4">Method</dt><dd class="col-8">{{ surgery.payment_method or "—" }}</dd>
             </dl>
         </div>
     </div>

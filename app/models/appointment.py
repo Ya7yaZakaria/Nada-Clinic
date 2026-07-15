@@ -61,6 +61,9 @@ class Appointment(db.Model):
     source = db.Column(db.String(50), nullable=False, default=SOURCE_CLINIC)
 
     notes = db.Column(db.Text, nullable=True)
+    fee_amount = db.Column(db.Numeric(12, 2), nullable=True)
+    paid_amount = db.Column(db.Numeric(12, 2), nullable=True)
+    payment_method = db.Column(db.String(40), nullable=True, index=True)
     cancel_reason = db.Column(db.Text, nullable=True)
 
     arrived_at = db.Column(db.DateTime, nullable=True)

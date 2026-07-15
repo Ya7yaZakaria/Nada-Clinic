@@ -1,4 +1,4 @@
-﻿from calendar import Calendar, month_name
+from calendar import Calendar, month_name
 from datetime import date, timedelta
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
@@ -156,6 +156,9 @@ def new():
             appointment_type=form.appointment_type.data,
             source=form.source.data,
             notes=form.notes.data,
+            fee_amount=form.fee_amount.data,
+            paid_amount=form.paid_amount.data,
+            payment_method=form.payment_method.data,
         )
 
         flash("Appointment booked.", "success")
@@ -212,6 +215,9 @@ def edit(appointment_uuid):
             appointment_type=form.appointment_type.data,
             source=form.source.data,
             notes=form.notes.data,
+            fee_amount=form.fee_amount.data,
+            paid_amount=form.paid_amount.data,
+            payment_method=form.payment_method.data,
         )
 
         flash("Appointment updated.", "success")

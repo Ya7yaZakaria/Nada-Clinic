@@ -1,10 +1,11 @@
-﻿from datetime import date
+from datetime import date
 
 from flask_wtf import FlaskForm
-from wtforms import DateField, HiddenField, IntegerField, SelectField, StringField, SubmitField, TextAreaField, TimeField
+from wtforms import DateField, DecimalField, HiddenField, IntegerField, SelectField, StringField, SubmitField, TextAreaField, TimeField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional, ValidationError
 
 from app.models.appointment import Appointment
+from app.services.finance_service import FinanceService
 
 
 class AppointmentForm(FlaskForm):
@@ -49,6 +50,10 @@ class AppointmentForm(FlaskForm):
         default=Appointment.SOURCE_CLINIC,
         validators=[DataRequired()],
     )
+
+    fee_amount = DecimalField("Fee", places=2, validators=[Optional(), NumberRange(min=0)])
+    paid_amount = DecimalField("Paid now", places=2, validators=[Optional(), NumberRange(min=0)])
+    payment_method = SelectField("Payment method", choices=[("", "Not paid")] + FinanceService.payment_method_choices(), validators=[Optional()])
 
     notes = TextAreaField(
         "Notes",

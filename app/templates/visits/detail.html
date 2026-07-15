@@ -61,6 +61,14 @@
 
                 <dt class="col-4">Follow-up</dt>
                 <dd class="col-8">{{ visit.follow_up_date or "—" }}</dd>
+
+                <dt class="col-4">Finance</dt>
+                <dd class="col-8">
+                    Service {{ visit.billing_service_type or "—" }}
+                    · Fee {{ visit.fee_amount or "—" }}
+                    · Paid {{ visit.paid_amount or "—" }}
+                    · Method {{ visit.payment_method or "—" }}
+                </dd>
             </dl>
         </div>
     </div>

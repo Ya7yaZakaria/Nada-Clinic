@@ -102,6 +102,7 @@ class SurgeryCase(db.Model):
     fee_amount = db.Column(db.Numeric(12, 2), nullable=True)
     paid_amount = db.Column(db.Numeric(12, 2), nullable=True)
     payment_status = db.Column(db.String(40), nullable=True, index=True)
+    payment_method = db.Column(db.String(40), nullable=True, index=True)
 
     cancel_reason = db.Column(db.Text, nullable=True)
     cancelled_at = db.Column(db.DateTime(timezone=True), nullable=True)
