@@ -1128,3 +1128,22 @@ No diagnosis-linked preset behavior added.
 
 ### Next
 - Stage 9 Surgery.
+
+## 2026-07-15 — Stage 9 Surgery Module
+
+### Added
+- SurgeryCase model and migration.
+- Surgery service and status workflow.
+- Surgery dashboard/list/calendar/detail UI.
+- Create surgery from dashboard, patient, or visit context.
+- Complete/cancel/postpone workflows.
+- Patient Timeline surgery events.
+- Patient Surgical History section.
+- Basic module-level surgery analytics.
+- Surgery RBAC permissions.
+
+### Deferred
+- Surgery documents/consent.
+- Operation report print.
+- Full finance module.
+- AI/OCR.

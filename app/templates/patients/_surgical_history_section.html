@@ -1,0 +1,36 @@
+{% if can_view_surgeries %}
+<div class="clinic-card mb-3">
+    <div class="d-flex justify-content-between gap-2 mb-2">
+        <div>
+            <p class="section-kicker">History</p>
+            <h2 class="h5">Surgical History / Surgery Records</h2>
+        </div>
+        {% if can_manage_surgeries %}
+            <a class="btn btn-sm btn-outline-danger" href="{{ url_for('surgeries.new_for_patient', patient_uuid=patient.uuid) }}">Schedule Surgery</a>
+        {% endif %}
+    </div>
+
+    {% if patient_surgeries %}
+        <div class="list-group list-group-flush">
+            {% for surgery in patient_surgeries %}
+                <a class="list-group-item list-group-item-action" href="{{ url_for('surgeries.detail', surgery_uuid=surgery.uuid) }}">
+                    <div class="fw-semibold">
+                        <span class="badge text-bg-danger">Surgery</span>
+                        {{ surgery.procedure_name }}
+                    </div>
+                    <div class="small text-muted">
+                        {{ surgery.scheduled_at.strftime("%Y-%m-%d %H:%M") }}
+                        · {{ SurgeryService.get_status_label(surgery.status) }}
+                        · {{ SurgeryService.get_category_label(surgery.procedure_category) }}
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="placeholder-box">
+            <p class="fw-semibold mb-1">No surgery records yet.</p>
+            <p class="text-muted mb-0">Scheduled surgeries will appear here and in the timeline.</p>
+        </div>
+    {% endif %}
+</div>
+{% endif %}

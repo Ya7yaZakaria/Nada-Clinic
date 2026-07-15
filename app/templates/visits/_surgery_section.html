@@ -1,0 +1,35 @@
+{% if can_view_surgeries %}
+<div class="clinic-card mt-3">
+    <div class="d-flex justify-content-between gap-2 mb-2">
+        <div>
+            <p class="section-kicker">Surgery</p>
+            <h2 class="h5">Surgery from this Visit</h2>
+        </div>
+        {% if can_manage_surgeries %}
+            <a class="btn btn-sm btn-outline-danger" href="{{ url_for('surgeries.new_for_visit', visit_uuid=visit.uuid) }}">Schedule Surgery</a>
+        {% endif %}
+    </div>
+
+    {% if source_visit_surgeries %}
+        <div class="list-group list-group-flush">
+            {% for surgery in source_visit_surgeries %}
+                <a class="list-group-item list-group-item-action" href="{{ url_for('surgeries.detail', surgery_uuid=surgery.uuid) }}">
+                    <div class="fw-semibold">
+                        <span class="badge text-bg-danger">Surgery</span>
+                        {{ surgery.procedure_name }}
+                    </div>
+                    <div class="small text-muted">
+                        {{ surgery.scheduled_at.strftime("%Y-%m-%d %H:%M") }}
+                        · {{ SurgeryService.get_status_label(surgery.status) }}
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="placeholder-box">
+            <p class="fw-semibold mb-1">No surgery scheduled from this visit.</p>
+            <p class="text-muted mb-0">Visit plan can mention surgery, but SurgeryCase starts only when scheduled.</p>
+        </div>
+    {% endif %}
+</div>
+{% endif %}

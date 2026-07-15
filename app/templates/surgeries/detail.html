@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Surgery — Nada Clinic System{% endblock %}
+{% block page_title %}Surgery Detail{% endblock %}
+{% block page_subtitle %}Schedule, status, completion, and finance-light summary{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <p class="section-kicker">
+                {{ SurgeryService.get_category_label(surgery.procedure_category) }}
+                · {{ SurgeryService.get_status_label(surgery.status) }}
+            </p>
+            <h1 class="h4">{{ surgery.procedure_name }}</h1>
+            <p class="mb-1">
+                Patient:
+                <a href="{{ url_for('patients.detail', patient_uuid=surgery.patient.uuid) }}">
+                    {{ surgery.patient.name_ar or surgery.patient.name_en }}
+                </a>
+            </p>
+            {% if surgery.source_visit %}
+                <p class="mb-0">
+                    Source Visit:
+                    <a href="{{ url_for('visits.detail', visit_uuid=surgery.source_visit.uuid) }}">Open Visit</a>
+                </p>
+            {% endif %}
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-start">
+            <a class="btn btn-outline-primary" href="{{ url_for('surgeries.edit', surgery_uuid=surgery.uuid) }}">Edit</a>
+            {% if surgery.status in ["scheduled", "postponed"] %}
+                <a class="btn btn-success" href="{{ url_for('surgeries.complete', surgery_uuid=surgery.uuid) }}">Complete</a>
+                <a class="btn btn-outline-warning" href="{{ url_for('surgeries.postpone', surgery_uuid=surgery.uuid) }}">Postpone</a>
+                <a class="btn btn-outline-danger" href="{{ url_for('surgeries.cancel', surgery_uuid=surgery.uuid) }}">Cancel</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Schedule</h2>
+            <dl class="row mb-0">
+                <dt class="col-4">Scheduled</dt><dd class="col-8">{{ surgery.scheduled_at.strftime("%Y-%m-%d %H:%M") }}</dd>
+                <dt class="col-4">Location</dt><dd class="col-8">{{ surgery.location or "—" }}</dd>
+                <dt class="col-4">Priority</dt><dd class="col-8">{{ SurgeryService.get_priority_label(surgery.priority) }}</dd>
+                <dt class="col-4">Status</dt><dd class="col-8">{{ SurgeryService.get_status_label(surgery.status) }}</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="clinic-card h-100">
+            <h2 class="h5">Finance Light</h2>
+            <dl class="row mb-0">
+                <dt class="col-4">Fee</dt><dd class="col-8">{{ surgery.fee_amount or "—" }}</dd>
+                <dt class="col-4">Paid</dt><dd class="col-8">{{ surgery.paid_amount or "—" }}</dd>
+                <dt class="col-4">Payment</dt><dd class="col-8">{{ SurgeryService.get_payment_label(surgery.payment_status) }}</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<div class="clinic-card mt-3">
+    <h2 class="h5">Clinical Notes</h2>
+    <dl class="row mb-0">
+        <dt class="col-3">Pre-op note</dt><dd class="col-9">{{ surgery.pre_op_note or "—" }}</dd>
+        <dt class="col-3">Surgery note</dt><dd class="col-9">{{ surgery.surgery_note or "—" }}</dd>
+        <dt class="col-3">Findings</dt><dd class="col-9">{{ surgery.operative_findings or "—" }}</dd>
+        <dt class="col-3">Details</dt><dd class="col-9">{{ surgery.operative_details or "—" }}</dd>
+        <dt class="col-3">Complications</dt><dd class="col-9">{{ surgery.complications or "—" }}</dd>
+        <dt class="col-3">Post-op plan</dt><dd class="col-9">{{ surgery.post_op_plan or "—" }}</dd>
+    </dl>
+</div>
+{% endblock %}

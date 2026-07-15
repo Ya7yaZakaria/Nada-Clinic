@@ -1,0 +1,25 @@
+<div class="list-group-item">
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-2">
+        <div>
+            <div class="fw-semibold">
+                <span class="badge text-bg-danger me-1">Surgery</span>
+                {{ surgery.procedure_name }}
+            </div>
+            <div class="small text-muted">
+                {{ surgery.patient.name_ar or surgery.patient.name_en }}
+                · {{ SurgeryService.get_category_label(surgery.procedure_category) }}
+                · {{ SurgeryService.get_status_label(surgery.status) }}
+                · {{ surgery.scheduled_at.strftime("%Y-%m-%d %H:%M") }}
+            </div>
+            {% if surgery.location %}
+                <div class="small text-muted">{{ surgery.location }}</div>
+            {% endif %}
+        </div>
+        <div class="d-flex flex-wrap gap-1 align-items-start">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('surgeries.detail', surgery_uuid=surgery.uuid) }}">Open</a>
+            {% if surgery.status in ["scheduled", "postponed"] %}
+                <a class="btn btn-sm btn-outline-success" href="{{ url_for('surgeries.complete', surgery_uuid=surgery.uuid) }}">Complete</a>
+            {% endif %}
+        </div>
+    </div>
+</div>

@@ -14,6 +14,7 @@ from app.services.investigation_service import InvestigationService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
 from app.services.rbac_service import RBACService
+from app.services.surgery_service import SurgeryService
 from app.services.timeline_service import TimelineService
 from app.services.visit_service import VisitService
 
@@ -89,6 +90,25 @@ def _get_patient_workspace_ultrasound_context(patient):
         "can_view_ultrasounds": can_view_ultrasounds,
         "can_manage_ultrasounds": can_manage_ultrasounds,
         "ClinicUltrasoundService": ClinicUltrasoundService,
+    }
+
+
+def _get_patient_workspace_surgery_context(patient):
+    can_view_surgeries = RBACService.user_has_permission(current_user, "surgeries.view")
+    can_manage_surgeries = RBACService.user_has_permission(current_user, "surgeries.manage")
+
+    if not can_view_surgeries:
+        return {
+            "patient_surgeries": [],
+            "can_view_surgeries": False,
+            "can_manage_surgeries": False,
+        }
+
+    return {
+        "patient_surgeries": SurgeryService.list_patient_surgeries(patient, limit=8),
+        "can_view_surgeries": can_view_surgeries,
+        "can_manage_surgeries": can_manage_surgeries,
+        "SurgeryService": SurgeryService,
     }
 
 
@@ -173,6 +193,7 @@ def detail(patient_uuid):
     investigation_context = _get_patient_workspace_investigation_context(patient)
     documents_context = _get_patient_workspace_documents_context(patient)
     ultrasound_context = _get_patient_workspace_ultrasound_context(patient)
+    surgery_context = _get_patient_workspace_surgery_context(patient)
 
     return render_template(
         "patients/detail.html",
@@ -185,6 +206,7 @@ def detail(patient_uuid):
         **investigation_context,
         **ultrasound_context,
         **documents_context,
+        **surgery_context,
     )
 
 

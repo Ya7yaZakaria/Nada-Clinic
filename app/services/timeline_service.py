@@ -1,6 +1,7 @@
-﻿from datetime import date, datetime, time
+from datetime import date, datetime, time
 
 from app.models.investigation import InvestigationOrder, InvestigationResult
+from app.models.surgery import SurgeryCase
 
 
 class TimelineService:
@@ -26,6 +27,7 @@ class TimelineService:
         events.extend(TimelineService.build_journey_events(patient))
         events.extend(TimelineService.build_visit_events(patient))
         events.extend(TimelineService.build_investigation_events(patient))
+        events.extend(TimelineService.build_surgery_events(patient))
         return TimelineService.sort_events(events)
 
     @staticmethod
@@ -108,6 +110,48 @@ class TimelineService:
                         "source_uuid": visit.uuid,
                         "status": visit.status,
                         "is_unassigned": visit.journey_id is None,
+                    }
+                )
+
+        return events
+
+    @staticmethod
+    def build_surgery_events(patient):
+        events = []
+
+        surgeries = (
+            SurgeryCase.query.filter_by(patient_id=patient.id, is_active=True)
+            .order_by(SurgeryCase.scheduled_at.desc(), SurgeryCase.id.desc())
+            .all()
+        )
+
+        for surgery in surgeries:
+            events.append(
+                {
+                    "date": TimelineService.normalize_event_date(surgery.scheduled_at),
+                    "type": "surgery",
+                    "label": "Surgery",
+                    "title": surgery.procedure_name,
+                    "subtitle": surgery.status,
+                    "source": "surgery",
+                    "source_uuid": surgery.uuid,
+                    "status": surgery.status,
+                    "badge_class": "surgery",
+                }
+            )
+
+            if surgery.completed_at:
+                events.append(
+                    {
+                        "date": TimelineService.normalize_event_date(surgery.completed_at),
+                        "type": "surgery_completed",
+                        "label": "Surgery completed",
+                        "title": surgery.procedure_name,
+                        "subtitle": surgery.status,
+                        "source": "surgery",
+                        "source_uuid": surgery.uuid,
+                        "status": surgery.status,
+                        "badge_class": "surgery",
                     }
                 )
 

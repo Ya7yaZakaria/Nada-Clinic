@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Surgery Dashboard — Nada Clinic System{% endblock %}
+{% block page_title %}Surgery Dashboard{% endblock %}
+{% block page_subtitle %}Today, upcoming, completed, and operational surgery flow{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between gap-2 mb-3">
+    <div>
+        <h1 class="h4 mb-1">Surgery Dashboard</h1>
+        <p class="text-muted mb-0">Central home for scheduled operations.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" href="{{ url_for('surgeries.new') }}">New Surgery</a>
+        <a class="btn btn-outline-primary" href="{{ url_for('surgeries.calendar') }}">Calendar</a>
+        <a class="btn btn-outline-primary" href="{{ url_for('surgeries.list_view') }}">List</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('surgeries.insights') }}">Insights</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-xl-4">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Today</p>
+            <h2 class="h5">Today Surgeries</h2>
+            <div class="list-group list-group-flush">
+                {% for surgery in today_surgeries %}
+                    {% include "surgeries/_surgery_card.html" %}
+                {% else %}
+                    <div class="placeholder-box">No surgeries today.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-4">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Upcoming</p>
+            <h2 class="h5">Upcoming</h2>
+            <div class="list-group list-group-flush">
+                {% for surgery in upcoming_surgeries %}
+                    {% include "surgeries/_surgery_card.html" %}
+                {% else %}
+                    <div class="placeholder-box">No upcoming surgeries.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-4">
+        <div class="clinic-card h-100">
+            <p class="section-kicker">Completed</p>
+            <h2 class="h5">Recently Completed</h2>
+            <div class="list-group list-group-flush">
+                {% for surgery in recent_completed %}
+                    {% include "surgeries/_surgery_card.html" %}
+                {% else %}
+                    <div class="placeholder-box">No completed surgeries yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

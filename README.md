@@ -588,3 +588,15 @@ Final verified state:
 - Full regression: 407 passed.
 - Migration head: 20260715_0066.
 - Last Sprint 8 commit: 1fa5b88.
+
+## Stage 9 — Surgery Module
+
+Stage 9 adds an operational Surgery module:
+- SurgeryCase entity.
+- Surgery dashboard, list, calendar, detail, create/edit.
+- Create surgery from dashboard, patient context, or visit context.
+- Complete, cancel, and postpone workflows.
+- Patient timeline surgery events with Surgery badge.
+- Patient surgical history / surgery records section.
+- Basic module-level surgery insights.
+- Light finance fields only.

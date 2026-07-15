@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Complete Surgery — Nada Clinic System{% endblock %}
+{% block page_title %}Complete Surgery{% endblock %}
+{% block page_subtitle %}Record operative outcome{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    <h1 class="h5">{{ surgery.procedure_name }}</h1>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <div class="row g-3">
+            <div class="col-12 col-md-3">{{ form.completed_date.label(class="form-label") }} {{ form.completed_date(class="form-control") }}</div>
+            <div class="col-12 col-md-3">{{ form.completed_time.label(class="form-label") }} {{ form.completed_time(class="form-control") }}</div>
+            <div class="col-12">{{ form.operative_findings.label(class="form-label") }} {{ form.operative_findings(class="form-control", rows="3") }}</div>
+            <div class="col-12">{{ form.operative_details.label(class="form-label") }} {{ form.operative_details(class="form-control", rows="4") }}</div>
+            <div class="col-12">{{ form.complications.label(class="form-label") }} {{ form.complications(class="form-control", rows="2") }}</div>
+            <div class="col-12">{{ form.post_op_plan.label(class="form-label") }} {{ form.post_op_plan(class="form-control", rows="3") }}</div>
+            <div class="col-12 col-md-4">{{ form.fee_amount.label(class="form-label") }} {{ form.fee_amount(class="form-control") }}</div>
+            <div class="col-12 col-md-4">{{ form.paid_amount.label(class="form-label") }} {{ form.paid_amount(class="form-control") }}</div>
+            <div class="col-12 col-md-4">{{ form.payment_status.label(class="form-label") }} {{ form.payment_status(class="form-select") }}</div>
+        </div>
+        <div class="d-flex gap-2 mt-3">
+            {{ form.submit(class="btn btn-success") }}
+            <a class="btn btn-outline-secondary" href="{{ url_for('surgeries.detail', surgery_uuid=surgery.uuid) }}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

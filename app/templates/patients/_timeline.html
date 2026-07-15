@@ -1,4 +1,4 @@
-﻿<div class="clinic-card h-100">
+<div class="clinic-card h-100">
     <div class="d-flex justify-content-between gap-2 mb-2">
         <div>
             <p class="section-kicker">Story</p>
@@ -9,11 +9,11 @@
     {% if timeline_events %}
         <div class="list-group list-group-flush">
             {% for event in timeline_events %}
-                <div class="list-group-item">
+                <div class="list-group-item {% if event.source == 'surgery' %}border-start border-4 border-danger{% endif %}">
                     <div class="d-flex justify-content-between gap-3">
                         <div>
                             <div class="fw-semibold">
-                                {{ event.label }} — {{ event.title }}
+                                {% if event.source == 'surgery' %}<span class="badge text-bg-danger me-1">Surgery</span>{% endif %}{{ event.label }} — {{ event.title }}
                             </div>
 
                             <div class="small text-muted">

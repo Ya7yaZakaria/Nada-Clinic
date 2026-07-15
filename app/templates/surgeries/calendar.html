@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Surgery Calendar — Nada Clinic System{% endblock %}
+{% block page_title %}Surgery Calendar{% endblock %}
+{% block page_subtitle %}Grouped by date{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-3">
+    <h1 class="h4">Surgery Calendar</h1>
+    <a class="btn btn-primary" href="{{ url_for('surgeries.new') }}">New Surgery</a>
+</div>
+
+{% for day, surgeries in grouped_surgeries.items() %}
+    <div class="clinic-card mb-3">
+        <h2 class="h5">{{ day }}</h2>
+        <div class="list-group list-group-flush">
+            {% for surgery in surgeries %}
+                {% include "surgeries/_surgery_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+{% else %}
+    <div class="clinic-card">
+        <div class="placeholder-box">No surgeries scheduled.</div>
+    </div>
+{% endfor %}
+{% endblock %}

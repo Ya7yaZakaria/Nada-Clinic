@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Cancel Surgery — Nada Clinic System{% endblock %}
+{% block page_title %}Cancel Surgery{% endblock %}
+{% block content %}
+<div class="clinic-card">
+    <h1 class="h5">{{ surgery.procedure_name }}</h1>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {{ form.cancel_reason.label(class="form-label") }}
+        {{ form.cancel_reason(class="form-control", rows="4") }}
+        <div class="d-flex gap-2 mt-3">
+            {{ form.submit(class="btn btn-danger") }}
+            <a class="btn btn-outline-secondary" href="{{ url_for('surgeries.detail', surgery_uuid=surgery.uuid) }}">Back</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

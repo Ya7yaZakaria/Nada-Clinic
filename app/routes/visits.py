@@ -29,6 +29,7 @@ from app.services.patient_service import PatientService
 from app.services.prescription_service import PrescriptionService
 from app.services.prescription_preset_service import PrescriptionPresetService
 from app.services.rbac_service import RBACService
+from app.services.surgery_service import SurgeryService
 from app.services.visit_service import VisitService
 
 visits_bp = Blueprint("visits", __name__)
@@ -174,6 +175,8 @@ def detail(visit_uuid):
     can_manage_investigations = RBACService.user_has_permission(current_user, "investigations.manage")
     can_view_ultrasounds = RBACService.user_has_permission(current_user, "ultrasound.view")
     can_manage_ultrasounds = RBACService.user_has_permission(current_user, "ultrasound.manage")
+    can_view_surgeries = RBACService.user_has_permission(current_user, "surgeries.view")
+    can_manage_surgeries = RBACService.user_has_permission(current_user, "surgeries.manage")
 
     prescription = None
     prescription_items = []
@@ -193,6 +196,7 @@ def detail(visit_uuid):
     external_ultrasound_results = []
     external_ultrasound_request_form = None
     external_ultrasound_result_form = None
+    source_visit_surgeries = []
 
     if can_view_prescription:
         prescription = PrescriptionService.get_prescription_for_visit(visit)
@@ -235,6 +239,9 @@ def detail(visit_uuid):
     if can_manage_investigations:
         investigation_item_form = InvestigationOrderItemForm()
         _populate_investigation_item_form(investigation_item_form)
+
+    if can_view_surgeries:
+        source_visit_surgeries = SurgeryService.list_source_visit_surgeries(visit)
 
     if can_view_ultrasounds:
         clinic_ultrasound_exams = ClinicUltrasoundService.list_visit_exams(visit)
@@ -281,6 +288,10 @@ def detail(visit_uuid):
         external_ultrasound_request_form=external_ultrasound_request_form,
         external_ultrasound_result_form=external_ultrasound_result_form,
         ClinicUltrasoundService=ClinicUltrasoundService,
+        can_view_surgeries=can_view_surgeries,
+        can_manage_surgeries=can_manage_surgeries,
+        source_visit_surgeries=source_visit_surgeries,
+        SurgeryService=SurgeryService,
         JourneyService=JourneyService,
         PatientService=PatientService,
         VisitService=VisitService,

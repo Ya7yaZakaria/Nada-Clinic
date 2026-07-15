@@ -44,6 +44,7 @@ def register_blueprints(app):
     from app.routes.print_templates import print_templates_bp
     from app.routes.today_clinic import today_clinic_bp
     from app.routes.ultrasounds import ultrasounds_bp
+    from app.routes.surgeries import surgeries_bp
     from app.routes.visits import visits_bp
 
     app.register_blueprint(auth_bp)
@@ -60,6 +61,7 @@ def register_blueprints(app):
     app.register_blueprint(investigation_presets_bp)
     app.register_blueprint(journeys_bp)
     app.register_blueprint(ultrasounds_bp)
+    app.register_blueprint(surgeries_bp)
     app.register_blueprint(visits_bp)
     app.register_blueprint(main_bp)
 

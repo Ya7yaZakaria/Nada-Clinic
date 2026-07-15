@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Surgery Insights — Nada Clinic System{% endblock %}
+{% block page_title %}Surgery Insights{% endblock %}
+{% block page_subtitle %}Module-level analytics, not per-surgery insight{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-md-3">
+            <label class="form-label">From</label>
+            <input class="form-control" type="date" name="date_from" value="{{ request.args.get('date_from', '') }}">
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label">To</label>
+            <input class="form-control" type="date" name="date_to" value="{{ request.args.get('date_to', '') }}">
+        </div>
+        <div class="col-12 col-md-2">
+            <button class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-md-3"><div class="clinic-card"><p class="section-kicker">Total</p><h2 class="h3">{{ summary.total_count }}</h2></div></div>
+    <div class="col-12 col-md-3"><div class="clinic-card"><p class="section-kicker">Fee</p><h2 class="h3">{{ summary.total_fee }}</h2></div></div>
+    <div class="col-12 col-md-3"><div class="clinic-card"><p class="section-kicker">Paid</p><h2 class="h3">{{ summary.total_paid }}</h2></div></div>
+    <div class="col-12 col-md-3"><div class="clinic-card"><p class="section-kicker">Outstanding</p><h2 class="h3">{{ summary.outstanding }}</h2></div></div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-12 col-lg-4">
+        <div class="clinic-card h-100">
+            <h2 class="h5">By Status</h2>
+            <ul class="list-group list-group-flush">
+                {% for key, count in summary.by_status.items() %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ SurgeryService.get_status_label(key) }}</span><strong>{{ count }}</strong>
+                    </li>
+                {% else %}
+                    <li class="list-group-item text-muted">No data.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="clinic-card h-100">
+            <h2 class="h5">By Category</h2>
+            <ul class="list-group list-group-flush">
+                {% for key, count in summary.by_category.items() %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ SurgeryService.get_category_label(key) }}</span><strong>{{ count }}</strong>
+                    </li>
+                {% else %}
+                    <li class="list-group-item text-muted">No data.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="clinic-card h-100">
+            <h2 class="h5">By Month</h2>
+            <ul class="list-group list-group-flush">
+                {% for key, count in summary.by_month.items() %}
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>{{ key }}</span><strong>{{ count }}</strong>
+                    </li>
+                {% else %}
+                    <li class="list-group-item text-muted">No data.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -36,6 +36,8 @@ class RBACService:
         "documents.manage": "Manage patient documents",
         "ultrasound.view": "View ultrasound records",
         "ultrasound.manage": "Manage ultrasound records",
+        "surgeries.view": "View surgery records",
+        "surgeries.manage": "Manage surgery records",
     }
 
     ROLE_PERMISSION_MATRIX = {
@@ -61,6 +63,8 @@ class RBACService:
             "documents.manage",
             "ultrasound.view",
             "ultrasound.manage",
+            "surgeries.view",
+            "surgeries.manage",
         ],
         "Reception": [
             "dashboard.view",

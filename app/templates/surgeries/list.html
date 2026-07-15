@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Surgery List — Nada Clinic System{% endblock %}
+{% block page_title %}Surgery List{% endblock %}
+{% block page_subtitle %}Filter and open surgeries{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-12 col-md-2">
+            <label class="form-label">From</label>
+            <input class="form-control" type="date" name="date_from" value="{{ request.args.get('date_from', '') }}">
+        </div>
+        <div class="col-12 col-md-2">
+            <label class="form-label">To</label>
+            <input class="form-control" type="date" name="date_to" value="{{ request.args.get('date_to', '') }}">
+        </div>
+        <div class="col-12 col-md-2">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="status">
+                <option value="">All</option>
+                {% for key, label in SurgeryService.STATUS_LABELS.items() %}
+                    <option value="{{ key }}" {% if request.args.get('status') == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-2">
+            <label class="form-label">Category</label>
+            <select class="form-select" name="category">
+                <option value="">All</option>
+                {% for key, label in SurgeryService.CATEGORY_LABELS.items() %}
+                    <option value="{{ key }}" {% if request.args.get('category') == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label">Patient</label>
+            <input class="form-control" name="patient" value="{{ request.args.get('patient', '') }}">
+        </div>
+        <div class="col-12 col-md-1">
+            <button class="btn btn-primary w-100">Go</button>
+        </div>
+    </form>
+</div>
+
+<div class="clinic-card">
+    <div class="d-flex justify-content-between mb-2">
+        <h1 class="h5">Surgeries</h1>
+        <a class="btn btn-sm btn-primary" href="{{ url_for('surgeries.new') }}">New Surgery</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Patient</th>
+                    <th>Procedure</th>
+                    <th>Status</th>
+                    <th>Location</th>
+                    <th>Finance</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for surgery in surgeries %}
+                    <tr>
+                        <td>{{ surgery.scheduled_at.strftime("%Y-%m-%d %H:%M") }}</td>
+                        <td>{{ surgery.patient.name_ar or surgery.patient.name_en }}</td>
+                        <td>
+                            <span class="badge text-bg-danger">Surgery</span>
+                            {{ surgery.procedure_name }}
+                            <div class="small text-muted">{{ SurgeryService.get_category_label(surgery.procedure_category) }}</div>
+                        </td>
+                        <td>{{ SurgeryService.get_status_label(surgery.status) }}</td>
+                        <td>{{ surgery.location or "—" }}</td>
+                        <td>{{ surgery.paid_amount or 0 }} / {{ surgery.fee_amount or 0 }}</td>
+                        <td><a class="btn btn-sm btn-outline-primary" href="{{ url_for('surgeries.detail', surgery_uuid=surgery.uuid) }}">Open</a></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="text-muted">No surgeries found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

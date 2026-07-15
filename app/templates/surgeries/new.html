@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit Surgery" if surgery is defined else "New Surgery" }} — Nada Clinic System{% endblock %}
+{% block page_title %}{{ "Edit Surgery" if surgery is defined else "Schedule Surgery" }}{% endblock %}
+{% block page_subtitle %}Surgery starts only when it is scheduled{% endblock %}
+
+{% block content %}
+<div class="clinic-card">
+    {% if patient %}
+        <div class="alert alert-light border">
+            Patient: <strong>{{ patient.name_ar or patient.name_en }}</strong>
+            {% if visit is defined and visit %}
+                · Source Visit: <a href="{{ url_for('visits.detail', visit_uuid=visit.uuid) }}">Open Visit</a>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {{ form.hidden_tag() }}
+
+        {% if not patient %}
+            <div class="mb-3">
+                <label class="form-label" for="{{ form.patient_id.id }}">{{ form.patient_id.label.text }}</label>
+                {{ form.patient_id(class="form-select") }}
+            </div>
+        {% else %}
+            {{ form.patient_id(type="hidden") }}
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <label class="form-label" for="{{ form.procedure_name.id }}">{{ form.procedure_name.label.text }}</label>
+                {{ form.procedure_name(class="form-control") }}
+            </div>
+            <div class="col-12 col-lg-3">
+                <label class="form-label" for="{{ form.procedure_category.id }}">{{ form.procedure_category.label.text }}</label>
+                {{ form.procedure_category(class="form-select") }}
+            </div>
+            <div class="col-12 col-lg-3">
+                <label class="form-label" for="{{ form.priority.id }}">{{ form.priority.label.text }}</label>
+                {{ form.priority(class="form-select") }}
+            </div>
+            <div class="col-12 col-lg-3">
+                <label class="form-label" for="{{ form.scheduled_date.id }}">{{ form.scheduled_date.label.text }}</label>
+                {{ form.scheduled_date(class="form-control") }}
+            </div>
+            <div class="col-12 col-lg-3">
+                <label class="form-label" for="{{ form.scheduled_time.id }}">{{ form.scheduled_time.label.text }}</label>
+                {{ form.scheduled_time(class="form-control") }}
+            </div>
+            <div class="col-12 col-lg-6">
+                <label class="form-label" for="{{ form.location.id }}">{{ form.location.label.text }}</label>
+                {{ form.location(class="form-control") }}
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="{{ form.pre_op_note.id }}">{{ form.pre_op_note.label.text }}</label>
+                {{ form.pre_op_note(class="form-control", rows="3") }}
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="{{ form.surgery_note.id }}">{{ form.surgery_note.label.text }}</label>
+                {{ form.surgery_note(class="form-control", rows="3") }}
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="{{ form.fee_amount.id }}">{{ form.fee_amount.label.text }}</label>
+                {{ form.fee_amount(class="form-control") }}
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="{{ form.paid_amount.id }}">{{ form.paid_amount.label.text }}</label>
+                {{ form.paid_amount(class="form-control") }}
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label" for="{{ form.payment_status.id }}">{{ form.payment_status.label.text }}</label>
+                {{ form.payment_status(class="form-select") }}
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+            {{ form.submit(class="btn btn-primary") }}
+            <a class="btn btn-outline-secondary" href="{{ url_for('surgeries.index') }}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

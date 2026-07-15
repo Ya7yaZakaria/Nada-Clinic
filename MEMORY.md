@@ -401,3 +401,28 @@ Deferred Features:
 
 Next Action:
 - Start Stage 9 Surgery planning.
+
+## Stage 9 Surgery Module Implemented
+
+Current Stage:
+- Stage 9 Surgery implemented as operational module.
+
+Completed Work:
+- Added SurgeryCase model.
+- Added SurgeryService and SurgeryAnalyticsService.
+- Added surgery dashboard, list, calendar, detail, create/edit/complete/cancel/postpone workflows.
+- Surgery starts from scheduled; no planned status.
+- Visit plan may mention surgery without creating SurgeryCase.
+- Surgery appears in Patient Timeline with Surgery badge.
+- Surgery appears in Patient Surgical History / Surgery Records.
+- Added light finance fields for future analytics.
+
+Deferred Features:
+- Surgery documents and consent.
+- PatientDocument.surgery_case_id.
+- Operation report printing.
+- Full Finance module.
+- AI/OCR.
+
+Next Action:
+- Run migration/tests and review Stage 9 outputs.
