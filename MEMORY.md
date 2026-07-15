@@ -595,3 +595,29 @@ Database Impact:
 
 Next Action:
 - Run Sprint 12.1 focused tests and full regression.
+
+## Sprint 12.2 Appearance Night Mode RTL Implemented
+
+Current Stage:
+- Stage 12 Settings & Personalization.
+
+Completed Work:
+- Added global UI preferences context processor.
+- Applied appearance.theme to base layout.
+- Added light/dark/auto theme foundation.
+- Applied localization.language to html lang.
+- Added Arabic RTL direction foundation.
+- Added accent, font size, sidebar density, card density, and table density data attributes.
+- Added CSS for dark mode, accent colors, density, and RTL foundation.
+- Added Stage 12.2 tests and documentation.
+
+Database Impact:
+- No schema migration required.
+
+Deferred:
+- Full Arabic translation.
+- Per-user preferences.
+- Print-specific dark/RTL review.
+
+Next Action:
+- Run Sprint 12.2 focused tests and full regression.

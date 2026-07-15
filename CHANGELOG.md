@@ -1234,3 +1234,19 @@ No diagnosis-linked preset behavior added.
 - No new database table.
 - No migration required.
 - Legacy `/admin/settings` behavior preserved.
+
+## 2026-07-15 — Sprint 12.2 Appearance, Night Mode, RTL Foundation
+
+### Added
+- Global UI preferences context processor.
+- Dynamic `html` language, direction, theme, accent, font, and density attributes.
+- Dark mode CSS variable foundation.
+- Auto theme foundation using system color preference.
+- Accent color CSS variables.
+- Basic RTL layout foundation.
+- Appearance personalization tests.
+
+### Unchanged
+- No database schema migration.
+- No full Arabic translation yet.
+- No per-user preferences yet.

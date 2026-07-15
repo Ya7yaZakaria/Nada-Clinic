@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --clinic-bg: #f6f9fa;
     --clinic-surface: #ffffff;
     --clinic-ink: #17252a;
@@ -243,4 +243,126 @@ body {
 
 .patient-workspace-header .badge {
     font-weight: 600;
+}
+
+/* Stage 12.2 — Appearance, Night Mode, RTL Foundation */
+
+html[data-bs-theme="dark"] {
+    --clinic-bg: #0f172a;
+    --clinic-surface: #111827;
+    --clinic-ink: #e5e7eb;
+    --clinic-muted: #9ca3af;
+    --clinic-border: rgba(229, 231, 235, 0.14);
+    --clinic-primary-soft: rgba(45, 212, 191, 0.14);
+    --clinic-sidebar: #020617;
+}
+
+@media (prefers-color-scheme: dark) {
+    html[data-theme="auto"] {
+        --clinic-bg: #0f172a;
+        --clinic-surface: #111827;
+        --clinic-ink: #e5e7eb;
+        --clinic-muted: #9ca3af;
+        --clinic-border: rgba(229, 231, 235, 0.14);
+        --clinic-primary-soft: rgba(45, 212, 191, 0.14);
+        --clinic-sidebar: #020617;
+    }
+}
+
+html[data-accent="teal"] {
+    --clinic-primary: #0f766e;
+    --clinic-primary-soft: #e6f4f2;
+}
+
+html[data-accent="blue"] {
+    --clinic-primary: #2563eb;
+    --clinic-primary-soft: #eaf1ff;
+}
+
+html[data-accent="purple"] {
+    --clinic-primary: #7c3aed;
+    --clinic-primary-soft: #f2ecff;
+}
+
+html[data-accent="rose"] {
+    --clinic-primary: #e11d48;
+    --clinic-primary-soft: #fff1f2;
+}
+
+html[data-accent="slate"] {
+    --clinic-primary: #475569;
+    --clinic-primary-soft: #f1f5f9;
+}
+
+html[data-bs-theme="dark"] .clinic-topbar,
+html[data-theme="auto"] .clinic-topbar {
+    background: rgba(17, 24, 39, 0.92);
+}
+
+html[data-bs-theme="dark"] .hero-card,
+html[data-theme="auto"] .hero-card {
+    background: linear-gradient(135deg, #111827 0%, #0f172a 100%);
+}
+
+html[data-bs-theme="dark"] .placeholder-box,
+html[data-theme="auto"] .placeholder-box {
+    background: rgba(15, 23, 42, 0.55);
+}
+
+html[data-font-size="small"] body {
+    font-size: 0.94rem;
+}
+
+html[data-font-size="large"] body {
+    font-size: 1.06rem;
+}
+
+html[data-sidebar-density="compact"] .clinic-sidebar,
+html[data-sidebar-density="compact"] .mobile-sidebar {
+    padding: 0.75rem;
+}
+
+html[data-sidebar-density="compact"] .sidebar-link {
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.75rem;
+}
+
+html[data-sidebar-density="compact"] .sidebar-nav {
+    gap: 0.2rem;
+}
+
+html[data-card-density="compact"] .clinic-card {
+    padding: 0.9rem;
+    border-radius: 1rem;
+}
+
+html[data-table-density="compact"] .table > :not(caption) > * > * {
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+}
+
+html[dir="rtl"] body {
+    text-align: right;
+}
+
+html[dir="rtl"] .clinic-shell {
+    direction: rtl;
+}
+
+html[dir="rtl"] .clinic-sidebar {
+    right: 0;
+    left: auto;
+}
+
+html[dir="rtl"] .mobile-sidebar {
+    inset: 0 0 0 auto;
+}
+
+html[dir="rtl"] .topbar-actions {
+    justify-content: flex-start;
+}
+
+html[dir="rtl"] .status-dot {
+    margin-right: 0;
+    margin-left: 0.35rem;
 }

@@ -22,8 +22,47 @@ def create_app(config_name=None):
     register_blueprints(app)
     register_error_handlers(app)
     register_commands(app)
+    register_context_processors(app)
 
     return app
+
+
+def register_context_processors(app):
+    """Register template context helpers for global UI preferences."""
+
+    @app.context_processor
+    def inject_ui_preferences():
+        defaults = {
+            "theme": "light",
+            "bootstrap_theme": "light",
+            "language": "en",
+            "direction": "ltr",
+            "accent_color": "teal",
+            "font_size": "normal",
+            "sidebar_density": "comfortable",
+            "card_density": "comfortable",
+            "table_density": "comfortable",
+        }
+
+        try:
+            from app.services.settings_service import SettingsService
+
+            ui_preferences = SettingsService.get_ui_preferences()
+        except Exception:
+            ui_preferences = defaults
+
+        return {
+            "ui_preferences": ui_preferences,
+            "ui_theme": ui_preferences.get("theme", defaults["theme"]),
+            "ui_bootstrap_theme": ui_preferences.get("bootstrap_theme", defaults["bootstrap_theme"]),
+            "ui_language": ui_preferences.get("language", defaults["language"]),
+            "ui_direction": ui_preferences.get("direction", defaults["direction"]),
+            "ui_accent": ui_preferences.get("accent_color", defaults["accent_color"]),
+            "ui_font_size": ui_preferences.get("font_size", defaults["font_size"]),
+            "ui_sidebar_density": ui_preferences.get("sidebar_density", defaults["sidebar_density"]),
+            "ui_card_density": ui_preferences.get("card_density", defaults["card_density"]),
+            "ui_table_density": ui_preferences.get("table_density", defaults["table_density"]),
+        }
 
 
 def register_blueprints(app):

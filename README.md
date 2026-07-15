@@ -662,3 +662,13 @@ Sprint 12.1 adds:
 - Seed defaults action.
 - Appearance and localization choice settings.
 - No schema migration expected.
+
+## Sprint 12.2 — Appearance, Night Mode, RTL Foundation
+
+Sprint 12.2 applies global settings to the UI shell:
+- Light/dark/auto theme attributes.
+- Arabic/English language attributes.
+- RTL/LTR direction.
+- Accent color data attributes.
+- Font and density data attributes.
+- CSS foundation for dark mode, accent colors, density, and RTL.

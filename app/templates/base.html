@@ -1,5 +1,15 @@
 <!doctype html>
-<html lang="en" data-bs-theme="light">
+<html
+    lang="{{ ui_language|default('en') }}"
+    dir="{{ ui_direction|default('ltr') }}"
+    data-bs-theme="{{ ui_bootstrap_theme|default('light') }}"
+    data-theme="{{ ui_theme|default('light') }}"
+    data-accent="{{ ui_accent|default('teal') }}"
+    data-font-size="{{ ui_font_size|default('normal') }}"
+    data-sidebar-density="{{ ui_sidebar_density|default('comfortable') }}"
+    data-card-density="{{ ui_card_density|default('comfortable') }}"
+    data-table-density="{{ ui_table_density|default('comfortable') }}"
+>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

@@ -447,6 +447,40 @@ class SettingsService:
         return cls.get_grouped_settings()
 
     @classmethod
+    def get_language_direction(cls, language=None):
+        language = language or cls.get("localization.language", "en")
+        return "rtl" if language == "ar" else "ltr"
+
+    @classmethod
+    def resolve_bootstrap_theme(cls, theme=None):
+        theme = theme or cls.get("appearance.theme", "light")
+        if theme == "dark":
+            return "dark"
+        return "light"
+
+    @classmethod
+    def get_ui_preferences(cls):
+        theme = cls.get("appearance.theme", "light")
+        language = cls.get("localization.language", "en")
+        accent = cls.get("appearance.accent_color", "teal")
+        font_size = cls.get("appearance.font_size", "normal")
+        sidebar_density = cls.get("appearance.sidebar_density", "comfortable")
+        card_density = cls.get("appearance.card_density", "comfortable")
+        table_density = cls.get("appearance.table_density", "comfortable")
+
+        return {
+            "theme": theme,
+            "bootstrap_theme": cls.resolve_bootstrap_theme(theme),
+            "language": language,
+            "direction": cls.get_language_direction(language),
+            "accent_color": accent,
+            "font_size": font_size,
+            "sidebar_density": sidebar_density,
+            "card_density": card_density,
+            "table_density": table_density,
+        }
+
+    @classmethod
     def get_stage_12_summary(cls):
         return {
             "theme": cls.get("appearance.theme", "light"),
