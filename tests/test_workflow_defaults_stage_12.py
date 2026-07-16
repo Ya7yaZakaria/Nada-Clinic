@@ -65,7 +65,9 @@ def test_existing_auth_tests_keep_dashboard_default():
         )
 
         assert response.status_code == 200
-        assert b"Welcome, Admin User" in response.data
+        assert b"Admin User" in response.data
+        assert b"Clinic Dashboard" in response.data
+        assert b'id="dashboard-live-clock"' in response.data
 
 
 def test_login_respects_today_clinic_default_landing():

@@ -90,8 +90,10 @@ def test_dashboard_has_no_development_text():
 
         assert response.status_code == 200
         assert b"Clinic overview" in response.data
-        assert b"Recent patients" in response.data
-        assert b"Recent visits" in response.data
+        assert b"Activity Trend" in response.data
+        assert b"Today Clinic" in response.data
+        assert b"Open visits" not in response.data
+        assert b"Open Visits" not in response.data
         assert b"Stage 1" not in response.data
         assert b"Sprint 1.1" not in response.data
         assert b"Coming later" not in response.data
@@ -150,9 +152,10 @@ def test_reception_dashboard_hides_clinical_links():
         assert response.status_code == 200
         assert b'href="/visits/"' not in response.data
         assert b'href="/surgeries/"' not in response.data
-        assert b"Recent visits" not in response.data
+        assert b"Active Journeys" not in response.data
         assert b"Open visits" not in response.data
-        assert b'href="/finance/"' in response.data
+        assert b"Revenue vs Expenses" not in response.data
+        assert b"Net Income" not in response.data
 
         db.drop_all()
 

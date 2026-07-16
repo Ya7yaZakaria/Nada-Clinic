@@ -819,3 +819,63 @@ Verification:
 Next Action:
 - Continue Personal Trial Sprint P2 with P2.3 Dashboard Header.
 - Do not start Stage 13.
+
+## 2026-07-17 - Personal Trial Sprint P2.3A Advanced Dashboard Completed
+
+Current Stage:
+- Project remains in real personal trial mode after Stage 12.
+- P2.3A was a dashboard usability and security correction.
+- Stage 13 has not started.
+
+Completed Work:
+- Replaced the basic dashboard with an advanced role-aware clinic dashboard.
+- Added reporting presets for Today, Last 7 Days, This Month, and Last Month.
+- Added custom date-range filtering with invalid-range fallback.
+- Added active patient, new patient, Visit, Appointment, and Finance KPIs according to user permissions.
+- Added clinic activity, active Journey, Appointment status, and Finance charts.
+- Added live greeting, date, time, and Today Clinic snapshot.
+- Removed Open Visits as a primary dashboard counter.
+- Added responsive dashboard styling and dashboard JavaScript.
+- Preserved dark mode, mobile layout, RTL foundation, and existing application shell behavior.
+
+Security and RBAC:
+- Dashboard aggregations receive explicit patient, clinical, Appointment, and Finance permission flags.
+- Unauthorized modules are not queried by DashboardService.
+- Restricted Visit data is not included in Reception dashboard chart JSON.
+- Finance summaries are not queried without finance.insights permission.
+- Chart datasets are created dynamically from authorized data only.
+
+Tests:
+- Added dedicated P2.3A dashboard tests.
+- Added Reception permission-isolation tests.
+- Updated obsolete login and dashboard greeting expectations.
+- Preserved Auth and application shell regression coverage.
+
+Verification:
+- Focused P2 dashboard tests: 6 passed.
+- Focused application shell tests: 8 passed.
+- Focused Auth tests: 9 passed.
+- Full regression: 464 passed in 199.43 seconds.
+- Migration current/head: 20260715_0069.
+- git diff --check completed without whitespace errors after documentation repair.
+- Local development server smoke test completed successfully.
+- Manual dashboard review accepted for now.
+
+Database Impact:
+- None.
+
+Migration Impact:
+- None.
+
+Deferred:
+- Test-suite duplicate cleanup.
+- Further dashboard UX improvements based on continued real trial.
+- Stage 13 Reports.
+- Notifications.
+- AI features.
+
+Next Action:
+- Complete final Git review.
+- Commit and push P2.3A manually.
+- Continue real personal trial.
+- Do not start Stage 13 yet.

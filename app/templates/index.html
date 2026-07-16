@@ -1,240 +1,706 @@
 {% extends "base.html" %}
 
-{% block title %}{{ clinic_name }} - Dashboard{% endblock %}
-{% block page_title %}Dashboard{% endblock %}
-{% block page_subtitle %}
-Today clinic overview and quick actions
+{% block title %}
+{{ clinic_name }} - Dashboard
 {% endblock %}
 
+{% block page_title %}
+Clinic Dashboard
+{% endblock %}
+
+{% block page_subtitle %}
+Complete clinical, operational, and financial overview
+{% endblock %}
+
+{% macro money(value) -%}
+EGP {{ "{:,.2f}".format(value or 0) }}
+{%- endmacro %}
+
 {% block content %}
-<section class="dashboard-welcome mb-4">
+<section
+    class="clinic-card dashboard-command-header mb-4"
+>
     <div>
-        <p class="section-kicker mb-1">Clinic overview</p>
+        <p class="section-kicker mb-1">
+            Clinic overview
+        </p>
+
         <h1 class="h3 mb-1">
-            Welcome, {{ current_user.name }}.
+            Good
+            <span id="dashboard-greeting">
+                day
+            </span>,
+            {{ current_user.name }}.
         </h1>
+
         <p class="text-muted mb-0">
-            {{ today_summary.date.strftime('%A, %d %B %Y') }}
+            <span id="dashboard-live-date">
+                {{
+                    today_clinic.date.strftime(
+                        '%A, %d %B %Y'
+                    )
+                    if today_clinic
+                    else period.date_to.strftime(
+                        '%A, %d %B %Y'
+                    )
+                }}
+            </span>
+
+            <span aria-hidden="true">
+                ·
+            </span>
+
+            <time id="dashboard-live-clock">
+                --:-- --
+            </time>
         </p>
     </div>
 
-    <div class="d-flex flex-wrap gap-2">
-        {% if current_user.has_permission('patients.basic.create') %}
+    <div class="dashboard-header-actions">
+        {% if current_user.has_permission(
+            'patients.basic.create'
+        ) %}
             <a
                 class="btn btn-primary"
                 href="{{ url_for('patients.new') }}"
             >
-                New patient
+                <i
+                    class="bi bi-person-plus me-1"
+                    aria-hidden="true"
+                ></i>
+                New Patient
             </a>
         {% endif %}
 
-        {% if current_user.has_permission('appointments.view') %}
+        {% if permissions.appointments %}
             <a
                 class="btn btn-outline-primary"
-                href="{{ url_for('appointments.calendar') }}"
+                href="{{
+                    url_for(
+                        'appointments.calendar'
+                    )
+                }}"
             >
-                Appointments
-            </a>
-
-            <a
-                class="btn btn-outline-secondary"
-                href="{{ url_for('today_clinic.index') }}"
-            >
-                Open Today Clinic
+                <i
+                    class="bi bi-calendar-plus me-1"
+                    aria-hidden="true"
+                ></i>
+                Book Appointment
             </a>
         {% endif %}
     </div>
 </section>
 
+<section
+    class="clinic-card dashboard-filter-card mb-4"
+>
+    <div
+        class="dashboard-filter-heading mb-3"
+    >
+        <div>
+            <p class="section-kicker mb-1">
+                Reporting period
+            </p>
+
+            <h2 class="h6 mb-0">
+                {{
+                    period.date_from.strftime(
+                        '%d %b %Y'
+                    )
+                }}
+                –
+                {{
+                    period.date_to.strftime(
+                        '%d %b %Y'
+                    )
+                }}
+            </h2>
+        </div>
+
+        <nav
+            class="dashboard-presets"
+            aria-label="Dashboard date presets"
+        >
+            {% for preset_value, preset_label in [
+                ('today', 'Today'),
+                ('last_7_days', 'Last 7 Days'),
+                ('this_month', 'This Month'),
+                ('last_month', 'Last Month')
+            ] %}
+                <a
+                    class="btn btn-sm {{
+                        'btn-primary'
+                        if period.preset
+                           == preset_value
+                        else
+                        'btn-outline-secondary'
+                    }}"
+                    href="{{
+                        url_for(
+                            'main.index',
+                            preset=preset_value
+                        )
+                    }}"
+                >
+                    {{ preset_label }}
+                </a>
+            {% endfor %}
+        </nav>
+    </div>
+
+    <form
+        method="get"
+        class="row g-2 align-items-end"
+    >
+        <div class="col-12 col-md-5">
+            <label
+                class="form-label"
+                for="dashboard-date-from"
+            >
+                From
+            </label>
+
+            <input
+                class="form-control"
+                id="dashboard-date-from"
+                name="date_from"
+                type="date"
+                value="{{
+                    period.date_from.isoformat()
+                }}"
+                required
+            >
+        </div>
+
+        <div class="col-12 col-md-5">
+            <label
+                class="form-label"
+                for="dashboard-date-to"
+            >
+                To
+            </label>
+
+            <input
+                class="form-control"
+                id="dashboard-date-to"
+                name="date_to"
+                type="date"
+                value="{{
+                    period.date_to.isoformat()
+                }}"
+                required
+            >
+        </div>
+
+        <div class="col-12 col-md-2 d-grid">
+            <button
+                class="btn btn-primary"
+                type="submit"
+            >
+                Apply
+            </button>
+        </div>
+    </form>
+</section>
+
+<section class="dashboard-kpi-grid mb-4">
+    {% if permissions.patients %}
+        <a
+            class="clinic-card dashboard-kpi"
+            href="{{ url_for('patients.index') }}"
+        >
+            <span class="dashboard-kpi-icon">
+                <i class="bi bi-people"></i>
+            </span>
+
+            <span class="dashboard-kpi-label">
+                Active Patients
+            </span>
+
+            <strong>
+                {{ clinic_kpis.active_patients }}
+            </strong>
+
+            <small>
+                Current active records
+            </small>
+        </a>
+
+        <a
+            class="clinic-card dashboard-kpi"
+            href="{{ url_for('patients.index') }}"
+        >
+            <span class="dashboard-kpi-icon">
+                <i class="bi bi-person-add"></i>
+            </span>
+
+            <span class="dashboard-kpi-label">
+                New Patients
+            </span>
+
+            <strong>
+                {{ clinic_kpis.new_patients }}
+            </strong>
+
+            <small>
+                Registered in selected period
+            </small>
+        </a>
+    {% endif %}
+
+    {% if permissions.clinical %}
+        <a
+            class="clinic-card dashboard-kpi"
+            href="{{ url_for('visits.index') }}"
+        >
+            <span class="dashboard-kpi-icon">
+                <i
+                    class="bi bi-clipboard2-pulse"
+                ></i>
+            </span>
+
+            <span class="dashboard-kpi-label">
+                Visits
+            </span>
+
+            <strong>
+                {{ clinic_kpis.visits }}
+            </strong>
+
+            <small>
+                Encounters in selected period
+            </small>
+        </a>
+    {% endif %}
+
+    {% if permissions.appointments %}
+        <a
+            class="clinic-card dashboard-kpi"
+            href="{{
+                url_for(
+                    'appointments.calendar'
+                )
+            }}"
+        >
+            <span class="dashboard-kpi-icon">
+                <i class="bi bi-calendar3"></i>
+            </span>
+
+            <span class="dashboard-kpi-label">
+                Appointments
+            </span>
+
+            <strong>
+                {{ clinic_kpis.appointments }}
+            </strong>
+
+            <small>
+                Appointments in selected period
+            </small>
+        </a>
+    {% endif %}
+</section>
+
+{% if finance_summary %}
+<section class="dashboard-kpi-grid mb-4">
+    <a
+        class="clinic-card dashboard-kpi dashboard-kpi-finance"
+        href="{{
+            url_for(
+                'finance.insights',
+                date_from=period.date_from.isoformat(),
+                date_to=period.date_to.isoformat()
+            )
+        }}"
+    >
+        <span class="dashboard-kpi-icon">
+            <i class="bi bi-wallet2"></i>
+        </span>
+
+        <span class="dashboard-kpi-label">
+            Revenue
+        </span>
+
+        <strong>
+            {{ money(finance_summary.revenue) }}
+        </strong>
+
+        <small>
+            Money collected in period
+        </small>
+    </a>
+
+    <a
+        class="clinic-card dashboard-kpi dashboard-kpi-finance"
+        href="{{
+            url_for(
+                'finance.insights',
+                date_from=period.date_from.isoformat(),
+                date_to=period.date_to.isoformat()
+            )
+        }}"
+    >
+        <span class="dashboard-kpi-icon">
+            <i class="bi bi-receipt"></i>
+        </span>
+
+        <span class="dashboard-kpi-label">
+            Expenses
+        </span>
+
+        <strong>
+            {{ money(finance_summary.expenses) }}
+        </strong>
+
+        <small>
+            Clinic spending in period
+        </small>
+    </a>
+
+    <a
+        class="clinic-card dashboard-kpi dashboard-kpi-finance"
+        href="{{
+            url_for(
+                'finance.insights',
+                date_from=period.date_from.isoformat(),
+                date_to=period.date_to.isoformat()
+            )
+        }}"
+    >
+        <span class="dashboard-kpi-icon">
+            <i
+                class="bi bi-graph-up-arrow"
+            ></i>
+        </span>
+
+        <span class="dashboard-kpi-label">
+            Net Income
+        </span>
+
+        <strong>
+            {{ money(finance_summary.net) }}
+        </strong>
+
+        <small>
+            Revenue minus expenses
+        </small>
+    </a>
+
+    <a
+        class="clinic-card dashboard-kpi dashboard-kpi-finance"
+        href="{{
+            url_for(
+                'finance.insights',
+                date_from=period.date_from.isoformat(),
+                date_to=period.date_to.isoformat()
+            )
+        }}"
+    >
+        <span class="dashboard-kpi-icon">
+            <i
+                class="bi bi-exclamation-circle"
+            ></i>
+        </span>
+
+        <span class="dashboard-kpi-label">
+            Outstanding Balance
+        </span>
+
+        <strong>
+            {{
+                money(
+                    finance_summary.outstanding
+                )
+            }}
+        </strong>
+
+        <small>
+            Unpaid and partial charges
+        </small>
+    </a>
+</section>
+{% endif %}
+
 <section class="row g-3 mb-4">
-    {% if current_user.has_permission('appointments.view') %}
-        <div class="col-6 col-xl-3">
-            <a
-                class="clinic-card dashboard-stat-card text-decoration-none"
-                href="{{ url_for('today_clinic.index') }}"
-            >
-                <span class="dashboard-stat-label">
-                    Appointments
-                </span>
-                <strong>{{ today_summary.appointments }}</strong>
-                <small>Scheduled today</small>
-            </a>
-        </div>
+    <div
+        class="col-12 {{
+            'col-xl-8'
+            if journey_mix
+            else ''
+        }}"
+    >
+        <article
+            class="clinic-card dashboard-chart-card h-100"
+        >
+            <div class="dashboard-card-heading">
+                <div>
+                    <p class="section-kicker mb-1">
+                        Clinic activity
+                    </p>
 
-        <div class="col-6 col-xl-3">
-            <a
-                class="clinic-card dashboard-stat-card text-decoration-none"
-                href="{{ url_for('today_clinic.index') }}"
-            >
-                <span class="dashboard-stat-label">
-                    Waiting
-                </span>
-                <strong>{{ today_summary.waiting }}</strong>
-                <small>Arrived patients</small>
-            </a>
-        </div>
-    {% endif %}
+                    <h2 class="h5 mb-0">
+                        Activity Trend
+                    </h2>
+                </div>
 
-    {% if can_view_clinical %}
-        <div class="col-6 col-xl-3">
-            <a
-                class="clinic-card dashboard-stat-card text-decoration-none"
-                href="{{ url_for('visits.index', status='open') }}"
-            >
-                <span class="dashboard-stat-label">
-                    Open visits
+                <span class="text-muted small">
+                    {{
+                        period.date_from.strftime(
+                            '%d %b'
+                        )
+                    }}
+                    –
+                    {{
+                        period.date_to.strftime(
+                            '%d %b'
+                        )
+                    }}
                 </span>
-                <strong>{{ today_summary.open_visits }}</strong>
-                <small>Clinical work in progress</small>
-            </a>
-        </div>
-    {% endif %}
+            </div>
 
-    {% if current_user.has_permission('appointments.view') %}
-        <div class="col-6 col-xl-3">
-            <a
-                class="clinic-card dashboard-stat-card text-decoration-none"
-                href="{{ url_for('today_clinic.index') }}"
+            <div
+                class="dashboard-chart-container dashboard-chart-large"
             >
-                <span class="dashboard-stat-label">
-                    Completed
-                </span>
-                <strong>{{ today_summary.completed }}</strong>
-                <small>Finished today</small>
-            </a>
+                <canvas
+                    id="dashboard-activity-chart"
+                ></canvas>
+            </div>
+        </article>
+    </div>
+
+    {% if journey_mix %}
+        <div class="col-12 col-xl-4">
+            <article
+                class="clinic-card dashboard-chart-card h-100"
+            >
+                <div class="dashboard-card-heading">
+                    <div>
+                        <p class="section-kicker mb-1">
+                            Clinical mix
+                        </p>
+
+                        <h2 class="h5 mb-0">
+                            Active Journeys
+                        </h2>
+                    </div>
+                </div>
+
+                <div
+                    class="dashboard-chart-container dashboard-chart-donut"
+                >
+                    <canvas
+                        id="dashboard-journey-chart"
+                    ></canvas>
+                </div>
+
+                <div class="dashboard-inline-summary">
+                    <span>
+                        <strong>
+                            {{
+                                journey_mix.active_total
+                            }}
+                        </strong>
+                        active
+                    </span>
+
+                    <span>
+                        <strong>
+                            {{
+                                journey_mix.new_in_period
+                            }}
+                        </strong>
+                        new
+                    </span>
+                </div>
+            </article>
         </div>
     {% endif %}
 </section>
 
+<section class="row g-3 mb-4">
+    {% if finance_summary %}
+        <div class="col-12 col-xl-7">
+            <article
+                class="clinic-card dashboard-chart-card h-100"
+            >
+                <div class="dashboard-card-heading">
+                    <div>
+                        <p class="section-kicker mb-1">
+                            Finance
+                        </p>
+
+                        <h2 class="h5 mb-0">
+                            Revenue vs Expenses
+                        </h2>
+                    </div>
+
+                    <a
+                        class="btn btn-sm btn-outline-secondary"
+                        href="{{
+                            url_for(
+                                'finance.insights',
+                                date_from=period.date_from.isoformat(),
+                                date_to=period.date_to.isoformat()
+                            )
+                        }}"
+                    >
+                        View Insights
+                    </a>
+                </div>
+
+                <div
+                    class="dashboard-chart-container"
+                >
+                    <canvas
+                        id="dashboard-finance-chart"
+                    ></canvas>
+                </div>
+            </article>
+        </div>
+    {% endif %}
+
+    {% if appointment_summary %}
+        <div
+            class="col-12 {{
+                'col-xl-5'
+                if finance_summary
+                else 'col-xl-6'
+            }}"
+        >
+            <article
+                class="clinic-card dashboard-chart-card h-100"
+            >
+                <div class="dashboard-card-heading">
+                    <div>
+                        <p class="section-kicker mb-1">
+                            Appointments
+                        </p>
+
+                        <h2 class="h5 mb-0">
+                            Status Overview
+                        </h2>
+                    </div>
+
+                    <span class="text-muted small">
+                        {{
+                            appointment_summary.total
+                        }}
+                        total
+                    </span>
+                </div>
+
+                <div
+                    class="dashboard-chart-container dashboard-chart-donut"
+                >
+                    <canvas
+                        id="dashboard-appointment-chart"
+                    ></canvas>
+                </div>
+            </article>
+        </div>
+    {% endif %}
+</section>
+
+{% if today_clinic %}
 <section class="row g-3">
-    {% if current_user.has_permission('patients.basic.view') %}
-        <div class="col-12 col-xl-6">
-            <div class="clinic-card h-100">
-                <div
-                    class="d-flex justify-content-between mb-3"
-                >
-                    <div>
-                        <p class="section-kicker mb-1">
-                            Patients
-                        </p>
-                        <h2 class="h5 mb-0">
-                            Recent patients
-                        </h2>
-                    </div>
+    <div class="col-12">
+        <article class="clinic-card">
+            <div class="dashboard-card-heading">
+                <div>
+                    <p class="section-kicker mb-1">
+                        Live Today
+                    </p>
 
-                    <a
-                        class="btn btn-sm btn-outline-secondary"
-                        href="{{ url_for('patients.index') }}"
-                    >
-                        View all
-                    </a>
+                    <h2 class="h5 mb-0">
+                        Today Clinic
+                    </h2>
                 </div>
 
-                {% if recent_patients %}
-                    <div class="dashboard-list">
-                        {% for patient in recent_patients %}
-                            <a
-                                class="dashboard-list-item"
-                                href="{{ url_for(
-                                    'patients.detail',
-                                    patient_uuid=patient.uuid
-                                ) }}"
-                            >
-                                <div>
-                                    <strong>
-                                        {{
-                                            patient.name_en
-                                            or patient.name_ar
-                                        }}
-                                    </strong>
-                                    <div class="small text-muted">
-                                        MRN {{ patient.formatted_mrn }}
-                                        /
-                                        {{ patient.phone_primary }}
-                                    </div>
-                                </div>
-                                <span aria-hidden="true">></span>
-                            </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="dashboard-empty-state">
-                        <strong>No patients yet.</strong>
-                        <span>
-                            Create the first patient record to begin.
-                        </span>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
-    {% endif %}
+                <span class="dashboard-live-label">
+                    <span
+                        class="dashboard-live-dot"
+                        aria-hidden="true"
+                    ></span>
 
-    {% if can_view_clinical %}
-        <div class="col-12 col-xl-6">
-            <div class="clinic-card h-100">
-                <div
-                    class="d-flex justify-content-between mb-3"
-                >
-                    <div>
-                        <p class="section-kicker mb-1">
-                            Clinical work
-                        </p>
-                        <h2 class="h5 mb-0">
-                            Recent visits
-                        </h2>
-                    </div>
+                    Live at
 
-                    <a
-                        class="btn btn-sm btn-outline-secondary"
-                        href="{{ url_for('visits.index') }}"
+                    <span
+                        id="today-clinic-live-time"
                     >
-                        View all
-                    </a>
+                        --:-- --
+                    </span>
+                </span>
+            </div>
+
+            <div class="dashboard-today-grid">
+                <div>
+                    <strong>
+                        {{
+                            today_clinic.appointments
+                        }}
+                    </strong>
+                    <span>Appointments</span>
                 </div>
 
-                {% if recent_visits %}
-                    <div class="dashboard-list">
-                        {% for visit in recent_visits %}
-                            <a
-                                class="dashboard-list-item"
-                                href="{{ url_for(
-                                    'visits.detail',
-                                    visit_uuid=visit.uuid
-                                ) }}"
-                            >
-                                <div>
-                                    <strong>
-                                        {{
-                                            visit.patient.name_en
-                                            or visit.patient.name_ar
-                                        }}
-                                    </strong>
-                                    <div class="small text-muted">
-                                        {{
-                                            visit.visit_date.strftime(
-                                                '%d %b %Y, %H:%M'
-                                            )
-                                        }}
-                                        /
-                                        {{ visit.visit_type|upper }}
-                                        /
-                                        {{ visit.status|capitalize }}
-                                    </div>
-                                </div>
-                                <span aria-hidden="true">></span>
-                            </a>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="dashboard-empty-state">
-                        <strong>No visits yet.</strong>
-                        <span>
-                            Start from a Patient Workspace or Today Clinic.
-                        </span>
-                    </div>
-                {% endif %}
+                <div>
+                    <strong>
+                        {{ today_clinic.waiting }}
+                    </strong>
+                    <span>Waiting</span>
+                </div>
+
+                <div>
+                    <strong>
+                        {{ today_clinic.completed }}
+                    </strong>
+                    <span>Completed</span>
+                </div>
+
+                <div>
+                    <strong>
+                        {{ today_clinic.no_show }}
+                    </strong>
+                    <span>No-show</span>
+                </div>
+
+                <div>
+                    <strong>
+                        {{ today_clinic.emergency }}
+                    </strong>
+                    <span>Emergency</span>
+                </div>
             </div>
-        </div>
-    {% endif %}
+
+            <a
+                class="btn btn-primary"
+                href="{{
+                    url_for(
+                        'today_clinic.index'
+                    )
+                }}"
+            >
+                Open Today Clinic
+            </a>
+        </article>
+    </div>
 </section>
+{% endif %}
+
+<script
+    id="dashboard-chart-data"
+    type="application/json"
+>{{ dashboard_chart_data|tojson }}</script>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"
+></script>
+
+<script
+    src="{{
+        url_for(
+            'static',
+            filename='js/dashboard.js'
+        )
+    }}"
+></script>
 {% endblock %}

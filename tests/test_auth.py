@@ -100,7 +100,9 @@ def test_valid_email_login_succeeds():
             )
 
         assert response.status_code == 200
-        assert b"Welcome, Test Doctor" in response.data
+        assert b"Test Doctor" in response.data
+        assert b"Clinic Dashboard" in response.data
+        assert b'id="dashboard-live-clock"' in response.data
 
         db.drop_all()
 
@@ -123,7 +125,9 @@ def test_valid_phone_login_succeeds():
             )
 
         assert response.status_code == 200
-        assert b"Welcome, Test Doctor" in response.data
+        assert b"Test Doctor" in response.data
+        assert b"Clinic Dashboard" in response.data
+        assert b'id="dashboard-live-clock"' in response.data
 
         db.drop_all()
 

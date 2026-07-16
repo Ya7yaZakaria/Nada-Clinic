@@ -1376,3 +1376,41 @@ No diagnosis-linked preset behavior added.
 - Full regression: 458 passed.
 - Migration current/head: 20260715_0069.
 - No database or migration changes.
+
+## 2026-07-17 - Personal Trial Sprint P2.3A Advanced Dashboard
+
+### Added
+- Advanced role-aware clinic dashboard.
+- DashboardService date-range and aggregation helpers.
+- Today, Last 7 Days, This Month, and Last Month presets.
+- Custom dashboard date-range filtering.
+- Patient, Visit, Appointment, Journey, Today Clinic, and Finance dashboard summaries.
+- Clinic activity chart.
+- Active Journey chart.
+- Appointment status chart.
+- Revenue versus expenses chart.
+- Live dashboard greeting, date, and clock.
+- Responsive dashboard styles.
+- Dedicated dashboard JavaScript.
+- Dedicated P2.3A dashboard and permission-isolation tests.
+
+### Changed
+- Replaced the previous basic dashboard layout.
+- Removed Open Visits as a primary dashboard KPI.
+- Updated Auth and workflow default tests for the new dashboard greeting.
+- Dashboard chart datasets are created dynamically according to authorized data.
+
+### Security
+- Dashboard patient, Visit, Appointment, and Finance queries are permission-aware.
+- Unauthorized module queries are skipped.
+- Reception does not receive restricted Visit activity data in dashboard JSON.
+- Finance aggregation is not executed without finance.insights permission.
+
+### Verification
+- Focused P2 dashboard tests: 6 passed.
+- Focused application shell tests: 8 passed.
+- Focused Auth tests: 9 passed.
+- Full regression: 464 passed in 199.43 seconds.
+- Migration current/head: 20260715_0069.
+- No database or migration changes.
+- Local manual smoke review accepted.
