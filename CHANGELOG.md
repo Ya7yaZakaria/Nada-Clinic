@@ -1324,3 +1324,27 @@ No diagnosis-linked preset behavior added.
 - Latest freeze commit before handoff: cb73a9a.
 - Migration current/head: 20260715_0069.
 - Full regression at Stage 12 freeze: 450 passed.
+
+## 2026-07-16 - Personal Trial Sprint P1 - Application Shell Baseline
+
+### Added
+- Operational clinic dashboard backed by DashboardService.
+- Searchable and status-filtered Visits index.
+- Permission-aware desktop and mobile navigation.
+- Collapsible desktop sidebar.
+- Regression tests for dashboard, Visits, Reception access, and print isolation.
+
+### Changed
+- Removed obsolete development-stage wording from the shell.
+- Protected clinical dashboard content from Reception users.
+- Preserved print previews without authenticated doctor identity.
+
+### Verification
+- Full regression: 455 passed.
+- Migration current/head: 20260715_0069.
+- No database or migration changes.
+- Implementation commit: ce5b454.
+
+### Trial Follow-up
+- Redesign the collapsed sidebar as a hover-expand overlay with optional pin.
+- Replace basic counters with an advanced role-aware clinic dashboard.

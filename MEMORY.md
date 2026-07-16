@@ -747,3 +747,41 @@ Do Not Start Yet:
 - Full Arabic translation.
 - Per-user preferences.
 - Deployment.
+
+## 2026-07-16 - Personal Trial Sprint P1 - Application Shell Baseline
+
+Current Stage:
+- Project remains paused after Stage 12 for real personal trial.
+- P1 was a trial-mode usability correction, not a new product stage.
+
+Completed Work:
+- Added an operational application shell and dashboard.
+- Added permission-aware desktop and mobile navigation.
+- Added a collapsible desktop sidebar.
+- Added DashboardService.
+- Added a searchable and filterable Visits index.
+- Preserved Reception restrictions from clinical Visit access.
+- Preserved prescription print-preview identity isolation.
+
+Verification:
+- Full regression: 455 passed.
+- Migration current/head: 20260715_0069.
+- Implementation commit: ce5b454 feat(ui): polish application shell and dashboard.
+- Commit pushed to origin/main.
+- Working tree confirmed clean after push.
+
+Database Impact:
+- None.
+
+Migration Impact:
+- None.
+
+Trial Findings:
+- The current collapsed sidebar is visually uncomfortable.
+- Preferred next iteration: desktop hover-expand overlay with optional pin.
+- Open Visits is not a useful primary dashboard counter.
+- The dashboard needs a more advanced role-aware daily workflow design.
+
+Next Action:
+- Plan a small trial-mode UX sprint for the sidebar and advanced dashboard.
+- Do not start Stage 13.

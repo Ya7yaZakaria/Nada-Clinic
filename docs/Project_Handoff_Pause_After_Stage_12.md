@@ -322,3 +322,47 @@ cb73a9a docs(settings): freeze stage 12 settings personalization
 aefd153 feat(settings): add sprint 12.2 appearance and rtl preferences
 83b6e3f feat(settings): add settings ui foundation
 ```
+
+## 2026-07-16 Trial Update - Personal Trial Sprint P1 - Application Shell Baseline
+
+### Verified Baseline
+- Implementation commit: `ce5b454 feat(ui): polish application shell and dashboard`
+- Branch: `main`
+- Remote: `origin/main`
+- Full regression: `455 passed`
+- Migration current/head: `20260715_0069`
+- Database changes: none
+- Migration changes: none
+- Working tree after push: clean
+
+### Trial Improvements Completed
+- Operational application shell.
+- Permission-aware desktop and mobile navigation.
+- Collapsible sidebar.
+- Dashboard summary with recent patients and visits.
+- Searchable and filterable Visits index.
+- Reception remains blocked from clinical Visit routes and links.
+- Print previews remain isolated from authenticated doctor identity.
+
+### New Trial Findings
+
+Area: Application shell / Sidebar  
+Screen/Route: Global desktop shell  
+What happened: The collapsed rail is visually narrow and uncomfortable.  
+What is expected: Sidebar expands when the pointer reaches it and collapses after the pointer leaves.  
+Severity: Medium  
+Type: UX  
+Suggested fix: Desktop hover-expand overlay with optional pin and mobile drawer fallback.
+
+Area: Dashboard  
+Screen/Route: `/`  
+What happened: The dashboard is too basic for daily clinical use.  
+What is expected: A role-aware command center with useful workflow and attention items.  
+Severity: Medium  
+Type: UX / Workflow  
+Suggested fix: Replace Open Visits with Appointments Today, Waiting Now, In Progress, and Completed Today, then add attention and queue sections.
+
+### Next Planning Direction
+- Continue in personal trial mode.
+- Plan a small UX sprint for sidebar behavior and advanced dashboard design.
+- Do not start Stage 13.
