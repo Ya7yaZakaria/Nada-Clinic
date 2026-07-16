@@ -1,4 +1,4 @@
-﻿from app import create_app
+from app import create_app
 from app.extensions import db
 from app.models import User
 from app.services.auth_service import AuthService
@@ -34,6 +34,13 @@ def test_login_page_renders():
 
         assert response.status_code == 200
         assert b"Email or phone" in response.data
+        assert b"Welcome back" in response.data
+        assert b'class="auth-page"' in response.data
+        assert b"Stage 1" not in response.data
+        assert b"Sprint 1.1" not in response.data
+        assert b"Login to Clinic OS" not in response.data
+        assert b'class="clinic-sidebar' not in response.data
+        assert b'class="clinic-topbar' not in response.data
 
         db.drop_all()
 
@@ -140,7 +147,8 @@ def test_logout_works():
             response = client.post("/auth/logout", follow_redirects=True)
 
         assert response.status_code == 200
-        assert b"Login to Clinic OS" in response.data
+        assert b"Welcome back" in response.data
+        assert b"Sign in to access the clinic workspace" in response.data
 
         db.drop_all()
 

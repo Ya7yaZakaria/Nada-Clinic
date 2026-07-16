@@ -1348,3 +1348,31 @@ No diagnosis-linked preset behavior added.
 ### Trial Follow-up
 - Redesign the collapsed sidebar as a hover-expand overlay with optional pin.
 - Replace basic counters with an advanced role-aware clinic dashboard.
+
+## 2026-07-16 - Personal Trial Sprint P2.1-P2.2
+
+### Added
+- Compact desktop navigation rail.
+- Hover-expand sidebar overlay.
+- Sidebar pin/unpin persistence.
+- Bootstrap Icons navigation.
+- Desktop navigation tooltips and active-state styling.
+- Dedicated anonymous Login layout.
+- Login shell regression tests.
+
+### Changed
+- Improved desktop and mobile sidebar presentation.
+- Login no longer renders the application sidebar or topbar.
+- Removed internal Stage and Sprint wording from Login.
+- Updated Auth and application shell tests.
+
+### Removed
+- Obsolete `sidebar-collapsed` behavior.
+- Obsolete `sidebar-collapse-button` styles.
+- Obsolete `clinicSidebarCollapsed` storage contract.
+- Redundant anonymous shell-hiding CSS.
+
+### Verification
+- Full regression: 458 passed.
+- Migration current/head: 20260715_0069.
+- No database or migration changes.

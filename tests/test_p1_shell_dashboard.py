@@ -1,3 +1,4 @@
+from pathlib import Path
 from app import create_app
 from app.extensions import db
 from app.models import Patient, User, Visit
@@ -53,7 +54,7 @@ def create_patient():
     return patient
 
 
-def test_anonymous_login_page_renders():
+def test_anonymous_login_page_has_dedicated_auth_layout():
     app = make_app()
 
     with app.app_context():
@@ -62,7 +63,15 @@ def test_anonymous_login_page_renders():
         response = app.test_client().get("/auth/login")
 
         assert response.status_code == 200
-        assert b"Login to Clinic OS" in response.data
+        assert b"Welcome back" in response.data
+        assert b"Authorized clinic staff only" in response.data
+        assert b'class="auth-page"' in response.data
+        assert b"Stage 1" not in response.data
+        assert b"Sprint 1.1" not in response.data
+        assert b"Login to Clinic OS" not in response.data
+        assert b'class="clinic-sidebar' not in response.data
+        assert b'class="clinic-topbar' not in response.data
+        assert b"mobile-sidebar" not in response.data
 
         db.drop_all()
 
@@ -171,3 +180,71 @@ def test_reception_cannot_open_visits_index():
         assert response.status_code == 403
 
         db.drop_all()
+
+
+def test_sidebar_p2_hover_pin_and_bootstrap_icons():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        create_user()
+
+        client = app.test_client()
+        login(client)
+
+        response = client.get("/")
+
+        assert response.status_code == 200
+        assert b"clinicShell()" in response.data
+        assert b"sidebar-preview-expanded" in response.data
+        assert b"sidebar-pinned" in response.data
+        assert b"toggleSidebarPin()" in response.data
+        assert b"bootstrap-icons@1.11.3" in response.data
+        assert b"bi-grid" in response.data
+        assert b"bi-activity" in response.data
+        assert b"bi-calendar3" in response.data
+        assert b"bi-people" in response.data
+        assert b"bi-clipboard2-pulse" in response.data
+        assert b'data-tooltip="Dashboard"' in response.data
+        assert b"sidebar-collapsed" not in response.data
+
+        db.drop_all()
+
+
+def test_sidebar_p2_mobile_drawer_keeps_icons():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        create_user()
+
+        client = app.test_client()
+        login(client)
+
+        response = client.get("/")
+
+        assert response.status_code == 200
+        assert b"mobile-sidebar" in response.data
+        assert b"mobile-sidebar-backdrop" in response.data
+        assert b'aria-label="Open navigation"' in response.data
+        assert b'aria-label="Close navigation"' in response.data
+        assert b'@click="sidebarOpen = false"' in response.data
+
+        db.drop_all()
+
+
+def test_sidebar_p2_static_behavior_source():
+    js_path = (
+        Path(__file__).resolve().parents[1]
+        / "app"
+        / "static"
+        / "js"
+        / "app.js"
+    )
+
+    source = js_path.read_text(encoding="utf-8")
+
+    assert "clinicSidebarPinned" in source
+    assert "sidebarHovered" in source
+    assert "sidebarFocused" in source
+    assert "280" in source

@@ -363,3 +363,189 @@ temporary script inside the repository.
 Prevention rule:
 When the user requests a direct VS Code script, do not require external
 downloads.
+
+---
+
+## Mistake 014 - Broke frozen print and navigation HTML contracts
+
+Date: 2026-07-16
+
+Context:
+Personal Trial Sprint P2.1-P2.2 sidebar behavior and visual design.
+
+What went wrong:
+The sidebar redesign introduced two regressions:
+- The authenticated role name was rendered inside the shared sidebar
+  footer during prescription print preview.
+- Navigation names were duplicated inside visible labels,
+  data-tooltip attributes, and aria-label attributes, breaking frozen
+  HTML occurrence-count tests.
+
+The first implementation script also used a text-layout-dependent
+regular expression and failed on multiline navigation labels.
+
+Root cause:
+The implementation reviewed the visual sidebar structure but did not
+preserve all existing base.html output contracts before generating the
+patch. The script matched presentation formatting instead of stable
+route identifiers, and focused tests were run only after file changes.
+
+How detected:
+The following tests failed:
+- test_stage_5_freeze_print_page_excludes_doctor_identity_and_safety_notes
+- test_stage_5_freeze_visit_prescription_nav_has_single_mobile_presets_link
+- test_print_templates_sidebar_link_visible_for_doctor
+
+Correction:
+- Hide authenticated sidebar identity during print previews.
+- Preserve exactly one desktop and one mobile visible navigation label.
+- Match navigation anchors using their url_for endpoint rather than
+  label formatting.
+- Run print and navigation freeze tests before accepting base.html
+  changes.
+
+Prevention rule:
+Before changing base.html:
+- Read all frozen shell and print tests.
+- Inventory text occurrence contracts and identity-isolation rules.
+- Use route endpoints as stable patch anchors.
+- Validate generated transformations in memory before writing files.
+- Run prescription, investigation, and print-template focused tests
+  immediately after the patch.
+
+---
+
+## Mistake 015 - Assumed a test filename without checking repository
+
+Date: 2026-07-16
+
+Context:
+Personal Trial Sprint P2.1-P2.2 verification.
+
+What went wrong:
+The verification commands referenced tests/test_investigation_print_ui.py,
+but that file does not exist in the repository.
+
+Root cause:
+Assumed a test filename instead of reading the current tests directory.
+
+How detected:
+Pytest returned:
+ERROR: file or directory not found: tests/test_investigation_print_ui.py
+
+Correction:
+Search the current repository for relevant test files before issuing
+focused verification commands.
+
+Prevention rule:
+Never provide an exact test-file command without verifying that the file
+exists in the current repository. Use repository search or list matching
+test files first.
+
+---
+
+## Mistake 016 - Rendered application shell on anonymous auth pages
+
+Date: 2026-07-16
+
+Context:
+Personal Trial Sprint P2.1-P2.2 sidebar redesign.
+
+What went wrong:
+The redesigned application sidebar and topbar remained visible on the
+anonymous login page. The login page also retained internal development
+copy such as Stage 1 / Sprint 1.1.
+
+Root cause:
+The shell review covered authenticated Doctor and Reception states,
+mobile navigation, and print preview, but did not include the anonymous
+authentication state or review the existing login template content.
+
+How detected:
+Manual browser review of /auth/login showed the compact sidebar, user
+placeholder, application topbar, and obsolete sprint text.
+
+Correction:
+- Add a dedicated anonymous auth-page shell state.
+- Hide application navigation and topbar on authentication pages.
+- Redesign the login page as a standalone branded access screen.
+- Remove stage, sprint, and development wording from user-facing copy.
+
+Prevention rule:
+Every shared-shell change must be manually reviewed in these states:
+- anonymous login
+- authenticated Doctor
+- authenticated Reception
+- mobile drawer
+- print preview
+- light and dark themes
+
+User-facing templates must not contain stage, sprint, development, or
+implementation-status wording.
+
+
+---
+
+## Mistake 018 - Used brittle exact indentation matching on dirty template
+
+Date: 2026-07-16
+
+Context:
+P2 login shell duplicate Jinja block correction.
+
+What went wrong:
+The correction script searched for an exact multiline block including
+specific indentation. The current local base.html used different
+spacing, so the script found zero matches and made no correction.
+
+Root cause:
+Used exact text replacement on a dirty local template instead of a
+structure-aware or whitespace-tolerant match.
+
+How detected:
+The script reported:
+Remove nested duplicate content block: expected 1 match, found 0
+
+Correction:
+Use a whitespace-tolerant regular expression for the exact Jinja block
+structure, then verify the final number of content and auth_content
+blocks before writing.
+
+Prevention rule:
+For dirty HTML or Jinja templates, do not depend on indentation.
+Match stable structural tokens and validate the transformed template
+before writing files.
+
+---
+
+## Mistake 017 - Defined the Jinja content block twice
+
+Date: 2026-07-16
+
+Context:
+P2 anonymous login shell separation.
+
+What went wrong:
+The base template defined the Jinja block named content once inside the
+authenticated application shell and again inside the anonymous auth
+branch.
+
+Root cause:
+Tried to reuse the existing content block by nesting another content
+block inside auth_content.
+
+How detected:
+Jinja raised:
+TemplateAssertionError: block 'content' defined twice
+
+The error prevented all templates extending base.html from rendering.
+
+Correction:
+- Keep content as the single authenticated application-page block.
+- Use auth_content as a separate anonymous authentication-page block.
+- Make auth/login.html override auth_content only.
+
+Prevention rule:
+Every Jinja block name must be unique inside one template. After editing
+a shared base template, count block definitions and render both an
+authenticated page and an anonymous page before broader tests.

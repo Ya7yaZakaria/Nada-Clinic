@@ -785,3 +785,37 @@ Trial Findings:
 Next Action:
 - Plan a small trial-mode UX sprint for the sidebar and advanced dashboard.
 - Do not start Stage 13.
+
+## 2026-07-16 - Personal Trial Sprint P2.1-P2.2 Completed
+
+Current Stage:
+- Project remains in real personal trial mode after Stage 12.
+- Completed sidebar behavior, sidebar visual design, and anonymous Login cleanup.
+- Stage 13 has not started.
+
+Completed Work:
+- Added compact desktop sidebar rail.
+- Added hover-expand overlay without content shifting.
+- Added optional pin/unpin behavior with localStorage persistence.
+- Added Bootstrap Icons to desktop and mobile navigation.
+- Added active navigation styling and compact tooltips.
+- Preserved permission-aware navigation.
+- Added standalone branded Login layout without application sidebar or topbar.
+- Removed obsolete Stage/Sprint wording from Login.
+- Removed obsolete collapsed-sidebar CSS and JavaScript contracts.
+- Preserved mobile drawer, RTL, dark mode, and print-preview isolation.
+- Recorded assistant mistakes 014 through 018.
+
+Verification:
+- Focused Auth tests: 9 passed.
+- Focused Shell/Dashboard tests: 8 passed.
+- Prescription UI tests: 17 passed.
+- Print Template UI tests: 8 passed.
+- Full regression: 458 passed.
+- Migration current/head: 20260715_0069.
+- No database or migration changes.
+- Manual Login and sidebar review completed successfully.
+
+Next Action:
+- Continue Personal Trial Sprint P2 with P2.3 Dashboard Header.
+- Do not start Stage 13.

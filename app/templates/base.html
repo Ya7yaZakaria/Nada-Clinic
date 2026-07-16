@@ -20,6 +20,10 @@
         rel="stylesheet"
     >
     <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet"
+    >
+    <link
         href="{{ url_for('static', filename='css/app.css') }}"
         rel="stylesheet"
     >
@@ -31,18 +35,9 @@
 </head>
 
 <body
-    x-data="{
-        sidebarOpen: false,
-        sidebarCollapsed:
-            localStorage.getItem('clinicSidebarCollapsed') === 'true',
-        toggleSidebar() {
-            this.sidebarCollapsed = !this.sidebarCollapsed;
-            localStorage.setItem(
-                'clinicSidebarCollapsed',
-                String(this.sidebarCollapsed)
-            );
-        }
-    }"
+    class="{% if request.blueprint == 'auth' and not current_user.is_authenticated %}auth-page{% endif %}"
+    x-data="clinicShell()"
+    @keydown.escape.window="closeMobileSidebar()"
 >
     {% set endpoint = request.endpoint or '' %}
     {% set blueprint = request.blueprint or '' %}
@@ -51,11 +46,23 @@
         'print_templates.investigation_preview'
     ] %}
 
-    <div
-        class="clinic-shell"
-        :class="{ 'sidebar-collapsed': sidebarCollapsed }"
-    >
-        <aside class="clinic-sidebar d-none d-lg-flex flex-column">
+    {% if current_user.is_authenticated or is_print_preview %}
+        <div
+            class="clinic-shell"
+            :class="{
+                'sidebar-pinned': sidebarPinned,
+                'sidebar-preview-expanded':
+                    sidebarExpanded && !sidebarPinned
+            }"
+        >
+        <aside
+            class="clinic-sidebar desktop-sidebar d-none d-lg-flex flex-column"
+            @mouseenter="enterSidebar()"
+            @mouseleave="leaveSidebar()"
+            @focusin="focusSidebar()"
+            @focusout="blurSidebar($event)"
+            :aria-expanded="sidebarExpanded.toString()"
+        >
             <div class="sidebar-brand">
                 <div class="brand-mark">N</div>
 
@@ -69,14 +76,30 @@
                 </div>
 
                 <button
-                    class="btn sidebar-collapse-button ms-auto"
+                    class="btn sidebar-pin-button ms-auto"
                     type="button"
-                    @click="toggleSidebar()"
-                    aria-label="Toggle sidebar"
+                    @click="toggleSidebarPin()"
+                    :aria-pressed="sidebarPinned.toString()"
+                    :aria-label="
+                        sidebarPinned
+                            ? 'Unpin sidebar'
+                            : 'Pin sidebar open'
+                    "
+                    :title="
+                        sidebarPinned
+                            ? 'Unpin sidebar'
+                            : 'Pin sidebar open'
+                    "
                 >
-                    <span
-                        x-text="sidebarCollapsed ? '>' : '<'"
-                    ></span>
+                    <i
+                        class="bi"
+                        :class="
+                            sidebarPinned
+                                ? 'bi-pin-angle-fill'
+                                : 'bi-pin-angle'
+                        "
+                        aria-hidden="true"
+                    ></i>
                 </button>
             </div>
 
@@ -91,9 +114,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('dashboard.view') %}
                     <a
                         class="sidebar-link {{ 'active' if endpoint == 'main.index' else '' }}"
+                        data-tooltip="Dashboard"
+                        aria-label="Dashboard"
+                        aria-current="{{ 'page' if endpoint == 'main.index' else 'false' }}"
                         href="{{ url_for('main.index') }}"
                     >
-                        <span class="sidebar-icon">D</span>
+                        <i class="bi bi-grid sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Dashboard</span>
                     </a>
                 {% endif %}
@@ -101,25 +127,34 @@
                 {% if current_user.is_authenticated and current_user.has_permission('appointments.view') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'today_clinic' and endpoint != 'today_clinic.previous' else '' }}"
+                        data-tooltip="Today&#32;Clinic"
+                        aria-label="Today&#32;Clinic"
+                        aria-current="{{ 'page' if blueprint == 'today_clinic' and endpoint != 'today_clinic.previous' else 'false' }}"
                         href="{{ url_for('today_clinic.index') }}"
                     >
-                        <span class="sidebar-icon">TC</span>
+                        <i class="bi bi-activity sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Today Clinic</span>
                     </a>
 
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'appointments' else '' }}"
+                        data-tooltip="Appointments"
+                        aria-label="Appointments"
+                        aria-current="{{ 'page' if blueprint == 'appointments' else 'false' }}"
                         href="{{ url_for('appointments.calendar') }}"
                     >
-                        <span class="sidebar-icon">A</span>
+                        <i class="bi bi-calendar3 sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Appointments</span>
                     </a>
 
                     <a
                         class="sidebar-link {{ 'active' if endpoint == 'today_clinic.previous' else '' }}"
+                        data-tooltip="Previous&#32;Days"
+                        aria-label="Previous&#32;Days"
+                        aria-current="{{ 'page' if endpoint == 'today_clinic.previous' else 'false' }}"
                         href="{{ url_for('today_clinic.previous') }}"
                     >
-                        <span class="sidebar-icon">PD</span>
+                        <i class="bi bi-clock-history sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Previous Days</span>
                     </a>
                 {% endif %}
@@ -131,9 +166,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('patients.basic.view') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'patients' else '' }}"
+                        data-tooltip="Patients"
+                        aria-label="Patients"
+                        aria-current="{{ 'page' if blueprint == 'patients' else 'false' }}"
                         href="{{ url_for('patients.index') }}"
                     >
-                        <span class="sidebar-icon">P</span>
+                        <i class="bi bi-people sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Patients</span>
                     </a>
                 {% endif %}
@@ -141,9 +179,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('clinical.view') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'visits' else '' }}"
+                        data-tooltip="Visits"
+                        aria-label="Visits"
+                        aria-current="{{ 'page' if blueprint == 'visits' else 'false' }}"
                         href="{{ url_for('visits.index') }}"
                     >
-                        <span class="sidebar-icon">V</span>
+                        <i class="bi bi-clipboard2-pulse sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Visits</span>
                     </a>
                 {% endif %}
@@ -151,9 +192,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('investigations.view') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'investigations' else '' }}"
+                        data-tooltip="Investigations"
+                        aria-label="Investigations"
+                        aria-current="{{ 'page' if blueprint == 'investigations' else 'false' }}"
                         href="{{ url_for('investigations.index') }}"
                     >
-                        <span class="sidebar-icon">I</span>
+                        <i class="bi bi-droplet sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Investigations</span>
                     </a>
                 {% endif %}
@@ -161,9 +205,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('surgeries.view') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'surgeries' else '' }}"
+                        data-tooltip="Surgeries"
+                        aria-label="Surgeries"
+                        aria-current="{{ 'page' if blueprint == 'surgeries' else 'false' }}"
                         href="{{ url_for('surgeries.index') }}"
                     >
-                        <span class="sidebar-icon">S</span>
+                        <i class="bi bi-hospital sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Surgeries</span>
                     </a>
                 {% endif %}
@@ -175,9 +222,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('finance.view') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'finance' else '' }}"
+                        data-tooltip="Finance"
+                        aria-label="Finance"
+                        aria-current="{{ 'page' if blueprint == 'finance' else 'false' }}"
                         href="{{ url_for('finance.index') }}"
                     >
-                        <span class="sidebar-icon">F</span>
+                        <i class="bi bi-cash-stack sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Finance</span>
                     </a>
                 {% endif %}
@@ -185,9 +235,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('prescriptions.manage') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'drugs' else '' }}"
+                        data-tooltip="Drugs"
+                        aria-label="Drugs"
+                        aria-current="{{ 'page' if blueprint == 'drugs' else 'false' }}"
                         href="{{ url_for('drugs.index') }}"
                     >
-                        <span class="sidebar-icon">Rx</span>
+                        <i class="bi bi-capsule sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Drugs</span>
                     </a>
                 {% endif %}
@@ -195,9 +248,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('prescription_presets.manage') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'prescription_presets' else '' }}"
+                        data-tooltip="Prescription&#32;Presets"
+                        aria-label="Prescription&#32;Presets"
+                        aria-current="{{ 'page' if blueprint == 'prescription_presets' else 'false' }}"
                         href="{{ url_for('prescription_presets.index') }}"
                     >
-                        <span class="sidebar-icon">PP</span>
+                        <i class="bi bi-prescription2 sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">
                             Prescription Presets
                         </span>
@@ -207,9 +263,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('investigation_presets.manage') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'investigation_presets' else '' }}"
+                        data-tooltip="Investigation&#32;Presets"
+                        aria-label="Investigation&#32;Presets"
+                        aria-current="{{ 'page' if blueprint == 'investigation_presets' else 'false' }}"
                         href="{{ url_for('investigation_presets.index') }}"
                     >
-                        <span class="sidebar-icon">IP</span>
+                        <i class="bi bi-list-check sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">
                             Investigation Presets
                         </span>
@@ -223,9 +282,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('print_templates.manage') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'print_templates' else '' }}"
+                        data-tooltip="Print&#32;Templates"
+                        aria-label="Print&#32;Templates"
+                        aria-current="{{ 'page' if blueprint == 'print_templates' else 'false' }}"
                         href="{{ url_for('print_templates.index') }}"
                     >
-                        <span class="sidebar-icon">PT</span>
+                        <i class="bi bi-printer sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Print Templates</span>
                     </a>
                 {% endif %}
@@ -233,9 +295,12 @@
                 {% if current_user.is_authenticated and current_user.has_permission('drug_settings.manage') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint == 'drug_settings' else '' }}"
+                        data-tooltip="Drug&#32;Settings"
+                        aria-label="Drug&#32;Settings"
+                        aria-current="{{ 'page' if blueprint == 'drug_settings' else 'false' }}"
                         href="{{ url_for('drug_settings.index') }}"
                     >
-                        <span class="sidebar-icon">DS</span>
+                        <i class="bi bi-sliders sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Drug Settings</span>
                     </a>
                 {% endif %}
@@ -243,18 +308,52 @@
                 {% if current_user.is_authenticated and current_user.has_permission('settings.view') %}
                     <a
                         class="sidebar-link {{ 'active' if blueprint in ['settings', 'admin'] else '' }}"
+                        data-tooltip="Settings"
+                        aria-label="Settings"
+                        aria-current="{{ 'page' if blueprint in ['settings', 'admin'] else 'false' }}"
                         href="{{ url_for('settings.index') }}"
                     >
-                        <span class="sidebar-icon">SET</span>
+                        <i class="bi bi-gear sidebar-icon" aria-hidden="true"></i>
                         <span class="sidebar-label">Settings</span>
                     </a>
                 {% endif %}
             </nav>
 
-            <div class="sidebar-footer">
-                <span class="status-dot"></span>
-                <span class="sidebar-label">Local clinic system</span>
-            </div>
+            {% if not is_print_preview %}
+                <div
+                    class="sidebar-footer"
+                    data-tooltip="{{ current_user.name }}"
+                >
+                    <div
+                        class="sidebar-user-avatar"
+                        aria-hidden="true"
+                    >
+                        {{
+                            (
+                                current_user.name
+                                or current_user.email
+                                or 'U'
+                            )[:1]|upper
+                        }}
+                    </div>
+
+                    <div class="sidebar-label sidebar-user-copy">
+                        <strong>{{ current_user.name }}</strong>
+                        <span>
+                            {{
+                                current_user.roles
+                                | map(attribute='name')
+                                | join(' / ')
+                            }}
+                        </span>
+                    </div>
+
+                    <span
+                        class="status-dot ms-auto"
+                        title="Local clinic system active"
+                    ></span>
+                </div>
+            {% endif %}
         </aside>
 
         <div class="clinic-main">
@@ -264,8 +363,15 @@
                         class="btn btn-outline-secondary d-lg-none"
                         type="button"
                         @click="sidebarOpen = true"
+                        aria-label="Open navigation"
                     >
-                        Menu
+                        <i
+                            class="bi bi-list"
+                            aria-hidden="true"
+                        ></i>
+                        <span class="visually-hidden">
+                            Open navigation
+                        </span>
                     </button>
 
                     <div>
@@ -354,8 +460,12 @@
                         class="btn btn-sm btn-outline-light"
                         type="button"
                         @click="sidebarOpen = false"
+                        aria-label="Close navigation"
                     >
-                        Close
+                        <i
+                            class="bi bi-x-lg"
+                            aria-hidden="true"
+                        ></i>
                     </button>
                 </div>
 
@@ -366,131 +476,176 @@
                     {% if current_user.is_authenticated and current_user.has_permission('dashboard.view') %}
                         <a
                             class="sidebar-link {{ 'active' if endpoint == 'main.index' else '' }}"
+                            aria-current="{{ 'page' if endpoint == 'main.index' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('main.index') }}"
                         >
-                            Dashboard
+                            <i class="bi bi-grid sidebar-icon" aria-hidden="true"></i>
+                            <span>Dashboard</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('appointments.view') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'today_clinic' and endpoint != 'today_clinic.previous' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'today_clinic' and endpoint != 'today_clinic.previous' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('today_clinic.index') }}"
                         >
-                            Today Clinic
+                            <i class="bi bi-activity sidebar-icon" aria-hidden="true"></i>
+                            <span>Today Clinic</span>
                         </a>
 
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'appointments' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'appointments' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('appointments.calendar') }}"
                         >
-                            Appointments
+                            <i class="bi bi-calendar3 sidebar-icon" aria-hidden="true"></i>
+                            <span>Appointments</span>
                         </a>
 
                         <a
                             class="sidebar-link {{ 'active' if endpoint == 'today_clinic.previous' else '' }}"
+                            aria-current="{{ 'page' if endpoint == 'today_clinic.previous' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('today_clinic.previous') }}"
                         >
-                            Previous Days
+                            <i class="bi bi-clock-history sidebar-icon" aria-hidden="true"></i>
+                            <span>Previous Days</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('patients.basic.view') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'patients' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'patients' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('patients.index') }}"
                         >
-                            Patients
+                            <i class="bi bi-people sidebar-icon" aria-hidden="true"></i>
+                            <span>Patients</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('clinical.view') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'visits' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'visits' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('visits.index') }}"
                         >
-                            Visits
+                            <i class="bi bi-clipboard2-pulse sidebar-icon" aria-hidden="true"></i>
+                            <span>Visits</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('investigations.view') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'investigations' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'investigations' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('investigations.index') }}"
                         >
-                            Investigations
+                            <i class="bi bi-droplet sidebar-icon" aria-hidden="true"></i>
+                            <span>Investigations</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('surgeries.view') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'surgeries' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'surgeries' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('surgeries.index') }}"
                         >
-                            Surgeries
+                            <i class="bi bi-hospital sidebar-icon" aria-hidden="true"></i>
+                            <span>Surgeries</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('finance.view') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'finance' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'finance' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('finance.index') }}"
                         >
-                            Finance
+                            <i class="bi bi-cash-stack sidebar-icon" aria-hidden="true"></i>
+                            <span>Finance</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('prescriptions.manage') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'drugs' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'drugs' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('drugs.index') }}"
                         >
-                            Drugs
+                            <i class="bi bi-capsule sidebar-icon" aria-hidden="true"></i>
+                            <span>Drugs</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('prescription_presets.manage') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'prescription_presets' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'prescription_presets' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('prescription_presets.index') }}"
                         >
-                            Prescription Presets
+                            <i class="bi bi-prescription2 sidebar-icon" aria-hidden="true"></i>
+                            <span>Prescription Presets</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('investigation_presets.manage') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'investigation_presets' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'investigation_presets' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('investigation_presets.index') }}"
                         >
-                            Investigation Presets
+                            <i class="bi bi-list-check sidebar-icon" aria-hidden="true"></i>
+                            <span>Investigation Presets</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('print_templates.manage') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'print_templates' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'print_templates' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('print_templates.index') }}"
                         >
-                            Print Templates
+                            <i class="bi bi-printer sidebar-icon" aria-hidden="true"></i>
+                            <span>Print Templates</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('drug_settings.manage') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint == 'drug_settings' else '' }}"
+                            aria-current="{{ 'page' if blueprint == 'drug_settings' else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('drug_settings.index') }}"
                         >
-                            Drug Settings
+                            <i class="bi bi-sliders sidebar-icon" aria-hidden="true"></i>
+                            <span>Drug Settings</span>
                         </a>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.has_permission('settings.view') %}
                         <a
                             class="sidebar-link {{ 'active' if blueprint in ['settings', 'admin'] else '' }}"
+                            aria-current="{{ 'page' if blueprint in ['settings', 'admin'] else 'false' }}"
+                            @click="sidebarOpen = false"
                             href="{{ url_for('settings.index') }}"
                         >
-                            Settings
+                            <i class="bi bi-gear sidebar-icon" aria-hidden="true"></i>
+                            <span>Settings</span>
                         </a>
                     {% endif %}
                 </nav>
@@ -519,6 +674,29 @@
             </main>
         </div>
     </div>
+    {% else %}
+        <main
+            class="auth-content"
+            id="clinic-content"
+        >
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="auth-flashes">
+                        {% for category, message in messages %}
+                            <div
+                                class="alert alert-{{ category }}"
+                                role="alert"
+                            >
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block auth_content %}{% endblock %}
+        </main>
+    {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
     <script

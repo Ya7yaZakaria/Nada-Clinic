@@ -367,24 +367,26 @@ html[dir="rtl"] .status-dot {
     margin-left: 0.35rem;
 }
 
-/* Personal Trial Sprint P1 — application shell and dashboard */
+/* Application shell and dashboard */
 @media (min-width: 992px) {
-    body { overflow: hidden; }
-    .clinic-shell { height: 100vh; min-height: 0; }
-    .clinic-sidebar { width: 280px; height: 100vh; min-height: 0; overflow: hidden; transition: width 180ms ease; }
-    .clinic-main { height: 100vh; overflow-y: auto; overscroll-behavior: contain; }
-    .sidebar-nav { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
-    .clinic-shell.sidebar-collapsed .clinic-sidebar { width: 88px; }
-    .clinic-shell.sidebar-collapsed .sidebar-label { display: none; }
-    .clinic-shell.sidebar-collapsed .sidebar-brand { justify-content: center; padding-inline: 0; }
-    .clinic-shell.sidebar-collapsed .sidebar-collapse-button { position: absolute; right: .35rem; top: .35rem; }
-    .clinic-shell.sidebar-collapsed .sidebar-link { justify-content: center; padding-inline: .5rem; }
+    body:not(.auth-page) {
+        overflow: hidden;
+    }
+
+    .clinic-shell {
+        height: 100vh;
+        min-height: 0;
+    }
+
+    .clinic-main {
+        height: 100vh;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
 }
 .sidebar-section-label { margin: .85rem .7rem .25rem; color: rgba(255,255,255,.42); font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .sidebar-link { display: flex; align-items: center; gap: .65rem; }
 .sidebar-icon { width: 1.8rem; min-width: 1.8rem; height: 1.8rem; display: inline-grid; place-items: center; border-radius: .6rem; background: rgba(255,255,255,.08); font-size: .7rem; font-weight: 800; }
-.sidebar-collapse-button { color: rgba(255,255,255,.78); border: 0; font-size: 1.5rem; line-height: 1; }
-.sidebar-collapse-button:hover, .sidebar-collapse-button:focus { color: white; background: rgba(255,255,255,.1); }
 .mobile-sidebar { overflow-y: auto; }
 .mobile-nav { padding-bottom: 2rem; }
 .dashboard-welcome { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
@@ -399,3 +401,607 @@ html[dir="rtl"] .status-dot {
 .dashboard-list-item:hover { color: var(--clinic-primary); }
 .dashboard-empty-state { display: grid; gap: .3rem; min-height: 130px; place-content: center; text-align: center; color: var(--clinic-muted); border: 1px dashed var(--clinic-border); border-radius: 1rem; padding: 1rem; }
 .user-summary { line-height: 1.2; }
+
+
+/* Desktop sidebar interaction */
+
+:root {
+    --clinic-sidebar-compact-width: 76px;
+    --clinic-sidebar-expanded-width: 280px;
+    --clinic-sidebar-motion:
+        210ms cubic-bezier(.2, .8, .2, 1);
+}
+
+@media (min-width: 992px) {
+    .clinic-shell {
+        position: relative;
+        display: block;
+        padding-inline-start:
+            var(--clinic-sidebar-compact-width);
+        transition:
+            padding-inline-start
+            var(--clinic-sidebar-motion);
+    }
+
+    .clinic-shell.sidebar-pinned {
+        padding-inline-start:
+            var(--clinic-sidebar-expanded-width);
+    }
+
+    .desktop-sidebar {
+        position: fixed;
+        inset-block: 0;
+        inset-inline-start: 0;
+        top: 0;
+        width: var(--clinic-sidebar-compact-width);
+        height: 100vh;
+        min-height: 0;
+        padding: .75rem;
+        overflow: visible;
+        z-index: 40;
+        isolation: isolate;
+        transition:
+            width var(--clinic-sidebar-motion),
+            box-shadow var(--clinic-sidebar-motion);
+    }
+
+    .clinic-shell.sidebar-preview-expanded
+    .desktop-sidebar,
+    .clinic-shell.sidebar-pinned
+    .desktop-sidebar {
+        width: var(--clinic-sidebar-expanded-width);
+    }
+
+    .clinic-shell.sidebar-preview-expanded
+    .desktop-sidebar {
+        box-shadow:
+            20px 0 45px rgba(2, 6, 23, .22),
+            1px 0 0 rgba(255, 255, 255, .06);
+    }
+
+    html[dir="rtl"]
+    .clinic-shell.sidebar-preview-expanded
+    .desktop-sidebar {
+        box-shadow:
+            -20px 0 45px rgba(2, 6, 23, .22),
+            -1px 0 0 rgba(255, 255, 255, .06);
+    }
+
+    .desktop-sidebar .sidebar-brand {
+        flex: 0 0 60px;
+        min-height: 60px;
+        padding: .5rem .35rem;
+        margin-bottom: .5rem;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .desktop-sidebar .brand-mark {
+        flex: 0 0 42px;
+    }
+
+    .desktop-sidebar .brand-copy,
+    .desktop-sidebar .sidebar-user-copy,
+    .desktop-sidebar .sidebar-link .sidebar-label,
+    .desktop-sidebar .sidebar-section-label {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(-6px);
+        pointer-events: none;
+        transition:
+            opacity 130ms ease,
+            transform 180ms ease,
+            visibility 0s linear 180ms;
+    }
+
+    html[dir="rtl"] .desktop-sidebar .brand-copy,
+    html[dir="rtl"] .desktop-sidebar .sidebar-user-copy,
+    html[dir="rtl"]
+    .desktop-sidebar .sidebar-link .sidebar-label,
+    html[dir="rtl"]
+    .desktop-sidebar .sidebar-section-label {
+        transform: translateX(6px);
+    }
+
+    .clinic-shell.sidebar-preview-expanded
+    .desktop-sidebar .brand-copy,
+    .clinic-shell.sidebar-preview-expanded
+    .desktop-sidebar .sidebar-user-copy,
+    .clinic-shell.sidebar-preview-expanded
+    .desktop-sidebar .sidebar-link .sidebar-label,
+    .clinic-shell.sidebar-preview-expanded
+    .desktop-sidebar .sidebar-section-label,
+    .clinic-shell.sidebar-pinned
+    .desktop-sidebar .brand-copy,
+    .clinic-shell.sidebar-pinned
+    .desktop-sidebar .sidebar-user-copy,
+    .clinic-shell.sidebar-pinned
+    .desktop-sidebar .sidebar-link .sidebar-label,
+    .clinic-shell.sidebar-pinned
+    .desktop-sidebar .sidebar-section-label {
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        pointer-events: auto;
+        transition-delay: 50ms;
+    }
+
+    .desktop-sidebar .sidebar-pin-button {
+        position: absolute;
+        inset-block-start: 1rem;
+        inset-inline-end: .75rem;
+        width: 34px;
+        height: 34px;
+        display: inline-grid;
+        place-items: center;
+        padding: 0;
+        color: rgba(255, 255, 255, .76);
+        border:
+            1px solid rgba(255, 255, 255, .1);
+        border-radius: .75rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(.92);
+        transition:
+            opacity 140ms ease,
+            transform 160ms ease,
+            background-color 140ms ease;
+    }
+
+    .clinic-shell.sidebar-preview-expanded
+    .sidebar-pin-button,
+    .clinic-shell.sidebar-pinned
+    .sidebar-pin-button {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1);
+    }
+
+    .desktop-sidebar .sidebar-pin-button:hover,
+    .desktop-sidebar
+    .sidebar-pin-button:focus-visible {
+        color: #fff;
+        background: rgba(255, 255, 255, .12);
+        outline: none;
+    }
+
+    .desktop-sidebar .sidebar-nav {
+        flex: 1 1 auto;
+        display: block;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-inline-end: .15rem;
+        scrollbar-width: thin;
+        scrollbar-color: transparent transparent;
+    }
+
+    .desktop-sidebar:hover .sidebar-nav,
+    .desktop-sidebar:focus-within .sidebar-nav {
+        scrollbar-color:
+            rgba(255, 255, 255, .18)
+            transparent;
+    }
+
+    .desktop-sidebar .sidebar-section-label {
+        position: relative;
+        height: 1.45rem;
+        margin: .9rem .65rem .25rem;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .desktop-sidebar
+    .sidebar-section-label::before {
+        content: "";
+        position: absolute;
+        inset-inline: 0;
+        top: .7rem;
+        height: 1px;
+        background: rgba(255, 255, 255, .1);
+    }
+
+    .clinic-shell.sidebar-preview-expanded
+    .desktop-sidebar
+    .sidebar-section-label::before,
+    .clinic-shell.sidebar-pinned
+    .desktop-sidebar
+    .sidebar-section-label::before {
+        opacity: 0;
+    }
+
+    .desktop-sidebar .sidebar-link {
+        position: relative;
+        min-height: 44px;
+        margin-bottom: .3rem;
+        padding: .3rem .45rem;
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+        overflow: visible;
+        white-space: nowrap;
+        border-radius: .85rem;
+    }
+
+    .desktop-sidebar .sidebar-icon {
+        flex: 0 0 38px;
+        width: 38px;
+        min-width: 38px;
+        height: 38px;
+        display: inline-grid;
+        place-items: center;
+        color: rgba(255, 255, 255, .76);
+        background: rgba(255, 255, 255, .07);
+        border-radius: .75rem;
+        font-size: 1.05rem;
+        line-height: 1;
+    }
+
+    .desktop-sidebar .sidebar-link.active {
+        color: #fff;
+        background: rgba(255, 255, 255, .14);
+        font-weight: 650;
+    }
+
+    .desktop-sidebar
+    .sidebar-link.active::before {
+        content: "";
+        position: absolute;
+        inset-block: .55rem;
+        inset-inline-start: -.75rem;
+        width: 3px;
+        background: var(--clinic-primary);
+        border-radius: 0 999px 999px 0;
+    }
+
+    html[dir="rtl"]
+    .desktop-sidebar
+    .sidebar-link.active::before {
+        border-radius: 999px 0 0 999px;
+    }
+
+    .desktop-sidebar
+    .sidebar-link.active .sidebar-icon {
+        color: #fff;
+        background: var(--clinic-primary);
+    }
+
+    .desktop-sidebar .sidebar-footer {
+        flex: 0 0 auto;
+        min-height: 58px;
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        margin-top: .5rem;
+        padding: .5rem .35rem;
+        overflow: visible;
+        white-space: nowrap;
+        border-top:
+            1px solid rgba(255, 255, 255, .08);
+    }
+
+    .sidebar-user-avatar {
+        flex: 0 0 38px;
+        width: 38px;
+        height: 38px;
+        display: inline-grid;
+        place-items: center;
+        color: #fff;
+        background: rgba(255, 255, 255, .12);
+        border-radius: .8rem;
+        font-weight: 750;
+    }
+
+    .sidebar-user-copy {
+        min-width: 0;
+        display: grid;
+        line-height: 1.2;
+    }
+
+    .sidebar-user-copy strong,
+    .sidebar-user-copy span {
+        max-width: 155px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sidebar-user-copy strong {
+        font-size: .86rem;
+    }
+
+    .sidebar-user-copy span {
+        color: rgba(255, 255, 255, .56);
+        font-size: .72rem;
+    }
+
+    .desktop-sidebar
+    .sidebar-link[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        inset-inline-start:
+            calc(
+                var(--clinic-sidebar-compact-width)
+                - .15rem
+            );
+        z-index: 80;
+        padding: .45rem .65rem;
+        color: #fff;
+        background: #111827;
+        border-radius: .55rem;
+        font-size: .76rem;
+        font-weight: 600;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition:
+            opacity 120ms ease,
+            transform 120ms ease;
+    }
+
+    .desktop-sidebar
+    .sidebar-link[data-tooltip]:hover::after,
+    .desktop-sidebar
+    .sidebar-link[data-tooltip]:focus-visible::after {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .clinic-shell.sidebar-preview-expanded
+    .desktop-sidebar
+    [data-tooltip]::after,
+    .clinic-shell.sidebar-pinned
+    .desktop-sidebar
+    [data-tooltip]::after {
+        display: none;
+    }
+
+    .clinic-main {
+        width: 100%;
+        height: 100vh;
+        min-width: 0;
+        overflow-y: auto;
+    }
+}
+
+.mobile-sidebar .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+}
+
+.mobile-sidebar .sidebar-icon {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    display: inline-grid;
+    place-items: center;
+    color: rgba(255, 255, 255, .82);
+    background: rgba(255, 255, 255, .08);
+    border-radius: .7rem;
+    font-size: 1rem;
+}
+
+.mobile-sidebar
+.sidebar-link.active .sidebar-icon {
+    color: #fff;
+    background: var(--clinic-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .clinic-shell,
+    .desktop-sidebar,
+    .desktop-sidebar *,
+    .desktop-sidebar *::before,
+    .desktop-sidebar *::after {
+        transition-duration: .01ms !important;
+    }
+}
+
+/* Authentication layout */
+
+body.auth-page {
+    min-height: 100vh;
+    overflow: auto !important;
+    background:
+        radial-gradient(
+            circle at 15% 10%,
+            rgba(13, 148, 136, .13),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 90% 90%,
+            rgba(37, 99, 235, .09),
+            transparent 34%
+        ),
+        var(--clinic-bg);
+}
+
+.login-page {
+    min-height: calc(100vh - 3rem);
+    display: grid;
+    place-items: center;
+}
+
+.login-panel {
+    width: min(100%, 440px);
+}
+
+.login-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .8rem;
+    margin-bottom: 1.35rem;
+}
+
+.login-brand-mark {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background:
+        linear-gradient(
+            145deg,
+            var(--clinic-primary),
+            #0f766e
+        );
+    border-radius: 1rem;
+    box-shadow:
+        0 12px 28px rgba(13, 148, 136, .22);
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.login-brand-name {
+    color: var(--clinic-ink);
+    font-size: 1.05rem;
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.login-brand-subtitle {
+    margin-top: .12rem;
+    color: var(--clinic-muted);
+    font-size: .8rem;
+}
+
+.login-card {
+    padding: 2rem;
+    background: var(--clinic-surface);
+    border: 1px solid var(--clinic-border);
+    border-radius: 1.35rem;
+    box-shadow:
+        0 24px 70px rgba(15, 23, 42, .12);
+}
+
+.login-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: .9rem;
+    margin-bottom: 1.65rem;
+}
+
+.login-security-icon {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    color: var(--clinic-primary);
+    background: var(--clinic-primary-soft);
+    border-radius: .85rem;
+    font-size: 1.05rem;
+}
+
+.login-card-header h1 {
+    margin: 0;
+    color: var(--clinic-ink);
+    font-size: 1.45rem;
+    font-weight: 750;
+    letter-spacing: -.02em;
+}
+
+.login-card-header p {
+    margin: .35rem 0 0;
+    color: var(--clinic-muted);
+    font-size: .9rem;
+}
+
+.login-form .form-label {
+    margin-bottom: .45rem;
+    color: var(--clinic-ink);
+    font-size: .86rem;
+    font-weight: 650;
+}
+
+.login-input-group {
+    position: relative;
+}
+
+.login-input-group > .bi {
+    position: absolute;
+    inset-inline-start: .9rem;
+    top: 50%;
+    z-index: 2;
+    color: var(--clinic-muted);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.login-input-group .form-control {
+    min-height: 48px;
+    padding-inline-start: 2.65rem;
+    border-radius: .8rem;
+}
+
+.login-input-group .form-control:focus {
+    border-color: var(--clinic-primary);
+    box-shadow:
+        0 0 0 .22rem rgba(13, 148, 136, .12);
+}
+
+.login-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: .25rem 0 1.25rem;
+}
+
+.login-secure-note {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    color: var(--clinic-muted);
+    font-size: .75rem;
+}
+
+.login-submit {
+    width: 100%;
+    min-height: 48px;
+    border-radius: .8rem;
+    font-weight: 700;
+}
+
+.login-footer-note {
+    margin: 1rem 0 0;
+    color: var(--clinic-muted);
+    text-align: center;
+    font-size: .76rem;
+}
+
+@media (max-width: 575.98px) {
+    .login-page {
+        min-height: calc(100vh - 2rem);
+    }
+
+    .login-card {
+        padding: 1.4rem;
+        border-radius: 1.1rem;
+    }
+
+    .login-options {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .65rem;
+    }
+}
+
+
+.auth-content {
+    width: 100%;
+    min-height: 100vh;
+    padding: 1.5rem;
+}
+
+.auth-flashes {
+    width: min(100%, 720px);
+    margin: 0 auto 1rem;
+}
+
+@media (max-width: 575.98px) {
+    .auth-content {
+        padding: 1rem;
+    }
+}
