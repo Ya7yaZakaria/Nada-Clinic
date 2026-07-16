@@ -2,6 +2,7 @@ from datetime import datetime
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy import or_
 
 from app.forms.investigation_forms import InvestigationOrderItemForm
 from app.forms.prescription_forms import PrescriptionItemForm
@@ -33,6 +34,34 @@ from app.services.surgery_service import SurgeryService
 from app.services.visit_service import VisitService
 
 visits_bp = Blueprint("visits", __name__)
+
+
+@visits_bp.get("/visits/")
+@login_required
+@RBACService.require_permission("clinical.view")
+def index():
+    q = (request.args.get("q") or "").strip()
+    status = (request.args.get("status") or "").strip()
+    query = Visit.query.join(Patient)
+
+    if status in Visit.VALID_STATUSES:
+        query = query.filter(Visit.status == status)
+    else:
+        status = ""
+
+    if q:
+        like_value = f"%{q}%"
+        query = query.filter(
+            or_(
+                Patient.name_en.ilike(like_value),
+                Patient.name_ar.ilike(like_value),
+                Patient.phone_primary.ilike(like_value),
+                Patient.phone_secondary.ilike(like_value),
+            )
+        )
+
+    visits = query.order_by(Visit.visit_date.desc(), Visit.id.desc()).limit(100).all()
+    return render_template("visits/index.html", visits=visits, q=q, status=status)
 
 
 def _choice_label(item):

@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}Visits - {{ clinic_name }}{% endblock %}
+{% block page_title %}Visits{% endblock %}
+{% block page_subtitle %}
+Review clinical encounters from patient records
+{% endblock %}
+
+{% block content %}
+<div class="clinic-card mb-3">
+    <form
+        method="get"
+        class="row g-2 align-items-end"
+    >
+        <div class="col-12 col-lg-7">
+            <label
+                class="form-label"
+                for="visit-search"
+            >
+                Patient name or phone
+            </label>
+
+            <input
+                id="visit-search"
+                class="form-control"
+                type="search"
+                name="q"
+                value="{{ q }}"
+                placeholder="Search by patient name or phone"
+            >
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <label
+                class="form-label"
+                for="visit-status"
+            >
+                Status
+            </label>
+
+            <select
+                id="visit-status"
+                class="form-select"
+                name="status"
+            >
+                <option value="">All statuses</option>
+
+                {% for value in [
+                    'open',
+                    'completed',
+                    'incomplete'
+                ] %}
+                    <option
+                        value="{{ value }}"
+                        {{ 'selected' if status == value else '' }}
+                    >
+                        {{ value|capitalize }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-2 d-grid">
+            <button
+                class="btn btn-primary"
+                type="submit"
+            >
+                Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="clinic-card">
+    <div class="d-flex justify-content-between mb-3">
+        <div>
+            <p class="section-kicker mb-1">
+                Clinical encounters
+            </p>
+            <h1 class="h5 mb-0">
+                {{ visits|length }}
+                visit{{ '' if visits|length == 1 else 's' }}
+            </h1>
+        </div>
+
+        {% if q or status %}
+            <a
+                class="btn btn-sm btn-outline-secondary"
+                href="{{ url_for('visits.index') }}"
+            >
+                Clear filters
+            </a>
+        {% endif %}
+    </div>
+
+    {% if visits %}
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Journey</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for visit in visits %}
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">
+                                    {{
+                                        visit.visit_date.strftime(
+                                            '%d %b %Y'
+                                        )
+                                    }}
+                                </div>
+                                <div class="small text-muted">
+                                    {{
+                                        visit.visit_date.strftime(
+                                            '%H:%M'
+                                        )
+                                    }}
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="fw-semibold">
+                                    {{
+                                        visit.patient.name_en
+                                        or visit.patient.name_ar
+                                    }}
+                                </div>
+                                <div class="small text-muted">
+                                    MRN
+                                    {{ visit.patient.formatted_mrn }}
+                                </div>
+                            </td>
+
+                            <td>{{ visit.visit_type|upper }}</td>
+
+                            <td>
+                                <span
+                                    class="badge text-bg-{{
+                                        'success'
+                                        if visit.status == 'completed'
+                                        else 'warning'
+                                        if visit.status == 'open'
+                                        else 'secondary'
+                                    }}"
+                                >
+                                    {{ visit.status|capitalize }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {{
+                                    visit.journey.title
+                                    if visit.journey
+                                    else 'Standalone visit'
+                                }}
+                            </td>
+
+                            <td class="text-end">
+                                <a
+                                    class="btn btn-sm btn-outline-primary"
+                                    href="{{ url_for(
+                                        'visits.detail',
+                                        visit_uuid=visit.uuid
+                                    ) }}"
+                                >
+                                    Open
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="dashboard-empty-state">
+            <strong>
+                No visits match the filters.
+            </strong>
+            <span>
+                Visits are created from a Patient Workspace
+                or Today Clinic.
+            </span>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

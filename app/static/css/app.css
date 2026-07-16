@@ -366,3 +366,36 @@ html[dir="rtl"] .status-dot {
     margin-right: 0;
     margin-left: 0.35rem;
 }
+
+/* Personal Trial Sprint P1 — application shell and dashboard */
+@media (min-width: 992px) {
+    body { overflow: hidden; }
+    .clinic-shell { height: 100vh; min-height: 0; }
+    .clinic-sidebar { width: 280px; height: 100vh; min-height: 0; overflow: hidden; transition: width 180ms ease; }
+    .clinic-main { height: 100vh; overflow-y: auto; overscroll-behavior: contain; }
+    .sidebar-nav { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
+    .clinic-shell.sidebar-collapsed .clinic-sidebar { width: 88px; }
+    .clinic-shell.sidebar-collapsed .sidebar-label { display: none; }
+    .clinic-shell.sidebar-collapsed .sidebar-brand { justify-content: center; padding-inline: 0; }
+    .clinic-shell.sidebar-collapsed .sidebar-collapse-button { position: absolute; right: .35rem; top: .35rem; }
+    .clinic-shell.sidebar-collapsed .sidebar-link { justify-content: center; padding-inline: .5rem; }
+}
+.sidebar-section-label { margin: .85rem .7rem .25rem; color: rgba(255,255,255,.42); font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.sidebar-link { display: flex; align-items: center; gap: .65rem; }
+.sidebar-icon { width: 1.8rem; min-width: 1.8rem; height: 1.8rem; display: inline-grid; place-items: center; border-radius: .6rem; background: rgba(255,255,255,.08); font-size: .7rem; font-weight: 800; }
+.sidebar-collapse-button { color: rgba(255,255,255,.78); border: 0; font-size: 1.5rem; line-height: 1; }
+.sidebar-collapse-button:hover, .sidebar-collapse-button:focus { color: white; background: rgba(255,255,255,.1); }
+.mobile-sidebar { overflow-y: auto; }
+.mobile-nav { padding-bottom: 2rem; }
+.dashboard-welcome { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.dashboard-stat-card { display: flex; flex-direction: column; gap: .2rem; color: var(--clinic-ink); transition: transform 150ms ease, box-shadow 150ms ease; }
+.dashboard-stat-card:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(16,42,47,.09); }
+.dashboard-stat-card strong { color: var(--clinic-primary); font-size: 2rem; line-height: 1.1; }
+.dashboard-stat-card small, .dashboard-stat-label { color: var(--clinic-muted); }
+.dashboard-stat-label { font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.dashboard-list { display: grid; }
+.dashboard-list-item { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .85rem 0; color: var(--clinic-ink); text-decoration: none; border-bottom: 1px solid var(--clinic-border); }
+.dashboard-list-item:last-child { border-bottom: 0; }
+.dashboard-list-item:hover { color: var(--clinic-primary); }
+.dashboard-empty-state { display: grid; gap: .3rem; min-height: 130px; place-content: center; text-align: center; color: var(--clinic-muted); border: 1px dashed var(--clinic-border); border-radius: 1rem; padding: 1rem; }
+.user-summary { line-height: 1.2; }

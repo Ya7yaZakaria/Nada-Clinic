@@ -1,74 +1,240 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Nada Clinic System — Dashboard{% endblock %}
-{% block page_title %}Dashboard Shell{% endblock %}
-{% block page_subtitle %}Stage 1 — Auth Foundation{% endblock %}
+{% block title %}{{ clinic_name }} - Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}
+Today clinic overview and quick actions
+{% endblock %}
 
 {% block content %}
-<section class="row g-3 mb-4">
-    <div class="col-12 col-xl-8">
-        <div class="clinic-card hero-card">
-            <p class="section-kicker">Stage 1 / Sprint 1.1</p>
-            <h1>Welcome, {{ current_user.name }}.</h1>
-            <p>
-                Authentication foundation is active. The next sprint will add multi-role RBAC
-                for Admin, Doctor, and Reception access separation.
-            </p>
-
-            <div class="d-flex flex-wrap gap-2 mt-3">
-                <span class="badge rounded-pill text-bg-primary">Logged in</span>
-                <span class="badge rounded-pill text-bg-secondary">Auth-ready</span>
-                <span class="badge rounded-pill text-bg-secondary">RBAC next</span>
-            </div>
-        </div>
+<section class="dashboard-welcome mb-4">
+    <div>
+        <p class="section-kicker mb-1">Clinic overview</p>
+        <h1 class="h3 mb-1">
+            Welcome, {{ current_user.name }}.
+        </h1>
+        <p class="text-muted mb-0">
+            {{ today_summary.date.strftime('%A, %d %B %Y') }}
+        </p>
     </div>
 
-    <div class="col-12 col-xl-4">
-        <div class="clinic-card h-100">
-            <p class="section-kicker">Current Status</p>
-            <h2 class="h5">Auth foundation only</h2>
-            <p class="text-muted mb-0">
-                RBAC, settings, and clinical modules are not implemented yet.
-            </p>
-        </div>
+    <div class="d-flex flex-wrap gap-2">
+        {% if current_user.has_permission('patients.basic.create') %}
+            <a
+                class="btn btn-primary"
+                href="{{ url_for('patients.new') }}"
+            >
+                New patient
+            </a>
+        {% endif %}
+
+        {% if current_user.has_permission('appointments.view') %}
+            <a
+                class="btn btn-outline-primary"
+                href="{{ url_for('appointments.calendar') }}"
+            >
+                Appointments
+            </a>
+
+            <a
+                class="btn btn-outline-secondary"
+                href="{{ url_for('today_clinic.index') }}"
+            >
+                Open Today Clinic
+            </a>
+        {% endif %}
     </div>
 </section>
 
+<section class="row g-3 mb-4">
+    {% if current_user.has_permission('appointments.view') %}
+        <div class="col-6 col-xl-3">
+            <a
+                class="clinic-card dashboard-stat-card text-decoration-none"
+                href="{{ url_for('today_clinic.index') }}"
+            >
+                <span class="dashboard-stat-label">
+                    Appointments
+                </span>
+                <strong>{{ today_summary.appointments }}</strong>
+                <small>Scheduled today</small>
+            </a>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <a
+                class="clinic-card dashboard-stat-card text-decoration-none"
+                href="{{ url_for('today_clinic.index') }}"
+            >
+                <span class="dashboard-stat-label">
+                    Waiting
+                </span>
+                <strong>{{ today_summary.waiting }}</strong>
+                <small>Arrived patients</small>
+            </a>
+        </div>
+    {% endif %}
+
+    {% if can_view_clinical %}
+        <div class="col-6 col-xl-3">
+            <a
+                class="clinic-card dashboard-stat-card text-decoration-none"
+                href="{{ url_for('visits.index', status='open') }}"
+            >
+                <span class="dashboard-stat-label">
+                    Open visits
+                </span>
+                <strong>{{ today_summary.open_visits }}</strong>
+                <small>Clinical work in progress</small>
+            </a>
+        </div>
+    {% endif %}
+
+    {% if current_user.has_permission('appointments.view') %}
+        <div class="col-6 col-xl-3">
+            <a
+                class="clinic-card dashboard-stat-card text-decoration-none"
+                href="{{ url_for('today_clinic.index') }}"
+            >
+                <span class="dashboard-stat-label">
+                    Completed
+                </span>
+                <strong>{{ today_summary.completed }}</strong>
+                <small>Finished today</small>
+            </a>
+        </div>
+    {% endif %}
+</section>
+
 <section class="row g-3">
-    <div class="col-12 col-md-6 col-xl-3">
-        <div class="clinic-card module-card">
-            <div class="module-icon">TC</div>
-            <h3>Today Clinic</h3>
-            <p>Placeholder for arrived patients and clinic flow.</p>
-            <span class="module-status">Coming later</span>
-        </div>
-    </div>
+    {% if current_user.has_permission('patients.basic.view') %}
+        <div class="col-12 col-xl-6">
+            <div class="clinic-card h-100">
+                <div
+                    class="d-flex justify-content-between mb-3"
+                >
+                    <div>
+                        <p class="section-kicker mb-1">
+                            Patients
+                        </p>
+                        <h2 class="h5 mb-0">
+                            Recent patients
+                        </h2>
+                    </div>
 
-    <div class="col-12 col-md-6 col-xl-3">
-        <div class="clinic-card module-card">
-            <div class="module-icon">PW</div>
-            <h3>Patient Workspace</h3>
-            <p>Main future workspace rooted around the patient record.</p>
-            <span class="module-status">Coming later</span>
-        </div>
-    </div>
+                    <a
+                        class="btn btn-sm btn-outline-secondary"
+                        href="{{ url_for('patients.index') }}"
+                    >
+                        View all
+                    </a>
+                </div>
 
-    <div class="col-12 col-md-6 col-xl-3">
-        <div class="clinic-card module-card">
-            <div class="module-icon">V</div>
-            <h3>Visits</h3>
-            <p>Future clinical encounter area for OB/GYN workflows.</p>
-            <span class="module-status">Coming later</span>
+                {% if recent_patients %}
+                    <div class="dashboard-list">
+                        {% for patient in recent_patients %}
+                            <a
+                                class="dashboard-list-item"
+                                href="{{ url_for(
+                                    'patients.detail',
+                                    patient_uuid=patient.uuid
+                                ) }}"
+                            >
+                                <div>
+                                    <strong>
+                                        {{
+                                            patient.name_en
+                                            or patient.name_ar
+                                        }}
+                                    </strong>
+                                    <div class="small text-muted">
+                                        MRN {{ patient.formatted_mrn }}
+                                        /
+                                        {{ patient.phone_primary }}
+                                    </div>
+                                </div>
+                                <span aria-hidden="true">></span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="dashboard-empty-state">
+                        <strong>No patients yet.</strong>
+                        <span>
+                            Create the first patient record to begin.
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-    </div>
+    {% endif %}
 
-    <div class="col-12 col-md-6 col-xl-3">
-        <div class="clinic-card module-card">
-            <div class="module-icon">I</div>
-            <h3>Investigations</h3>
-            <p>Future area for ordered, pending, resulted, and reviewed tests.</p>
-            <span class="module-status">Coming later</span>
+    {% if can_view_clinical %}
+        <div class="col-12 col-xl-6">
+            <div class="clinic-card h-100">
+                <div
+                    class="d-flex justify-content-between mb-3"
+                >
+                    <div>
+                        <p class="section-kicker mb-1">
+                            Clinical work
+                        </p>
+                        <h2 class="h5 mb-0">
+                            Recent visits
+                        </h2>
+                    </div>
+
+                    <a
+                        class="btn btn-sm btn-outline-secondary"
+                        href="{{ url_for('visits.index') }}"
+                    >
+                        View all
+                    </a>
+                </div>
+
+                {% if recent_visits %}
+                    <div class="dashboard-list">
+                        {% for visit in recent_visits %}
+                            <a
+                                class="dashboard-list-item"
+                                href="{{ url_for(
+                                    'visits.detail',
+                                    visit_uuid=visit.uuid
+                                ) }}"
+                            >
+                                <div>
+                                    <strong>
+                                        {{
+                                            visit.patient.name_en
+                                            or visit.patient.name_ar
+                                        }}
+                                    </strong>
+                                    <div class="small text-muted">
+                                        {{
+                                            visit.visit_date.strftime(
+                                                '%d %b %Y, %H:%M'
+                                            )
+                                        }}
+                                        /
+                                        {{ visit.visit_type|upper }}
+                                        /
+                                        {{ visit.status|capitalize }}
+                                    </div>
+                                </div>
+                                <span aria-hidden="true">></span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="dashboard-empty-state">
+                        <strong>No visits yet.</strong>
+                        <span>
+                            Start from a Patient Workspace or Today Clinic.
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-    </div>
+    {% endif %}
 </section>
 {% endblock %}

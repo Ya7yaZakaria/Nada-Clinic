@@ -1,4 +1,4 @@
-﻿from datetime import date
+from datetime import date
 
 from app import create_app
 from app.extensions import db
@@ -262,10 +262,10 @@ def test_investigations_sidebar_link_is_active_for_doctor():
         client = app.test_client()
         login(client, "doctor-investigation-sidebar@example.com")
 
-        response = client.get("/")
+        response = client.get("/investigations/")
 
         assert response.status_code == 200
         assert b"/investigations/" in response.data
-        assert b"Stage 6 Investigations" in response.data
+        assert b"Stage 6 Investigations" not in response.data
 
         db.drop_all()

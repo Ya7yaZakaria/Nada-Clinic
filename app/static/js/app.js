@@ -1,1 +1,1 @@
-﻿console.log("Nada Clinic System UI shell loaded.");
+document.documentElement.classList.add("clinic-ui-ready");

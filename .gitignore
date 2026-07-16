@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
@@ -30,3 +30,6 @@ migrations/__pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Local implementation backups
+.local_backups/

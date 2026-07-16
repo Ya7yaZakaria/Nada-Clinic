@@ -1,4 +1,4 @@
-﻿from app import create_app
+from app import create_app
 from app.extensions import db
 from app.models import User
 from app.services.rbac_service import RBACService
@@ -98,7 +98,9 @@ def test_ui_shell_contains_foundation_navigation_for_logged_in_user():
 
         assert response.status_code == 200
         assert b"Today Clinic" in response.data
-        assert b"Patient Workspace" in response.data
+        assert b"Patients" in response.data
+        assert b"Visits" in response.data
+        assert b"Stage 1" not in response.data
         assert b"Appointments" in response.data
         assert b"Investigations" in response.data
 
