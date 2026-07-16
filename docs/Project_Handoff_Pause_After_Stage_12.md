@@ -1,4 +1,4 @@
-# Project Handoff — Pause After Stage 12 Settings Freeze
+# Project Handoff â€” Pause After Stage 12 Settings Freeze
 
 ## Status
 
@@ -18,7 +18,7 @@ The next work should not start a new stage immediately. The system should first 
 
 ## Implemented / Frozen Stages
 
-### Stage 0–1 Foundation/Auth/RBAC/Settings Base
+### Stage 0â€“1 Foundation/Auth/RBAC/Settings Base
 
 - Flask app foundation
 - SQLAlchemy / Alembic / Flask-Migrate
@@ -234,7 +234,7 @@ Do not jump directly to Stage 13 Reports unless real use confirms the current wo
 
 Recommended next choices after personal trial:
 
-### Option A — Trial Fix Sprint
+### Option A â€” Trial Fix Sprint
 
 Use if practical testing finds bugs/UX friction.
 
@@ -248,7 +248,7 @@ Scope:
 - No new major module.
 - No schema unless absolutely necessary.
 
-### Option B — Print/Clinic Identity Cleanup
+### Option B â€” Print/Clinic Identity Cleanup
 
 Use if prescription/investigation printing is not clinic-ready.
 
@@ -259,7 +259,7 @@ Scope:
 - Review A4 layout.
 - No PDF generation unless explicitly requested.
 
-### Option C — Stage 13 Reports
+### Option C â€” Stage 13 Reports
 
 Use only after trial confirms daily workflow is acceptable.
 
@@ -346,20 +346,20 @@ aefd153 feat(settings): add sprint 12.2 appearance and rtl preferences
 
 ### New Trial Findings
 
-Area: Application shell / Sidebar  
-Screen/Route: Global desktop shell  
-What happened: The collapsed rail is visually narrow and uncomfortable.  
-What is expected: Sidebar expands when the pointer reaches it and collapses after the pointer leaves.  
-Severity: Medium  
-Type: UX  
+Area: Application shell / Sidebar
+Screen/Route: Global desktop shell
+What happened: The collapsed rail is visually narrow and uncomfortable.
+What is expected: Sidebar expands when the pointer reaches it and collapses after the pointer leaves.
+Severity: Medium
+Type: UX
 Suggested fix: Desktop hover-expand overlay with optional pin and mobile drawer fallback.
 
-Area: Dashboard  
-Screen/Route: `/`  
-What happened: The dashboard is too basic for daily clinical use.  
-What is expected: A role-aware command center with useful workflow and attention items.  
-Severity: Medium  
-Type: UX / Workflow  
+Area: Dashboard
+Screen/Route: `/`
+What happened: The dashboard is too basic for daily clinical use.
+What is expected: A role-aware command center with useful workflow and attention items.
+Severity: Medium
+Type: UX / Workflow
 Suggested fix: Replace Open Visits with Appointments Today, Waiting Now, In Progress, and Completed Today, then add attention and queue sections.
 
 ### Next Planning Direction
