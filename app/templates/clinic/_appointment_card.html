@@ -1,62 +1,272 @@
-﻿{% set patient = appointment.patient %}
-{% set display_age = PatientService.calculate_display_age(patient) %}
-{% set active_journeys = JourneyService.get_active_journeys(patient) %}
-{% set last_visit = VisitService.get_last_visit(patient) %}
+{% set patient = appointment.patient %}
+{% set display_age =
+    PatientService.calculate_display_age(patient)
+%}
+{% set active_journeys =
+    JourneyService.get_active_journeys(patient)
+%}
+{% set last_visit =
+    VisitService.get_last_visit(patient)
+%}
+{% set today_visit = appointment.visit %}
+{% set resolved_item = resolved_item|default(none) %}
+{% set is_resolved = resolved_item is not none %}
+{% set allow_operational_actions = not is_resolved and not today_visit %}
 
-<div class="list-group-item">
-    <div class="d-flex flex-column flex-xxl-row justify-content-between gap-2">
-        <div class="flex-grow-1">
-            <div class="d-flex flex-wrap gap-2 mb-1">
-                <span class="badge text-bg-light border">{{ appointment.appointment_time.strftime("%H:%M") if appointment.appointment_time else "No time" }}</span>
-                <span class="badge text-bg-primary">{{ AppointmentService.get_type_label(appointment.appointment_type) }}</span>
-                <span class="badge text-bg-secondary">{{ AppointmentService.get_status_label(appointment.status) }}</span>
-                <span class="badge text-bg-light border">{{ AppointmentService.get_source_label(appointment.source) }}</span>
-            </div>
+<article class="clinic-patient-card">
+    <div class="clinic-patient-card-main">
+        <div class="clinic-patient-meta">
+            <time class="clinic-time-chip">
+                {{
+                    appointment.appointment_time
+                    .strftime("%H:%M")
+                    if appointment.appointment_time
+                    else "Walk-in"
+                }}
+            </time>
 
-            <div class="fw-semibold">
-                MRN {{ patient.formatted_mrn }} · {{ PatientService.get_display_name(patient) }}
-            </div>
+            <span class="badge text-bg-primary">
+                {{
+                    AppointmentService.get_type_label(
+                        appointment.appointment_type
+                    )
+                }}
+            </span>
 
-            <div class="small text-muted">
-                Age {{ display_age if display_age is not none else "—" }} · {{ patient.phone_primary }}
-            </div>
+            <span class="badge text-bg-light border">
+                {{
+                    AppointmentService.get_status_label(
+                        appointment.status
+                    )
+                }}
+            </span>
 
-            <div class="d-flex flex-wrap gap-1 mt-2">
-                {% if active_journeys %}
-                    {% for journey in active_journeys %}
-                        <span class="badge text-bg-info">{{ JourneyService.get_type_label(journey.journey_type) }}</span>
-                    {% endfor %}
-                {% else %}
-                    <span class="badge text-bg-light border">No active journey</span>
-                {% endif %}
-
-                {% if last_visit %}
-                    <span class="badge text-bg-light border">Last visit {{ last_visit.visit_date.date() if last_visit.visit_date else "—" }}</span>
-                {% else %}
-                    <span class="badge text-bg-light border">No previous visit</span>
-                {% endif %}
-
-                <span class="badge text-bg-light border">Pending flags: none</span>
-            </div>
+            {% if today_visit %}
+                <span class="badge {{
+                    'text-bg-success'
+                    if today_visit.status == 'completed'
+                    else (
+                        'text-bg-warning'
+                        if today_visit.status == 'incomplete'
+                        else 'text-bg-info'
+                    )
+                }}">
+                    Visit
+                    {{ today_visit.status|title }}
+                </span>
+            {% endif %}
         </div>
 
-        <div class="d-flex flex-wrap gap-2 align-items-start">
-            <a class="btn btn-sm btn-primary" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">Open Workspace</a>
-            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('visits.new', patient_uuid=patient.uuid) }}">New Visit</a>
+        <div class="clinic-patient-identity">
+            <div>
+                <strong>
+                    {{
+                        PatientService.get_display_name(
+                            patient
+                        )
+                    }}
+                </strong>
 
-            {% if appointment.status == "booked" %}
-                <form method="post" action="{{ url_for('appointments.arrive', appointment_uuid=appointment.uuid) }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button class="btn btn-sm btn-success" type="submit">Mark Arrived</button>
-                </form>
+                <span>
+                    MRN {{ patient.formatted_mrn }}
+                </span>
+            </div>
+
+            <small>
+                Age
+                {{
+                    display_age
+                    if display_age is not none
+                    else "-"
+                }}
+                |
+                {{ patient.phone_primary }}
+            </small>
+        </div>
+
+        <div class="clinic-patient-context">
+            {% if is_resolved %}
+                <span class="badge text-bg-secondary">
+                    {% if resolved_item.kind == 'completed' %}
+                        Visit Completed
+                    {% elif resolved_item.kind == 'cancelled' %}
+                        Cancelled
+                    {% else %}
+                        Rescheduled
+                    {% endif %}
+                </span>
+
+                <span class="badge text-bg-light border">
+                    Resolved
+                    {{ resolved_item.resolved_at.strftime('%Y-%m-%d %H:%M') }}
+                </span>
+
+                {% if resolved_item.kind == 'cancelled'
+                      and appointment.cancel_reason %}
+                    <span class="badge text-bg-light border">
+                        Reason: {{ appointment.cancel_reason }}
+                    </span>
+                {% endif %}
+
+                {% if resolved_item.kind == 'rescheduled'
+                      and appointment.rescheduled_to %}
+                    <span class="badge text-bg-light border">
+                        Moved to
+                        {{ appointment.rescheduled_to.appointment_date }}
+                        ,
+                        {{ appointment.rescheduled_to.appointment_time.strftime('%H:%M') if appointment.rescheduled_to.appointment_time else 'Walk-in' }}
+                    </span>
+                {% endif %}
             {% endif %}
 
-            {% if appointment.status in ["booked", "arrived"] %}
-                <form method="post" action="{{ url_for('today_clinic.complete_appointment', appointment_uuid=appointment.uuid) }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button class="btn btn-sm btn-outline-success" type="submit">Mark Completed</button>
-                </form>
+            {% for journey in active_journeys %}
+                <span class="badge text-bg-info">
+                    {{
+                        JourneyService.get_type_label(
+                            journey.journey_type
+                        )
+                    }}
+                </span>
+            {% endfor %}
+
+            {% if last_visit %}
+                <span class="badge text-bg-light border">
+                    Last visit
+                    {{
+                        last_visit.visit_date.date()
+                        if last_visit.visit_date
+                        else "-"
+                    }}
+                </span>
             {% endif %}
+
+            <span class="badge text-bg-light border">
+                {{
+                    AppointmentService.get_source_label(
+                        appointment.source
+                    )
+                }}
+            </span>
+
+            <span class="badge text-bg-light border">
+                Pending flags: none
+            </span>
         </div>
     </div>
-</div>
+
+    <div class="clinic-patient-actions">
+        {% if current_user.has_permission(
+            'clinical.view'
+        ) %}
+            {% if today_visit %}
+                <a
+                    class="btn btn-sm btn-primary"
+                    href="{{
+                        url_for(
+                            'visits.detail',
+                            visit_uuid=today_visit.uuid
+                        )
+                    }}"
+                >
+                    Open Visit
+                </a>
+            {% elif allow_operational_actions and appointment.status
+                      in ['booked', 'arrived'] %}
+                <a
+                    class="btn btn-sm btn-primary"
+                    href="{{
+                        url_for(
+                            'visits.new',
+                            patient_uuid=patient.uuid,
+                            appointment_uuid=appointment.uuid
+                        )
+                    }}"
+                >
+                    New Visit
+                </a>
+            {% endif %}
+
+            <a
+                class="btn btn-sm btn-outline-secondary"
+                href="{{
+                    url_for(
+                        'patients.detail',
+                        patient_uuid=patient.uuid
+                    )
+                }}"
+            >
+                Open Workspace
+            </a>
+        {% endif %}
+
+        {% if current_user.has_permission(
+            'appointments.manage'
+        ) %}
+            {% if allow_operational_actions and appointment.status == 'booked' %}
+                <form
+                    method="post"
+                    action="{{
+                        url_for(
+                            'appointments.arrive',
+                            appointment_uuid=(
+                                appointment.uuid
+                            )
+                        )
+                    }}"
+                >
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <button
+                        class="btn btn-sm btn-success"
+                        type="submit"
+                    >
+                        Mark Arrived
+                    </button>
+                </form>
+            {% elif allow_operational_actions and appointment.status == 'arrived' %}
+                <form
+                    method="post"
+                    action="{{
+                        url_for(
+                            'appointments.undo_arrive',
+                            appointment_uuid=(
+                                appointment.uuid
+                            )
+                        )
+                    }}"
+                >
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{ csrf_token() }}"
+                    >
+
+                    <button
+                        class="btn btn-sm btn-outline-warning"
+                        type="submit"
+                    >
+                        Undo Arrived
+                    </button>
+                </form>
+            {% endif %}
+
+            <a
+                class="btn btn-sm btn-outline-secondary"
+                href="{{
+                    url_for(
+                        'appointments.detail',
+                        appointment_uuid=(
+                            appointment.uuid
+                        )
+                    )
+                }}"
+            >
+                Manage Booking
+            </a>
+        {% endif %}
+    </div>
+</article>

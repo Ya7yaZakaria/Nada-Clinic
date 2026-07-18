@@ -1,50 +1,53 @@
-﻿<div class="row g-2 mb-3">
-    <div class="col-6 col-lg">
-        <div class="clinic-card h-100">
-            <div class="small text-muted">Total Booked Today</div>
-            <div class="h4 mb-0">{{ clinic_day.counters.total_booked_today }}</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg">
-        <div class="clinic-card h-100">
-            <div class="small text-muted">Still Booked</div>
-            <div class="h4 mb-0">{{ clinic_day.counters.booked }}</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg">
-        <div class="clinic-card h-100">
-            <div class="small text-muted">Waiting</div>
-            <div class="h4 mb-0">{{ clinic_day.counters.arrived }}</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg">
-        <div class="clinic-card h-100">
-            <div class="small text-muted">Completed</div>
-            <div class="h4 mb-0">{{ clinic_day.counters.completed }}</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg">
-        <div class="clinic-card h-100">
-            <div class="small text-muted">Cancelled</div>
-            <div class="h4 mb-0">{{ clinic_day.counters.cancelled }}</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg">
-        <div class="clinic-card h-100">
-            <div class="small text-muted">Rescheduled</div>
-            <div class="h4 mb-0">{{ clinic_day.counters.rescheduled }}</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg">
-        <div class="clinic-card h-100">
-            <div class="small text-muted">No-show</div>
-            <div class="h4 mb-0">{{ clinic_day.counters.no_show }}</div>
-        </div>
-    </div>
-    <div class="col-6 col-lg">
-        <div class="clinic-card h-100">
-            <div class="small text-muted">Emergency</div>
-            <div class="h4 mb-0">{{ clinic_day.counters.emergency }}</div>
-        </div>
-    </div>
-</div>
+<section class="clinic-day-kpis mb-3">
+    {% for item in [
+        {
+            "label": "Appointments",
+            "value": live_counters.appointments,
+            "icon": "bi-calendar-check",
+            "tone": "primary"
+        },
+        {
+            "label": "Waiting Now",
+            "value": live_counters.waiting,
+            "icon": "bi-hourglass-split",
+            "tone": "warning"
+        },
+        {
+            "label": "Remaining",
+            "value": live_counters.remaining,
+            "icon": "bi-list-task",
+            "tone": "info"
+        },
+        {
+            "label": "Visits Today",
+            "value": live_counters.visits,
+            "icon": "bi-clipboard2-pulse",
+            "tone": "purple"
+        },
+        {
+            "label": "Visits Completed",
+            "value": live_counters.visits_completed,
+            "icon": "bi-check2-circle",
+            "tone": "success"
+        },
+        {
+            "label": "Cancelled",
+            "value": live_counters.cancelled,
+            "icon": "bi-x-circle",
+            "tone": "secondary"
+        }
+    ] %}
+        <article
+            class="clinic-card clinic-day-kpi
+                   clinic-day-kpi-{{ item.tone }}"
+        >
+            <span class="clinic-day-kpi-icon">
+                <i class="bi {{ item.icon }}"></i>
+            </span>
+
+            <span>{{ item.label }}</span>
+
+            <strong>{{ item.value }}</strong>
+        </article>
+    {% endfor %}
+</section>

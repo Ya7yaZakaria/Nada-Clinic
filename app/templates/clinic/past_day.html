@@ -52,34 +52,36 @@
 
     <div class="col-12 col-xl-6">
         <div class="clinic-card h-100">
-            <h2 class="h5">Completed</h2>
-            {% if clinic_day.completed %}
+            <h2 class="h5">Resolved Bookings</h2>
+
+            <form class="row g-2 mb-3" method="get">
+                <div class="col">
+                    <select class="form-select form-select-sm" name="resolved_filter">
+                        {% for value, label in [('all','All'),('completed','Completed'),('cancelled','Cancelled'),('rescheduled','Rescheduled')] %}
+                            <option value="{{ value }}" {{ 'selected' if resolved['filter'] == value else '' }}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col">
+                    <select class="form-select form-select-sm" name="resolved_sort">
+                        <option value="latest" {{ 'selected' if resolved['sort'] == 'latest' else '' }}>Latest resolved</option>
+                        <option value="oldest" {{ 'selected' if resolved['sort'] == 'oldest' else '' }}>Oldest resolved</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-secondary">Apply</button>
+                </div>
+            </form>
+
+            {% if resolved['items'] %}
                 <div class="list-group list-group-flush">
-                    {% for appointment in clinic_day.completed %}
+                    {% for resolved_item in resolved['items'] %}
+                        {% set appointment = resolved_item.appointment %}
                         {% include "clinic/_appointment_card.html" %}
                     {% endfor %}
                 </div>
             {% else %}
-                <p class="text-muted mb-0">No completed appointments.</p>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="col-12 col-xl-6">
-        <div class="clinic-card h-100">
-            <h2 class="h5">Cancelled / Rescheduled</h2>
-
-            {% if clinic_day.cancelled or clinic_day.rescheduled %}
-                <div class="list-group list-group-flush">
-                    {% for appointment in clinic_day.cancelled %}
-                        {% include "clinic/_appointment_card.html" %}
-                    {% endfor %}
-                    {% for appointment in clinic_day.rescheduled %}
-                        {% include "clinic/_appointment_card.html" %}
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted mb-0">No cancelled or rescheduled appointments.</p>
+                <p class="text-muted mb-0">No resolved bookings match this filter.</p>
             {% endif %}
         </div>
     </div>

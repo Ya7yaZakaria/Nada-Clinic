@@ -1,10 +1,10 @@
-﻿from datetime import date
+from datetime import date
 
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
-from app.models.appointment import Appointment
 from app.services.appointment_service import AppointmentService
+from app.services.clinic_day_service import ClinicDayService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
 from app.services.rbac_service import RBACService
@@ -46,24 +46,60 @@ def previous():
 @RBACService.require_permission("appointments.view")
 def day(clinic_date):
     selected_date = _parse_clinic_date(clinic_date)
+    resolved = AppointmentService.get_resolved_bookings(
+        selected_date,
+        request.args.get("resolved_filter", "all"),
+        request.args.get("resolved_sort", "latest"),
+    )
 
     if selected_date < date.today():
-        clinic_day = AppointmentService.get_day_summary(selected_date)
+        clinic_day = AppointmentService.get_day_summary(
+            selected_date
+        )
+        visit_snapshot = (
+            ClinicDayService.get_visit_snapshot(
+                selected_date
+            )
+        )
+
         return render_template(
             "clinic/past_day.html",
             clinic_day=clinic_day,
             selected_date=selected_date,
+            visit_snapshot=visit_snapshot,
+            resolved=resolved,
             AppointmentService=AppointmentService,
             JourneyService=JourneyService,
             PatientService=PatientService,
             VisitService=VisitService,
         )
 
-    clinic_day = AppointmentService.get_clinic_day(selected_date)
+    clinic_day = AppointmentService.get_clinic_day(
+        selected_date
+    )
+    visit_snapshot = (
+        ClinicDayService.get_visit_snapshot(
+            selected_date
+        )
+    )
+    live_counters = (
+        ClinicDayService.build_live_counters(
+            clinic_day,
+            visit_snapshot,
+        )
+    )
+
     return render_template(
         "clinic/today.html",
         clinic_day=clinic_day,
         selected_date=selected_date,
+        visit_snapshot=visit_snapshot,
+        resolved=resolved,
+        live_counters=live_counters,
+        show_close_result=(
+            ClinicDayService
+            .is_close_result_visible(clinic_day)
+        ),
         AppointmentService=AppointmentService,
         JourneyService=JourneyService,
         PatientService=PatientService,
@@ -75,19 +111,24 @@ def day(clinic_date):
 @login_required
 @RBACService.require_permission("appointments.manage")
 def close_day(clinic_date):
-    selected_date = _parse_clinic_date(clinic_date)
-    converted = AppointmentService.close_clinic_day(selected_date)
+    selected_date = _parse_clinic_date(
+        clinic_date
+    )
 
-    flash(f"Clinic day closed. {len(converted)} booked appointment(s) converted to no-show.", "warning")
-    return redirect(url_for("today_clinic.day", clinic_date=selected_date.isoformat()))
+    converted = AppointmentService.close_clinic_day(
+        selected_date
+    )
 
+    flash(
+        "Clinic day closed. "
+        f"{len(converted)} remaining booking(s) "
+        "converted to no-show.",
+        "warning",
+    )
 
-@today_clinic_bp.post("/appointments/<appointment_uuid>/complete")
-@login_required
-@RBACService.require_permission("appointments.manage")
-def complete_appointment(appointment_uuid):
-    appointment = Appointment.query.filter_by(uuid=appointment_uuid).first_or_404()
-
-    AppointmentService.mark_completed(appointment)
-    flash("Appointment marked completed.", "success")
-    return redirect(url_for("today_clinic.day", clinic_date=appointment.appointment_date.isoformat()))
+    return redirect(
+        url_for(
+            "today_clinic.day",
+            clinic_date=selected_date.isoformat(),
+        )
+    )

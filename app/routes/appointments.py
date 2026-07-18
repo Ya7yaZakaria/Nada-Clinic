@@ -241,6 +241,37 @@ def arrive(appointment_uuid):
     return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
 
 
+@appointments_bp.post("/<appointment_uuid>/undo-arrive")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def undo_arrive(appointment_uuid):
+    appointment = Appointment.query.filter_by(
+        uuid=appointment_uuid,
+    ).first_or_404()
+
+    try:
+        AppointmentService.undo_arrived(
+            appointment
+        )
+    except ValueError as exc:
+        flash(str(exc), "danger")
+    else:
+        flash(
+            "Arrival was undone. Appointment returned "
+            "to booked.",
+            "info",
+        )
+
+    return redirect(
+        url_for(
+            "today_clinic.day",
+            clinic_date=(
+                appointment.appointment_date.isoformat()
+            ),
+        )
+    )
+
+
 @appointments_bp.post("/<appointment_uuid>/cancel")
 @login_required
 @RBACService.require_permission("appointments.manage")

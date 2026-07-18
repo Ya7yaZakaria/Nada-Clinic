@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from sqlalchemy import or_
 
@@ -13,7 +13,7 @@ from app.forms.ultrasound_forms import (
     ExternalUltrasoundResultForm,
 )
 from app.forms.visit_forms import VisitForm, VisitJourneyLinkForm
-from app.models import ClinicUltrasoundExam, Patient, Visit
+from app.models import Appointment, ClinicUltrasoundExam, Patient, Visit
 from app.models.drug import Drug
 from app.models.drug_dictionary import DrugRoute
 from app.models.investigation import InvestigationOrder, InvestigationOrderItem
@@ -142,6 +142,12 @@ def _parse_follow_up_date(value):
 @RBACService.require_permission("clinical.note.write")
 def new(patient_uuid):
     patient = Patient.query.filter_by(uuid=patient_uuid).first_or_404()
+    appointment = None
+    appointment_uuid = request.args.get("appointment_uuid") or request.form.get("appointment_uuid")
+    if appointment_uuid:
+        appointment = Appointment.query.filter_by(uuid=appointment_uuid).first_or_404()
+        if appointment.patient_id != patient.id:
+            abort(404)
     journeys = VisitService.get_available_journeys(patient)
     active_journeys = JourneyService.get_active_journeys(patient)
 
@@ -155,6 +161,7 @@ def new(patient_uuid):
         try:
             visit = VisitService.create_visit(
                 patient=patient,
+                appointment=appointment,
                 journey_id=form.journey_id.data or None,
                 visit_type=form.visit_type.data,
                 chief_complaint=form.chief_complaint.data,
@@ -175,6 +182,7 @@ def new(patient_uuid):
                 patient=patient,
                 form=form,
                 PatientService=PatientService,
+                appointment=appointment,
             )
 
         if VisitService.has_unassigned_warning(visit):
@@ -189,6 +197,7 @@ def new(patient_uuid):
         patient=patient,
         form=form,
         PatientService=PatientService,
+        appointment=appointment,
     )
 
 

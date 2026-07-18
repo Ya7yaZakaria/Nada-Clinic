@@ -56,15 +56,17 @@ def create_patient(**overrides):
 
 def seed_calendar_data():
     patient = create_patient()
+    arrived_patient = create_patient(phone_primary="01000000001")
+    completed_patient = create_patient(phone_primary="01000000002")
 
     booked = AppointmentService.create_appointment(
-        patient_id=patient.id,
+        patient_id=arrived_patient.id,
         appointment_date=date(2026, 7, 7),
         appointment_type=Appointment.TYPE_NEW_CONSULTATION,
     )
 
     arrived = AppointmentService.create_appointment(
-        patient_id=patient.id,
+        patient_id=completed_patient.id,
         appointment_date=date(2026, 7, 7),
         appointment_type=Appointment.TYPE_FOLLOW_UP,
         source=Appointment.SOURCE_PHONE,
@@ -77,7 +79,7 @@ def seed_calendar_data():
         appointment_type=Appointment.TYPE_EMERGENCY,
         source=Appointment.SOURCE_WHATSAPP,
     )
-    AppointmentService.mark_completed(completed)
+    AppointmentService.mark_no_show(completed)
 
     return patient, booked, arrived, completed
 
@@ -143,7 +145,7 @@ def test_calendar_shows_count_and_includes_changed_statuses():
         assert b">3</span>" in response.data
         assert b"Booked" in response.data
         assert b"Waiting" in response.data
-        assert b"Completed" in response.data
+        assert b"No-show" in response.data
 
         db.drop_all()
 
@@ -167,7 +169,7 @@ def test_selected_day_appointments_render_type_and_status():
         assert "طوارئ".encode() in response.data
         assert b"Booked" in response.data
         assert b"Waiting" in response.data
-        assert b"Completed" in response.data
+        assert b"No-show" in response.data
 
         db.drop_all()
 

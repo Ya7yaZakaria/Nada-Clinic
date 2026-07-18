@@ -621,12 +621,12 @@ class DemoDataService:
         if pattern in {18, 19}:
             return Appointment.STATUS_NO_SHOW
 
-        return Appointment.STATUS_COMPLETED
+        return Appointment.STATUS_ARRIVED
 
     @staticmethod
     def _today_status(slot_index):
         statuses = (
-            Appointment.STATUS_COMPLETED,
+            Appointment.STATUS_ARRIVED,
             Appointment.STATUS_ARRIVED,
             Appointment.STATUS_BOOKED,
             Appointment.STATUS_CANCELLED,
@@ -673,12 +673,16 @@ class DemoDataService:
                 else:
                     status = Appointment.STATUS_BOOKED
 
+                creates_visit = (
+                    (clinic_date < today and appointment_index % 20 not in {16, 17, 18, 19})
+                    or (clinic_date == today and slot_index % 7 == 0)
+                )
+
                 fee = None
                 paid = None
                 method = None
 
                 if status in {
-                    Appointment.STATUS_COMPLETED,
                     Appointment.STATUS_ARRIVED,
                 }:
                     fee = cls._appointment_fee(
@@ -740,9 +744,7 @@ class DemoDataService:
                 )
                 appointment.updated_at = event_datetime
 
-                if status == Appointment.STATUS_COMPLETED:
-                    appointment.completed_at = event_datetime
-                elif status == Appointment.STATUS_ARRIVED:
+                if status == Appointment.STATUS_ARRIVED:
                     appointment.arrived_at = event_datetime
                 elif status == Appointment.STATUS_CANCELLED:
                     appointment.cancelled_at = event_datetime
@@ -759,6 +761,7 @@ class DemoDataService:
                         "date_time": event_datetime,
                         "status": status,
                         "type": appointment_type,
+                        "creates_visit": creates_visit,
                     }
                 )
 
@@ -836,7 +839,7 @@ class DemoDataService:
         visits = []
 
         for index, row in enumerate(appointment_rows):
-            if row["status"] != Appointment.STATUS_COMPLETED:
+            if not row["creates_visit"]:
                 continue
 
             patient = row["patient"]
@@ -853,6 +856,7 @@ class DemoDataService:
 
             visit = Visit(
                 patient=patient,
+                appointment=row["appointment"],
                 journey=journey,
                 visit_type=profile["visit_type"],
                 status="completed",

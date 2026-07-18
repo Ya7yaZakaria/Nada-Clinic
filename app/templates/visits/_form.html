@@ -72,3 +72,6 @@
     <a class="btn btn-outline-secondary" href="{{ url_for('patients.detail', patient_uuid=patient.uuid if patient else visit.patient.uuid) }}">Cancel</a>
     {{ form.submit(class="btn btn-primary") }}
 </div>
+{% if appointment %}
+<input type="hidden" name="appointment_uuid" value="{{ appointment.uuid }}">
+{% endif %}

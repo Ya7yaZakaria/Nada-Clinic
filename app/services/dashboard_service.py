@@ -37,7 +37,6 @@ class DashboardService:
     APPOINTMENT_STATUSES = (
         Appointment.STATUS_BOOKED,
         Appointment.STATUS_ARRIVED,
-        Appointment.STATUS_COMPLETED,
         Appointment.STATUS_CANCELLED,
         Appointment.STATUS_RESCHEDULED,
         Appointment.STATUS_NO_SHOW,
@@ -447,12 +446,6 @@ class DashboardService:
             ],
             "types": {"labels": [label for _, label in cls.APPOINTMENT_TYPES], "values": [int(type_counts.get(key, 0)) for key, _ in cls.APPOINTMENT_TYPES]},
             "sources": {"labels": [label for _, label in cls.APPOINTMENT_SOURCES], "values": [int(source_counts.get(key, 0)) for key, _ in cls.APPOINTMENT_SOURCES]},
-            "completed": int(
-                status_counts.get(
-                    Appointment.STATUS_COMPLETED,
-                    0,
-                )
-            ),
             "no_show": int(
                 status_counts.get(
                     Appointment.STATUS_NO_SHOW,
@@ -464,9 +457,6 @@ class DashboardService:
                     Appointment.STATUS_CANCELLED,
                     0,
                 )
-            ),
-            "completion_rate": rate(
-                Appointment.STATUS_COMPLETED
             ),
             "no_show_rate": rate(
                 Appointment.STATUS_NO_SHOW
@@ -737,9 +727,11 @@ class DashboardService:
             "waiting": counters[
                 "arrived"
             ],
-            "completed": counters[
-                "completed"
-            ],
+            "completed": Visit.query.filter(
+                Visit.status == "completed",
+                Visit.visit_date >= datetime.combine(date.today(), time.min, tzinfo=timezone.utc),
+                Visit.visit_date < datetime.combine(date.today() + timedelta(days=1), time.min, tzinfo=timezone.utc),
+            ).count(),
             "no_show": counters[
                 "no_show"
             ],

@@ -1,22 +1,48 @@
-﻿<div class="clinic-card h-100">
-    <div class="d-flex justify-content-between gap-2 mb-2">
+<section class="clinic-card clinic-queue-card h-100">
+    <div class="clinic-section-header">
         <div>
-            <p class="section-kicker">Waiting Queue</p>
-            <h2 class="h5">Arrived Patients</h2>
+            <div class="clinic-day-live-row">
+                <span class="clinic-day-live-dot"></span>
+
+                <span class="section-kicker mb-0">
+                    Waiting Queue
+                </span>
+            </div>
+
+            <h2 class="h4 mb-1">
+                Arrived Patients
+            </h2>
+
+            <p class="text-muted mb-0">
+                Patients currently waiting to be seen
+            </p>
         </div>
-        <span class="badge text-bg-primary">{{ clinic_day.waiting_queue|length }}</span>
+
+        <span class="clinic-count-badge">
+            {{ clinic_day.waiting_queue|length }}
+        </span>
     </div>
 
     {% if clinic_day.waiting_queue %}
-        <div class="list-group list-group-flush">
-            {% for appointment in clinic_day.waiting_queue %}
-                {% include "clinic/_appointment_card.html" %}
+        <div class="clinic-patient-stack">
+            {% for appointment
+                  in clinic_day.waiting_queue %}
+                {% include
+                    "clinic/_appointment_card.html"
+                %}
             {% endfor %}
         </div>
     {% else %}
-        <div class="placeholder-box">
-            <p class="fw-semibold mb-1">No patients waiting.</p>
-            <p class="text-muted mb-0">Arrived appointments will appear here.</p>
+        <div class="clinic-modern-empty">
+            <span>
+                <i class="bi bi-person-check"></i>
+            </span>
+
+            <strong>No patients waiting</strong>
+
+            <p>
+                Arrived patients will appear here.
+            </p>
         </div>
     {% endif %}
-</div>
+</section>

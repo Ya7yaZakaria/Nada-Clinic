@@ -1,22 +1,82 @@
-﻿<div class="clinic-card h-100">
-    <div class="d-flex justify-content-between gap-2 mb-2">
+<section class="clinic-card clinic-schedule-card h-100">
+    <div class="clinic-section-header">
         <div>
-            <p class="section-kicker">Full Day List</p>
-            <h2 class="h5">All Appointments</h2>
+            <span class="section-kicker">
+                Day Schedule
+            </span>
+
+            <h2 class="h4 mb-1">
+                Upcoming Bookings
+            </h2>
+
+            <p class="text-muted mb-0">
+                Waiting patients stay in the queue and are
+                not repeated here.
+            </p>
         </div>
-        <span class="badge text-bg-light border">{{ clinic_day.appointments|length }}</span>
+
+        <span class="clinic-count-badge">
+            {{ clinic_day.booked_no_action|length }}
+        </span>
     </div>
 
-    {% if clinic_day.appointments %}
-        <div class="list-group list-group-flush">
-            {% for appointment in clinic_day.appointments %}
-                {% include "clinic/_appointment_card.html" %}
+    {% if clinic_day.booked_no_action %}
+        <div class="clinic-patient-stack">
+            {% for appointment
+                  in clinic_day.booked_no_action %}
+                {% include
+                    "clinic/_appointment_card.html"
+                %}
             {% endfor %}
         </div>
     {% else %}
-        <div class="placeholder-box">
-            <p class="fw-semibold mb-1">No appointments for this day.</p>
-            <p class="text-muted mb-0">Booked appointments will appear here.</p>
+        <div class="clinic-modern-empty clinic-modern-empty-sm">
+            <span>
+                <i class="bi bi-calendar2-check"></i>
+            </span>
+
+            <strong>No upcoming bookings</strong>
+
+            <p>
+                All active bookings have been resolved.
+            </p>
         </div>
     {% endif %}
-</div>
+
+        <details class="clinic-resolved-panel mt-3" open>
+            <summary>
+                <span>
+                    <i class="bi bi-archive me-1"></i>
+                    Resolved bookings
+                </span>
+
+                <span class="badge text-bg-light border">
+                    {{ resolved['items']|length }}
+                </span>
+            </summary>
+
+            <form class="row g-2 mt-2" method="get">
+                <div class="col"><select class="form-select form-select-sm" name="resolved_filter">
+                    {% for value, label in [('all','All'),('completed','Completed'),('cancelled','Cancelled'),('rescheduled','Rescheduled')] %}<option value="{{ value }}" {{ 'selected' if resolved['filter'] == value else '' }}>{{ label }}</option>{% endfor %}
+                </select></div>
+                <div class="col"><select class="form-select form-select-sm" name="resolved_sort">
+                    <option value="latest" {{ 'selected' if resolved['sort'] == 'latest' else '' }}>Latest resolved</option><option value="oldest" {{ 'selected' if resolved['sort'] == 'oldest' else '' }}>Oldest resolved</option>
+                </select></div>
+                <div class="col-auto"><button class="btn btn-sm btn-outline-secondary">Apply</button></div>
+            </form>
+            {% if resolved['items'] %}
+              <div class="clinic-patient-stack mt-2">
+                {% for resolved_item in resolved['items'] %}
+                    {% set appointment = resolved_item.appointment %}
+                    {% include
+                        "clinic/_appointment_card.html"
+                    %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="clinic-modern-empty clinic-modern-empty-sm mt-2">
+                <strong>No resolved bookings match this filter.</strong>
+              </div>
+            {% endif %}
+        </details>
+</section>

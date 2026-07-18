@@ -42,6 +42,14 @@ class Visit(db.Model):
         index=True,
     )
 
+    appointment_id = db.Column(
+        db.Integer,
+        db.ForeignKey("appointments.id"),
+        nullable=True,
+        unique=True,
+        index=True,
+    )
+
     journey_id = db.Column(
         db.Integer,
         db.ForeignKey("journeys.id"),
@@ -112,6 +120,11 @@ class Visit(db.Model):
             lazy="dynamic",
             cascade="all, delete-orphan",
         ),
+    )
+
+    appointment = db.relationship(
+        "Appointment",
+        back_populates="visit",
     )
 
     journey = db.relationship(

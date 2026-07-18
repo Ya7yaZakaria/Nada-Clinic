@@ -13,7 +13,6 @@ class Appointment(db.Model):
 
     STATUS_BOOKED = "booked"
     STATUS_ARRIVED = "arrived"
-    STATUS_COMPLETED = "completed"
     STATUS_CANCELLED = "cancelled"
     STATUS_RESCHEDULED = "rescheduled"
     STATUS_NO_SHOW = "no_show"
@@ -32,7 +31,6 @@ class Appointment(db.Model):
     VALID_STATUSES = {
         STATUS_BOOKED,
         STATUS_ARRIVED,
-        STATUS_COMPLETED,
         STATUS_CANCELLED,
         STATUS_RESCHEDULED,
         STATUS_NO_SHOW,
@@ -67,7 +65,6 @@ class Appointment(db.Model):
     cancel_reason = db.Column(db.Text, nullable=True)
 
     arrived_at = db.Column(db.DateTime, nullable=True)
-    completed_at = db.Column(db.DateTime, nullable=True)
     cancelled_at = db.Column(db.DateTime, nullable=True)
     no_show_at = db.Column(db.DateTime, nullable=True)
     rescheduled_at = db.Column(db.DateTime, nullable=True)
@@ -83,6 +80,7 @@ class Appointment(db.Model):
     updated_by_user = db.relationship("User", foreign_keys=[updated_by_user_id])
     rescheduled_from = db.relationship("Appointment", remote_side=[id], foreign_keys=[rescheduled_from_id], post_update=True)
     rescheduled_to = db.relationship("Appointment", remote_side=[id], foreign_keys=[rescheduled_to_id], post_update=True)
+    visit = db.relationship("Visit", back_populates="appointment", uselist=False)
 
     def __repr__(self):
         return f"<Appointment {self.uuid} {self.appointment_date} {self.status}>"

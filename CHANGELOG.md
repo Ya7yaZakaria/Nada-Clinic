@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-07-18 — Appointment–Visit Domain Correction Completion
+
+### Added
+
+- Direct one-to-one Appointment-to-Visit linkage through `Visit.appointment_id`.
+- Resolved Bookings filters and latest/oldest resolved sorting.
+- Direct New Visit and Open Visit actions from Today Clinic.
+- Focused migration validation tests for migration `20260719_0070`.
+
+### Changed
+
+- Clinical completion now belongs exclusively to Visit.
+- Historical completed Appointments migrate to arrived and remain linked to their completed Visits.
+- Active booking validation permits only one booked/arrived Appointment per patient/date.
+
+### Fixed
+
+- Waiting and Remaining counters now match visible operational lists.
+- Linked and resolved rows no longer expose invalid Appointment workflow actions.
+- Current and past-day Resolved controls, timestamps, cancellation reasons, and reschedule destinations.
+- Migration 0070 validates legacy data before SQLite DDL begins.
+
+### Verification
+
+- Focused Sprint 1 tests: 112 passed in 54.18s.
+- Full regression: 510 passed in 361.66s.
+- Disposable empty migration upgrade/downgrade/upgrade passed.
+- Disposable historical migration round-trip restored 417 linked Visits and 417 linked arrived Appointments.
+- Existing unrelated drug/surgery schema drift remains open.
+- RBAC unchanged; Sprint 2 features not implemented.
+
 ## 2026-07-07 — Stage 3 / Sprint 3.4 Timeline Foundation
 
 ### Added

@@ -1623,3 +1623,358 @@ body.auth-page {
         flex: 1 1 auto;
     }
 }
+
+/* P2.6 Today Clinic Live Workflow */
+
+.clinic-day-command {
+    padding: 1.15rem 1.25rem;
+    background:
+        radial-gradient(
+            circle at top right,
+            color-mix(
+                in srgb,
+                var(--clinic-primary) 12%,
+                transparent
+            ),
+            transparent 38%
+        ),
+        var(--clinic-surface);
+}
+
+.clinic-day-command-main,
+.clinic-day-command-actions,
+.clinic-section-header,
+.clinic-day-live-row,
+.clinic-patient-meta,
+.clinic-patient-actions {
+    display: flex;
+    align-items: center;
+}
+
+.clinic-day-command-main,
+.clinic-section-header {
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.clinic-day-command-actions,
+.clinic-patient-actions,
+.clinic-patient-meta,
+.clinic-day-live-row {
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.clinic-day-title {
+    margin: .35rem 0 .25rem;
+    font-size: clamp(1.5rem, 2.5vw, 2.1rem);
+    font-weight: 780;
+    letter-spacing: -.035em;
+}
+
+.clinic-day-live-dot {
+    width: .55rem;
+    height: .55rem;
+    border-radius: 50%;
+    background: var(--bs-success);
+    box-shadow:
+        0 0 0 .3rem
+        color-mix(
+            in srgb,
+            var(--bs-success) 13%,
+            transparent
+        );
+}
+
+.clinic-day-closed-result {
+    display: grid;
+    grid-template-columns:
+        2fr repeat(3, minmax(0, 1fr));
+    gap: .75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--clinic-border);
+}
+
+.clinic-day-closed-result > div {
+    display: grid;
+    gap: .15rem;
+}
+
+.clinic-day-closed-result span {
+    color: var(--clinic-muted);
+    font-size: .78rem;
+}
+
+.clinic-day-kpis {
+    display: grid;
+    grid-template-columns:
+        repeat(6, minmax(0, 1fr));
+    gap: .8rem;
+}
+
+.clinic-day-kpi {
+    display: grid;
+    gap: .25rem;
+    min-height: 125px;
+    padding: 1rem;
+}
+
+.clinic-day-kpi > span:not(
+    .clinic-day-kpi-icon
+) {
+    color: var(--clinic-muted);
+    font-size: .78rem;
+    font-weight: 650;
+}
+
+.clinic-day-kpi strong {
+    font-size: 1.8rem;
+    line-height: 1;
+}
+
+.clinic-day-kpi-icon {
+    display: grid;
+    width: 2.35rem;
+    height: 2.35rem;
+    place-items: center;
+    margin-bottom: .25rem;
+    border-radius: .8rem;
+    color: var(--clinic-primary);
+    background: var(--clinic-primary-soft);
+}
+
+.clinic-day-kpi-warning
+.clinic-day-kpi-icon {
+    color: var(--bs-warning-text-emphasis);
+    background: var(--bs-warning-bg-subtle);
+}
+
+.clinic-day-kpi-success
+.clinic-day-kpi-icon {
+    color: var(--bs-success);
+    background: rgba(25, 135, 84, .12);
+}
+
+.clinic-day-kpi-purple
+.clinic-day-kpi-icon {
+    color: #6f42c1;
+    background: rgba(111, 66, 193, .12);
+}
+
+.clinic-queue-card,
+.clinic-schedule-card {
+    padding: 1.1rem;
+}
+
+.clinic-count-badge {
+    display: grid;
+    min-width: 2.35rem;
+    height: 2.35rem;
+    place-items: center;
+    border-radius: .8rem;
+    color: #fff;
+    background: var(--clinic-primary);
+    font-weight: 750;
+}
+
+.clinic-patient-stack {
+    display: grid;
+    gap: .75rem;
+    margin-top: 1rem;
+}
+
+.clinic-patient-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--clinic-border);
+    border-radius: 1rem;
+    background:
+        color-mix(
+            in srgb,
+            var(--clinic-surface) 96%,
+            var(--clinic-primary) 4%
+        );
+    transition:
+        border-color .16s ease,
+        transform .16s ease,
+        box-shadow .16s ease;
+}
+
+.clinic-patient-card:hover {
+    border-color:
+        color-mix(
+            in srgb,
+            var(--clinic-primary) 38%,
+            var(--clinic-border)
+        );
+    transform: translateY(-1px);
+    box-shadow: 0 .75rem 1.8rem rgba(15, 23, 42, .06);
+}
+
+.clinic-patient-card-main {
+    min-width: 0;
+}
+
+.clinic-time-chip {
+    padding: .25rem .55rem;
+    border-radius: .55rem;
+    color: var(--clinic-ink);
+    background: var(--bs-tertiary-bg);
+    font-size: .78rem;
+    font-weight: 750;
+}
+
+.clinic-patient-identity {
+    display: grid;
+    gap: .2rem;
+    margin-top: .65rem;
+}
+
+.clinic-patient-identity > div {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.clinic-patient-identity strong {
+    font-size: 1rem;
+}
+
+.clinic-patient-identity span,
+.clinic-patient-identity small {
+    color: var(--clinic-muted);
+}
+
+.clinic-patient-context {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin-top: .65rem;
+}
+
+.clinic-patient-actions {
+    justify-content: flex-end;
+    max-width: 250px;
+}
+
+.clinic-patient-actions form {
+    margin: 0;
+}
+
+.clinic-modern-empty {
+    display: grid;
+    min-height: 270px;
+    place-content: center;
+    justify-items: center;
+    gap: .45rem;
+    margin-top: 1rem;
+    padding: 1.5rem;
+    color: var(--clinic-muted);
+    text-align: center;
+    border: 1px dashed var(--clinic-border);
+    border-radius: 1rem;
+}
+
+.clinic-modern-empty-sm {
+    min-height: 210px;
+}
+
+.clinic-modern-empty > span {
+    display: grid;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    border-radius: 1rem;
+    color: var(--clinic-primary);
+    background: var(--clinic-primary-soft);
+    font-size: 1.25rem;
+}
+
+.clinic-modern-empty strong {
+    color: var(--clinic-ink);
+}
+
+.clinic-modern-empty p {
+    margin: 0;
+}
+
+.clinic-resolved-panel {
+    border-top: 1px solid var(--clinic-border);
+    padding-top: .85rem;
+}
+
+.clinic-resolved-panel > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    list-style: none;
+    cursor: pointer;
+    color: var(--clinic-muted);
+    font-weight: 650;
+}
+
+.clinic-resolved-panel > summary::-webkit-details-marker {
+    display: none;
+}
+
+@media (max-width: 1399.98px) {
+    .clinic-day-kpis {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 991.98px) {
+    .clinic-day-command-main,
+    .clinic-section-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .clinic-day-command-actions {
+        justify-content: flex-start;
+    }
+
+    .clinic-day-closed-result {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .clinic-day-kpis {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .clinic-patient-card {
+        grid-template-columns: 1fr;
+    }
+
+    .clinic-patient-actions {
+        justify-content: flex-start;
+        max-width: none;
+    }
+
+    .clinic-day-command-actions > *,
+    .clinic-patient-actions > * {
+        flex: 1 1 auto;
+    }
+
+    .clinic-patient-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 479.98px) {
+    .clinic-day-kpis,
+    .clinic-day-closed-result {
+        grid-template-columns: 1fr;
+    }
+}

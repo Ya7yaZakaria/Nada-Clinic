@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from app.extensions import db
-from app.models import Journey, Patient, Visit, VisitAuditLog
+from app.models import Appointment, Journey, Patient, Visit, VisitAuditLog
 from app.models.finance import FinanceCharge
 from app.services.finance_service import FinanceService
 
@@ -73,8 +73,21 @@ class VisitService:
 
         VisitService.validate_journey_belongs_to_same_patient(patient, journey)
 
+        appointment = data.get("appointment")
+        if appointment is not None:
+            if appointment.patient_id != patient.id:
+                raise ValueError("Appointment belongs to another patient.")
+            if appointment.status not in (Appointment.STATUS_BOOKED, Appointment.STATUS_ARRIVED):
+                raise ValueError("Only a booked or arrived appointment can start a Visit.")
+            if appointment.visit is not None:
+                raise ValueError("This appointment already has a Visit.")
+            if appointment.status == Appointment.STATUS_BOOKED:
+                appointment.status = Appointment.STATUS_ARRIVED
+                appointment.arrived_at = datetime.now(timezone.utc)
+
         visit = Visit(
             patient_id=patient.id,
+            appointment_id=appointment.id if appointment is not None else None,
             journey_id=journey.id if journey is not None else None,
             visit_type=data.get("visit_type") or "general",
             status=data.get("status") or "open",

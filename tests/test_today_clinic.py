@@ -1,4 +1,4 @@
-﻿from datetime import date, timedelta
+from datetime import date, timedelta
 
 from app import create_app
 from app.extensions import db
@@ -78,8 +78,11 @@ def test_doctor_can_view_today_clinic():
         SettingsService.seed_defaults()
         create_user("doctor@example.com", "01044000001", "Doctor", "Doctor User")
         patient = create_patient()
+        arrived_patient = create_patient(phone_primary="01000000011")
+        cancelled_patient = create_patient(phone_primary="01000000012")
+        rescheduled_patient = create_patient(phone_primary="01000000013")
         AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=arrived_patient.id,
             appointment_date=date.today(),
             appointment_type=Appointment.TYPE_NEW_CONSULTATION,
         )
@@ -125,6 +128,9 @@ def test_today_clinic_counters_include_all_statuses_and_emergency():
     with app.app_context():
         db.create_all()
         patient = create_patient()
+        arrived_patient = create_patient(phone_primary="01000000011")
+        cancelled_patient = create_patient(phone_primary="01000000012")
+        rescheduled_patient = create_patient(phone_primary="01000000013")
         clinic_date = date.today()
 
         booked = AppointmentService.create_appointment(
@@ -134,28 +140,21 @@ def test_today_clinic_counters_include_all_statuses_and_emergency():
         )
 
         arrived = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=arrived_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
         AppointmentService.mark_arrived(arrived)
 
-        completed = AppointmentService.create_appointment(
-            patient_id=patient.id,
-            appointment_date=clinic_date,
-            appointment_type=Appointment.TYPE_FOLLOW_UP,
-        )
-        AppointmentService.mark_completed(completed)
-
         cancelled = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=cancelled_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
         AppointmentService.cancel_appointment(cancelled)
 
         rescheduled = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=rescheduled_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
@@ -174,10 +173,9 @@ def test_today_clinic_counters_include_all_statuses_and_emergency():
 
         counters = AppointmentService.get_counters_for_date(clinic_date)
 
-        assert counters["total_booked_today"] == 6
+        assert counters["total_booked_today"] == 5
         assert counters["booked"] == 1
         assert counters["arrived"] == 1
-        assert counters["completed"] == 1
         assert counters["cancelled"] == 1
         assert counters["rescheduled"] == 1
         assert counters["no_show"] == 1
@@ -196,10 +194,13 @@ def test_all_statuses_remain_visible_in_day_list():
         SettingsService.seed_defaults()
         create_user("doctor@example.com", "01044000003", "Doctor", "Doctor User")
         patient = create_patient()
+        arrived_patient = create_patient(phone_primary="01000000021")
+        cancelled_patient = create_patient(phone_primary="01000000022")
+        rescheduled_patient = create_patient(phone_primary="01000000023")
         clinic_date = date.today()
 
         booked = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=arrived_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_NEW_CONSULTATION,
         )
@@ -211,22 +212,15 @@ def test_all_statuses_remain_visible_in_day_list():
         )
         AppointmentService.mark_arrived(arrived)
 
-        completed = AppointmentService.create_appointment(
-            patient_id=patient.id,
-            appointment_date=clinic_date,
-            appointment_type=Appointment.TYPE_FOLLOW_UP,
-        )
-        AppointmentService.mark_completed(completed)
-
         cancelled = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=cancelled_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
         AppointmentService.cancel_appointment(cancelled)
 
         rescheduled = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=rescheduled_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
@@ -242,7 +236,7 @@ def test_all_statuses_remain_visible_in_day_list():
             response = client.get(f"/clinic/day/{clinic_date.isoformat()}")
 
         assert response.status_code == 200
-        assert b"No-show" in response.data
+        assert b"No-show" not in response.data
         assert b"Waiting" in response.data
         assert b"Completed" in response.data
         assert b"Cancelled" in response.data
@@ -275,8 +269,8 @@ def test_card_shows_patient_identity_and_actions():
         assert b"Sara Ahmed" in response.data
         assert b"Open Workspace" in response.data
         assert b"New Visit" in response.data
-        assert b"Mark Arrived" in response.data
-        assert appointment.uuid.encode() in response.data
+        assert b"Mark Arrived" not in response.data
+        assert b"Manage Booking" not in response.data
 
         db.drop_all()
 
@@ -350,6 +344,7 @@ def test_close_day_route_converts_remaining_booked_to_no_show():
         SettingsService.seed_defaults()
         create_user("reception@example.com", "01044000007", "Reception", "Reception User")
         patient = create_patient()
+        arrived_patient = create_patient(phone_primary="01000000031")
         clinic_date = date.today()
 
         booked = AppointmentService.create_appointment(
@@ -359,7 +354,7 @@ def test_close_day_route_converts_remaining_booked_to_no_show():
         )
 
         arrived = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=arrived_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
@@ -380,14 +375,22 @@ def test_close_day_route_converts_remaining_booked_to_no_show():
         db.drop_all()
 
 
-def test_mark_completed_from_today_clinic_route():
+def test_today_clinic_has_no_appointment_completion_route():
     app = make_app()
 
     with app.app_context():
         db.create_all()
         SettingsService.seed_defaults()
-        create_user("reception@example.com", "01044000008", "Reception", "Reception User")
+
+        create_user(
+            "reception@example.com",
+            "01044000008",
+            "Reception",
+            "Reception User",
+        )
+
         patient = create_patient()
+
         appointment = AppointmentService.create_appointment(
             patient_id=patient.id,
             appointment_date=date.today(),
@@ -395,15 +398,23 @@ def test_mark_completed_from_today_clinic_route():
         )
 
         with app.test_client() as client:
-            login(client, "reception@example.com")
+            login(
+                client,
+                "reception@example.com",
+            )
+
             response = client.post(
-                f"/clinic/appointments/{appointment.uuid}/complete",
+                f"/clinic/appointments/"
+                f"{appointment.uuid}/complete",
                 follow_redirects=True,
             )
 
-        assert response.status_code == 200
-        assert appointment.status == Appointment.STATUS_COMPLETED
-        assert appointment.completed_at is not None
+        assert response.status_code == 404
+        assert (
+            appointment.status
+            == Appointment.STATUS_BOOKED
+        )
+        assert appointment.visit is None
         assert patient.visits.count() == 0
 
         db.drop_all()

@@ -1,12 +1,16 @@
 from datetime import UTC, date, datetime
 
 from app.extensions import db
+from app.models import Visit
 from app.models.appointment import Appointment
 from app.models.finance import FinanceCharge
 from app.services.finance_service import FinanceService
 
 
 class AppointmentService:
+    ACTIVE_STATUSES = (Appointment.STATUS_BOOKED, Appointment.STATUS_ARRIVED)
+    RESOLVED_FILTERS = {"all", "completed", "cancelled", "rescheduled"}
+    RESOLVED_SORTS = {"latest", "oldest"}
     TYPE_LABELS = {
         Appointment.TYPE_NEW_CONSULTATION: "كشف",
         Appointment.TYPE_FOLLOW_UP: "إعادة كشف",
@@ -16,7 +20,6 @@ class AppointmentService:
     STATUS_LABELS = {
         Appointment.STATUS_BOOKED: "Booked",
         Appointment.STATUS_ARRIVED: "Waiting",
-        Appointment.STATUS_COMPLETED: "Completed",
         Appointment.STATUS_CANCELLED: "Cancelled",
         Appointment.STATUS_RESCHEDULED: "Rescheduled",
         Appointment.STATUS_NO_SHOW: "No-show",
@@ -48,6 +51,18 @@ class AppointmentService:
         return True
 
     @classmethod
+    def validate_no_active_daily_duplicate(cls, patient_id, appointment_date, *, exclude_id=None):
+        query = Appointment.query.filter(
+            Appointment.patient_id == patient_id,
+            Appointment.appointment_date == appointment_date,
+            Appointment.status.in_(cls.ACTIVE_STATUSES),
+        )
+        if exclude_id is not None:
+            query = query.filter(Appointment.id != exclude_id)
+        if query.first() is not None:
+            raise ValueError("Patient already has an active appointment on this date")
+
+    @classmethod
     def create_appointment(
         cls,
         *,
@@ -77,6 +92,8 @@ class AppointmentService:
 
         cls.validate_status(status)
         cls.validate_source(source)
+        if status in cls.ACTIVE_STATUSES:
+            cls.validate_no_active_daily_duplicate(patient_id, appointment_date)
 
         appointment = Appointment(
             patient_id=patient_id,
@@ -100,6 +117,13 @@ class AppointmentService:
 
     @classmethod
     def update_appointment(cls, appointment, **kwargs):
+        target_date = kwargs.get("appointment_date", appointment.appointment_date)
+        if "appointment_type" in kwargs:
+            cls.validate_appointment_type(kwargs["appointment_type"])
+        if "source" in kwargs:
+            cls.validate_source(kwargs["source"])
+        if appointment.status in cls.ACTIVE_STATUSES:
+            cls.validate_no_active_daily_duplicate(appointment.patient_id, target_date, exclude_id=appointment.id)
         for key in (
             "appointment_date",
             "appointment_time",
@@ -114,11 +138,9 @@ class AppointmentService:
                 setattr(appointment, key, kwargs[key])
 
         if "appointment_type" in kwargs:
-            cls.validate_appointment_type(kwargs["appointment_type"])
             appointment.appointment_type = kwargs["appointment_type"]
 
         if "source" in kwargs:
-            cls.validate_source(kwargs["source"])
             appointment.source = kwargs["source"]
 
         db.session.commit()
@@ -156,9 +178,17 @@ class AppointmentService:
         return appointment
 
     @staticmethod
-    def mark_completed(appointment):
-        appointment.status = Appointment.STATUS_COMPLETED
-        appointment.completed_at = datetime.now(UTC)
+    def undo_arrived(appointment):
+        if appointment.visit is not None:
+            raise ValueError("Arrival cannot be undone after a Visit has started.")
+        if appointment.status != Appointment.STATUS_ARRIVED:
+            raise ValueError(
+                "Only an arrived appointment can be returned "
+                "to booked."
+            )
+
+        appointment.status = Appointment.STATUS_BOOKED
+        appointment.arrived_at = None
         db.session.commit()
         return appointment
 
@@ -180,6 +210,9 @@ class AppointmentService:
 
     @classmethod
     def reschedule_appointment(cls, appointment, *, new_date, new_time=None, updated_by_user_id=None):
+        if appointment.status not in cls.ACTIVE_STATUSES:
+            raise ValueError("Only an active appointment can be rescheduled")
+        cls.validate_no_active_daily_duplicate(appointment.patient_id, new_date, exclude_id=appointment.id)
         new_appointment = Appointment(
             patient_id=appointment.patient_id,
             appointment_date=new_date,
@@ -227,6 +260,7 @@ class AppointmentService:
         ).all()
 
         now = datetime.now(UTC)
+
         for appointment in appointments:
             appointment.status = Appointment.STATUS_NO_SHOW
             appointment.no_show_at = now
@@ -285,7 +319,6 @@ class AppointmentService:
             "total_booked_today": len(appointments),
             "booked": 0,
             "arrived": 0,
-            "completed": 0,
             "cancelled": 0,
             "rescheduled": 0,
             "no_show": 0,
@@ -307,7 +340,7 @@ class AppointmentService:
         return Appointment.query.filter_by(
             appointment_date=clinic_date,
             status=Appointment.STATUS_ARRIVED,
-        ).order_by(
+        ).filter(~Appointment.visit.has()).order_by(
             Appointment.arrived_at.asc().nullslast(),
             Appointment.appointment_time.asc().nullslast(),
             Appointment.created_at.asc(),
@@ -319,18 +352,7 @@ class AppointmentService:
         return Appointment.query.filter_by(
             appointment_date=clinic_date,
             status=Appointment.STATUS_BOOKED,
-        ).order_by(
-            Appointment.appointment_time.asc().nullslast(),
-            Appointment.created_at.asc(),
-        ).all()
-
-    @staticmethod
-    def get_completed_for_date(clinic_date):
-        return Appointment.query.filter_by(
-            appointment_date=clinic_date,
-            status=Appointment.STATUS_COMPLETED,
-        ).order_by(
-            Appointment.completed_at.asc().nullslast(),
+        ).filter(~Appointment.visit.has()).order_by(
             Appointment.appointment_time.asc().nullslast(),
             Appointment.created_at.asc(),
         ).all()
@@ -378,7 +400,6 @@ class AppointmentService:
             "counters": cls.get_counters_for_date(clinic_date),
             "waiting_queue": cls.get_waiting_queue(clinic_date),
             "booked_no_action": cls.get_booked_no_action(clinic_date),
-            "completed": cls.get_completed_for_date(clinic_date),
             "cancelled": cls.get_cancelled_for_date(clinic_date),
             "rescheduled": cls.get_rescheduled_for_date(clinic_date),
             "no_show": cls.get_no_show_for_date(clinic_date),
@@ -387,6 +408,34 @@ class AppointmentService:
     @classmethod
     def get_today_clinic(cls):
         return cls.get_clinic_day(date.today())
+
+    @classmethod
+    def get_resolved_bookings(cls, clinic_date, resolved_filter="all", resolved_sort="latest"):
+        resolved_filter = resolved_filter if resolved_filter in cls.RESOLVED_FILTERS else "all"
+        resolved_sort = resolved_sort if resolved_sort in cls.RESOLVED_SORTS else "latest"
+        rows = []
+        if resolved_filter in {"all", "completed"}:
+            visits = Visit.query.join(Appointment, Visit.appointment_id == Appointment.id).filter(
+                Appointment.appointment_date == clinic_date,
+                Visit.status == "completed",
+                Visit.completed_at.is_not(None),
+            ).all()
+            rows.extend({"kind": "completed", "appointment": visit.appointment, "visit": visit, "resolved_at": visit.completed_at} for visit in visits)
+        for kind, status, column in (
+            ("cancelled", Appointment.STATUS_CANCELLED, Appointment.cancelled_at),
+            ("rescheduled", Appointment.STATUS_RESCHEDULED, Appointment.rescheduled_at),
+        ):
+            if resolved_filter in {"all", kind}:
+                appointments = Appointment.query.filter(Appointment.appointment_date == clinic_date, Appointment.status == status, column.is_not(None)).all()
+                rows.extend({"kind": kind, "appointment": item, "visit": None, "resolved_at": getattr(item, f"{kind}_at")} for item in appointments)
+        rows.sort(
+            key=lambda row: (
+                row["resolved_at"],
+                row["appointment"].id,
+            ),
+            reverse=resolved_sort == "latest",
+        )
+        return {"filter": resolved_filter, "sort": resolved_sort, "items": rows}
 
 
     @classmethod
@@ -397,6 +446,7 @@ class AppointmentService:
                 Appointment.STATUS_BOOKED,
                 Appointment.STATUS_ARRIVED,
             ]),
+            ~Appointment.visit.has(),
         ).order_by(
             Appointment.status.asc(),
             Appointment.appointment_time.asc().nullslast(),
@@ -427,7 +477,13 @@ class AppointmentService:
         summaries = []
         for row in rows:
             clinic_date = row[0]
-            summaries.append(cls.get_day_summary(clinic_date))
+            summary = cls.get_day_summary(clinic_date)
+            summary["visits_completed"] = Visit.query.filter(
+                Visit.appointment_id.is_not(None),
+                Visit.status == "completed",
+                Visit.appointment.has(Appointment.appointment_date == clinic_date),
+            ).count()
+            summaries.append(summary)
 
         return summaries
 

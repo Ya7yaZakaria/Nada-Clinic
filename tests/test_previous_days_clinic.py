@@ -1,6 +1,7 @@
 ﻿from datetime import date, timedelta
 
 from app import create_app
+from datetime import datetime, time, timezone
 from app.extensions import db
 from app.models import User
 from app.models.appointment import Appointment
@@ -8,6 +9,7 @@ from app.services.appointment_service import AppointmentService
 from app.services.patient_service import PatientService
 from app.services.rbac_service import RBACService
 from app.services.settings_service import SettingsService
+from app.services.visit_service import VisitService
 
 
 def make_app():
@@ -39,11 +41,11 @@ def login(client, email="doctor@example.com"):
     )
 
 
-def create_patient():
+def create_patient(phone="01011112222"):
     return PatientService.create_patient(
         name_ar="منى علي",
         name_en="Mona Ali",
-        phone_primary="01011112222",
+        phone_primary=phone,
         date_of_birth=date(1990, 1, 1),
         governorate="Qalyubia",
         city="Benha",
@@ -118,6 +120,7 @@ def test_day_summary_counters_work():
     with app.app_context():
         db.create_all()
         patient = create_patient()
+        arrived_patient = create_patient("01011112223")
         past_date = date.today() - timedelta(days=1)
 
         booked = AppointmentService.create_appointment(
@@ -127,32 +130,24 @@ def test_day_summary_counters_work():
         )
 
         arrived = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=arrived_patient.id,
             appointment_date=past_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
         AppointmentService.mark_arrived(arrived)
 
-        completed = AppointmentService.create_appointment(
-            patient_id=patient.id,
-            appointment_date=past_date,
-            appointment_type=Appointment.TYPE_FOLLOW_UP,
-        )
-        AppointmentService.mark_completed(completed)
-
         no_show = AppointmentService.create_appointment(
             patient_id=patient.id,
             appointment_date=past_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
+            status=Appointment.STATUS_NO_SHOW,
         )
-        AppointmentService.mark_no_show(no_show)
 
         summary = AppointmentService.get_day_summary(past_date)
 
-        assert summary["counters"]["total_booked_today"] == 4
+        assert summary["counters"]["total_booked_today"] == 3
         assert summary["counters"]["booked"] == 1
         assert summary["counters"]["arrived"] == 1
-        assert summary["counters"]["completed"] == 1
         assert summary["counters"]["no_show"] == 1
         assert len(summary["unfinished"]) == 2
         assert booked in summary["unfinished"]
@@ -198,6 +193,9 @@ def test_no_show_completed_cancelled_rescheduled_appear_in_past_day():
         SettingsService.seed_defaults()
         create_user()
         patient = create_patient()
+        completed_patient = create_patient("01011112224")
+        cancelled_patient = create_patient("01011112225")
+        rescheduled_patient = create_patient("01011112226")
         past_date = date.today() - timedelta(days=1)
 
         no_show = AppointmentService.create_appointment(
@@ -208,21 +206,31 @@ def test_no_show_completed_cancelled_rescheduled_appear_in_past_day():
         AppointmentService.mark_no_show(no_show)
 
         completed = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=completed_patient.id,
             appointment_date=past_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
-        AppointmentService.mark_completed(completed)
+        completed_visit = VisitService.create_visit(
+            patient=completed_patient,
+            appointment=completed,
+            visit_type="general",
+            visit_date=datetime.combine(
+                past_date,
+                time(10, 0),
+                tzinfo=timezone.utc,
+            ),
+        )
+        VisitService.complete_visit(completed_visit, confirmed=True)
 
         cancelled = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=cancelled_patient.id,
             appointment_date=past_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
         AppointmentService.cancel_appointment(cancelled)
 
         rescheduled = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=rescheduled_patient.id,
             appointment_date=past_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
         )
@@ -237,10 +245,13 @@ def test_no_show_completed_cancelled_rescheduled_appear_in_past_day():
 
         assert response.status_code == 200
         assert b"No-show" in response.data
-        assert b"Completed" in response.data
+        assert b"Visit Completed" in response.data
+        assert completed_patient.phone_primary.encode() in response.data
         assert b"Cancelled" in response.data
         assert b"Rescheduled" in response.data
-        assert b"Cancelled / Rescheduled" in response.data
+        assert b"Resolved Bookings" in response.data
+        assert b"resolved_filter" in response.data
+        assert b"resolved_sort" in response.data
 
         db.drop_all()
 

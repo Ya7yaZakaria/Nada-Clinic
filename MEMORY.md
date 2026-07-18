@@ -985,3 +985,21 @@ Next Action:
 - Continue personal trial.
 - Plan demo clinic data as a separate sprint.
 - Do not start Stage 13.
+
+## 2026-07-18 — Appointment–Visit Domain Correction and Resolved Bookings
+
+- This entry supersedes the old Stage 4 Appointment completion design.
+- Appointment completion was removed; Visit is the only clinical completion.
+- Appointment has a direct `1 -> 0..1` Visit relationship through nullable, unique `Visit.appointment_id`.
+- Migration `20260719_0070` backfills 417 legacy records and converts historical completed Appointments to arrived while preserving their completed Visits.
+- One active Appointment per patient/date is enforced for booked and arrived records; cancelled and rescheduled history does not block replacement.
+- Resolved Bookings contains completed Visits, cancelled Appointments, and rescheduled Appointments; no-show is excluded.
+- Waiting and Remaining counters derive from the visible waiting queue and upcoming booking lists.
+- Resolved filters, resolved-at sorting, timestamps, reschedule destinations, and read-only linked Visit actions are implemented for current and past clinic days.
+- Migration validation completes before SQLite schema mutation.
+- RBAC permissions and role assignments are unchanged.
+- Verification: focused Sprint 1 tests `112 passed in 54.18s`; full regression `510 passed in 361.66s`; disposable empty upgrade/downgrade/upgrade passed; disposable historical copy restored 417 linked Visits and 417 linked arrived Appointments.
+- `flask db heads` and the current real database both report `20260719_0070 (head)`; the real database was not migrated during this sprint.
+- `flask db check` still reports unrelated pre-existing drug unique-index and surgery index drift. No Appointment/Visit drift was reported.
+- Advanced Today Clinic intelligence remains deferred to Sprint 2.
+- No commit or push was performed by Codex.

@@ -49,7 +49,7 @@ def test_empty_database_summaries_are_safe():
         today = date.today()
         assert DashboardService.get_visit_summary(today, today)["total"] == 0
         appointments = DashboardService.get_appointment_summary(today, today)
-        assert appointments["completion_rate"] == 0.0
+        assert "completion_rate" not in appointments
         assert DashboardService.get_revenue_by_service(today, today)["values"] == [0.0] * 8
         assert DashboardService.get_ultrasound_summary(today, today)["clinic_exams"] == 0
         assert DashboardService.get_surgery_summary(today, today)["total"] == 0
@@ -66,7 +66,7 @@ def test_visit_and_appointment_intelligence_and_upcoming_order():
             Visit(patient_id=person.id, visit_type="obs", status="completed", visit_date=now),
             Visit(patient_id=person.id, visit_type="obs", status="open", visit_date=now),
             Visit(patient_id=person.id, visit_type="gyn", status="incomplete", visit_date=now),
-            Appointment(patient_id=person.id, appointment_date=date.today(), appointment_time=time(23, 55), appointment_type=Appointment.TYPE_FOLLOW_UP, source=Appointment.SOURCE_PHONE, status=Appointment.STATUS_COMPLETED),
+            Appointment(patient_id=person.id, appointment_date=date.today(), appointment_time=time(23, 55), appointment_type=Appointment.TYPE_FOLLOW_UP, source=Appointment.SOURCE_PHONE, status=Appointment.STATUS_ARRIVED),
             Appointment(patient_id=person.id, appointment_date=date.today(), appointment_time=time(23, 56), appointment_type=Appointment.TYPE_EMERGENCY, source=Appointment.SOURCE_WHATSAPP, status=Appointment.STATUS_NO_SHOW),
             Appointment(patient_id=person.id, appointment_date=date.today(), appointment_time=time(23, 57), appointment_type=Appointment.TYPE_NEW_CONSULTATION, source=Appointment.SOURCE_CLINIC, status=Appointment.STATUS_CANCELLED),
             Appointment(patient_id=person.id, appointment_date=date.today() + timedelta(days=1), appointment_time=None, appointment_type=Appointment.TYPE_FOLLOW_UP, source=Appointment.SOURCE_CLINIC, status=Appointment.STATUS_BOOKED),
@@ -78,15 +78,13 @@ def test_visit_and_appointment_intelligence_and_upcoming_order():
         assert visits["most_common"] == "Obstetrics"
         summary = DashboardService.get_appointment_summary(date.today(), date.today())
         assert (
-            summary["completed"],
             summary["no_show"],
             summary["cancelled"],
-        ) == (1, 1, 1)
+        ) == (1, 1)
         assert (
-            summary["completion_rate"],
             summary["no_show_rate"],
             summary["cancellation_rate"],
-        ) == (33.3, 33.3, 33.3)
+        ) == (33.3, 33.3)
         upcoming = DashboardService.get_upcoming_appointments()
         assert upcoming[0].appointment_time == time(9)
         assert upcoming[1].appointment_time is None

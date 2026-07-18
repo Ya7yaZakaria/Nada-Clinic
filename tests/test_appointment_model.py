@@ -325,24 +325,15 @@ def test_mark_arrived_sets_status_and_timestamp():
         db.drop_all()
 
 
-def test_mark_completed_sets_status_and_timestamp():
+def test_appointment_has_no_completion_workflow():
     app = make_app()
 
     with app.app_context():
         db.create_all()
 
-        patient = create_patient()
-
-        appointment = AppointmentService.create_appointment(
-            patient_id=patient.id,
-            appointment_date=date.today(),
-            appointment_type=Appointment.TYPE_NEW_CONSULTATION,
-        )
-
-        AppointmentService.mark_completed(appointment)
-
-        assert appointment.status == Appointment.STATUS_COMPLETED
-        assert appointment.completed_at is not None
+        assert not hasattr(AppointmentService, "mark_completed")
+        assert not hasattr(Appointment, "STATUS_COMPLETED")
+        assert not hasattr(Appointment, "completed_at")
 
         db.drop_all()
 
@@ -435,21 +426,14 @@ def test_close_clinic_day_converts_only_booked_to_no_show():
             appointment_type=Appointment.TYPE_NEW_CONSULTATION,
         )
 
+        arrived_patient = create_patient(phone_primary="01000000001")
         arrived = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=arrived_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
             source=Appointment.SOURCE_PHONE,
         )
         AppointmentService.mark_arrived(arrived)
-
-        completed = AppointmentService.create_appointment(
-            patient_id=patient.id,
-            appointment_date=clinic_date,
-            appointment_type=Appointment.TYPE_FOLLOW_UP,
-            source=Appointment.SOURCE_WHATSAPP,
-        )
-        AppointmentService.mark_completed(completed)
 
         converted = AppointmentService.close_clinic_day(clinic_date)
 
@@ -457,7 +441,6 @@ def test_close_clinic_day_converts_only_booked_to_no_show():
         assert booked.status == Appointment.STATUS_NO_SHOW
         assert booked.no_show_at is not None
         assert arrived.status == Appointment.STATUS_ARRIVED
-        assert completed.status == Appointment.STATUS_COMPLETED
 
         db.drop_all()
 
@@ -477,16 +460,18 @@ def test_total_booked_counts_all_statuses_for_date():
             appointment_type=Appointment.TYPE_NEW_CONSULTATION,
         )
 
+        arrived_patient = create_patient(phone_primary="01000000002")
         arrived = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=arrived_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
             source=Appointment.SOURCE_PHONE,
         )
         AppointmentService.mark_arrived(arrived)
 
+        cancelled_patient = create_patient(phone_primary="01000000003")
         cancelled = AppointmentService.create_appointment(
-            patient_id=patient.id,
+            patient_id=cancelled_patient.id,
             appointment_date=clinic_date,
             appointment_type=Appointment.TYPE_FOLLOW_UP,
             source=Appointment.SOURCE_WHATSAPP,
@@ -520,7 +505,8 @@ def test_counters_work_for_date():
             appointment_type=Appointment.TYPE_NEW_CONSULTATION,
         )
 
-        emergency = AppointmentService.create_emergency_unscheduled(patient_id=patient.id)
+        emergency_patient = create_patient(phone_primary="01000000004")
+        emergency = AppointmentService.create_emergency_unscheduled(patient_id=emergency_patient.id)
 
         counters = AppointmentService.get_counters_for_date(clinic_date)
 
