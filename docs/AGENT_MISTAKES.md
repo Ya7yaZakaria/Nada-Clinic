@@ -608,3 +608,21 @@ Prevention:
   text = Path("path/to/file.md").read_text(encoding="utf-8-sig")
   for line in text.splitlines():
       print(line)
+
+## 2026-07-18 - Verify local file names and local file state before commands
+
+Issue:
+- The assistant supplied test file names that did not exist in the repository.
+- The assistant also retried template replacements using assumptions after a
+  partially completed script changed the local implementation state.
+
+Prevention:
+- Read or discover actual local test filenames before generating pytest
+  commands.
+- Use `Path("tests").glob(...)` when exact local filenames are not confirmed.
+- After a partially failed write script, inspect the local file and Git diff
+  before generating a correction.
+- Never assume the working tree still matches the repository version after a
+  partial script execution.
+- Build correction scripts from the user's current local output, not from the
+  original source snapshot.

@@ -7,6 +7,9 @@ from flask_login import current_user, login_required, login_user, logout_user
 from app.extensions import db
 from app.forms.auth_forms import LoginForm
 from app.services.auth_service import AuthService
+from app.services.development_role_preview_service import (
+    DevelopmentRolePreviewService,
+)
 from app.services.settings_service import SettingsService
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -62,6 +65,7 @@ def login():
 @auth_bp.post("/logout")
 @login_required
 def logout():
+    DevelopmentRolePreviewService.clear_preview_role()
     logout_user()
     flash("You have been logged out.", "info")
     return redirect(url_for("auth.login"))

@@ -1229,3 +1229,19 @@ body.auth-page {
             1 1 calc(50% - .5rem);
     }
 }
+
+.development-role-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--bs-warning-border-subtle);
+    background: var(--bs-warning-bg-subtle);
+    color: var(--bs-warning-text-emphasis);
+    font-size: 0.875rem;
+}
+
+.development-role-banner strong {
+    letter-spacing: 0.02em;
+}

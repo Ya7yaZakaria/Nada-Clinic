@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask, render_template
+from flask_login import current_user
 
 from app.commands import register_commands
 from app.config import config_by_name
@@ -62,7 +63,29 @@ def register_context_processors(app):
             ui_preferences = defaults
             clinic_profile = default_clinic_profile
 
+        dev_role_preview = {
+            "enabled": False,
+            "active": False,
+            "preview_role": None,
+            "available_roles": (),
+            "actual_roles": [],
+            "effective_roles": [],
+        }
+
+        try:
+            from app.services.development_role_preview_service import (
+                DevelopmentRolePreviewService,
+            )
+
+            dev_role_preview = (
+                DevelopmentRolePreviewService
+                .template_context(current_user)
+            )
+        except Exception:
+            pass
+
         return {
+            "dev_role_preview": dev_role_preview,
             "ui_preferences": ui_preferences,
             "ui_theme": ui_preferences.get("theme", defaults["theme"]),
             "ui_bootstrap_theme": ui_preferences.get("bootstrap_theme", defaults["bootstrap_theme"]),
@@ -95,6 +118,7 @@ def register_blueprints(app):
     from app.routes.auth import auth_bp
     from app.routes.drug_settings import drug_settings_bp
     from app.routes.documents import documents_bp
+    from app.routes.development import development_bp
     from app.routes.finance import finance_bp
     from app.routes.drugs import drugs_bp
     from app.routes.investigation_presets import investigation_presets_bp
@@ -118,6 +142,7 @@ def register_blueprints(app):
     app.register_blueprint(drug_settings_bp)
     app.register_blueprint(drugs_bp)
     app.register_blueprint(documents_bp)
+    app.register_blueprint(development_bp)
     app.register_blueprint(finance_bp)
     app.register_blueprint(prescription_presets_bp)
     app.register_blueprint(print_templates_bp)

@@ -1441,3 +1441,37 @@ No diagnosis-linked preset behavior added.
 - Migration current/head: 20260715_0069.
 - No database or migration changes.
 - Manual dashboard UI smoke review accepted.
+
+## 2026-07-18 - P2.4A Development Role Preview
+
+### Added
+
+- Development-only system-wide role preview.
+- Session-based Admin, Doctor, and Reception effective roles.
+- Allowlisted account protection.
+- Development role selector in the authenticated application shell.
+- Persistent preview banner across the application.
+- Routes to activate and clear role preview.
+- Dedicated role preview regression tests.
+
+### Changed
+
+- Central RBAC permission and role checks now respect the effective preview
+  role during an active request.
+- User permission helpers delegate to the central RBAC service.
+- Logout clears any active development role preview.
+- Dashboard and navigation permissions follow the effective role.
+
+### Security
+
+- No database role mutation.
+- No permission or user model changes.
+- No production role switching.
+- No database migration.
+
+### Verification
+
+- Development role preview tests: 7 passed.
+- Related RBAC, Auth, shell, and dashboard tests: 32 passed.
+- Full regression: 478 passed.
+- Manual Admin, Doctor, Reception, and reset validation accepted.

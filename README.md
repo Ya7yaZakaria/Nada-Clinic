@@ -736,3 +736,28 @@ Documents, together with Needs Attention and Upcoming Events.
 
 The dashboard uses existing models and permissions. No dashboard tables,
 database columns, or migrations were added.
+
+## Development Role Preview
+
+Development environments support a system-wide role preview for an
+allowlisted account.
+
+Available preview roles:
+
+- Admin
+- Doctor
+- Reception
+
+The selected role is stored in the Flask session and becomes the effective
+role for route protection, RBAC checks, dashboard queries, navigation, and
+template actions.
+
+The user's database roles are not modified. The preview is cleared when the
+user returns to actual roles or logs out.
+
+Configuration:
+
+- `DEV_ROLE_PREVIEW_ENABLED`
+- `DEV_ROLE_PREVIEW_EMAILS`
+
+This feature is disabled by default outside the development configuration.

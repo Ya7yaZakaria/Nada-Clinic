@@ -12,11 +12,24 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///nada_clinic.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = os.getenv("WTF_CSRF_ENABLED", "True").lower() == "true"
+    DEV_ROLE_PREVIEW_ENABLED = False
+    DEV_ROLE_PREVIEW_EMAILS = ""
 
 
 class DevelopmentConfig(Config):
     DEBUG = True
     TESTING = False
+    DEV_ROLE_PREVIEW_ENABLED = (
+        os.getenv(
+            "DEV_ROLE_PREVIEW_ENABLED",
+            "True",
+        ).lower()
+        == "true"
+    )
+    DEV_ROLE_PREVIEW_EMAILS = os.getenv(
+        "DEV_ROLE_PREVIEW_EMAILS",
+        "",
+    )
 
 
 class TestingConfig(Config):

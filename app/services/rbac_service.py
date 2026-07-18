@@ -5,6 +5,9 @@ from flask_login import current_user
 
 from app.extensions import db
 from app.models import Permission, Role, User
+from app.services.development_role_preview_service import (
+    DevelopmentRolePreviewService,
+)
 
 
 class RBACService:
@@ -91,15 +94,50 @@ class RBACService:
 
     @staticmethod
     def user_has_role(user, role_name):
-        if not user or not getattr(user, "is_authenticated", False):
+        if not user or not getattr(
+            user,
+            "is_authenticated",
+            False,
+        ):
             return False
 
-        return any(role.name == role_name for role in user.roles)
+        preview_role = (
+            DevelopmentRolePreviewService
+            .get_preview_role(user)
+        )
+
+        if preview_role:
+            return preview_role == role_name
+
+        return any(
+            role.name == role_name
+            for role in user.roles
+        )
 
     @staticmethod
-    def user_has_permission(user, permission_name):
-        if not user or not getattr(user, "is_authenticated", False):
+    def user_has_permission(
+        user,
+        permission_name,
+    ):
+        if not user or not getattr(
+            user,
+            "is_authenticated",
+            False,
+        ):
             return False
+
+        preview_role = (
+            DevelopmentRolePreviewService
+            .get_preview_role(user)
+        )
+
+        if preview_role:
+            return permission_name in (
+                RBACService.ROLE_PERMISSION_MATRIX.get(
+                    preview_role,
+                    [],
+                )
+            )
 
         return any(
             permission.name == permission_name

@@ -55,11 +55,21 @@ class User(UserMixin, db.Model):
         self.last_login_at = datetime.now(timezone.utc)
 
     def has_role(self, role_name):
-        return any(role.name == role_name for role in self.roles)
+        from app.services.rbac_service import (
+            RBACService,
+        )
+
+        return RBACService.user_has_role(
+            self,
+            role_name,
+        )
 
     def has_permission(self, permission_name):
-        return any(
-            permission.name == permission_name
-            for role in self.roles
-            for permission in role.permissions
+        from app.services.rbac_service import (
+            RBACService,
+        )
+
+        return RBACService.user_has_permission(
+            self,
+            permission_name,
         )

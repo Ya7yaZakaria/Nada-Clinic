@@ -932,3 +932,56 @@ Next Action:
 - Commit and push P2.3B manually.
 - Then plan Development Role Preview and demo clinic data.
 - Do not start Stage 13.
+
+## 2026-07-18 - Personal Trial Sprint P2.4A Development Role Preview Completed
+
+Current Stage:
+- Project remains in real personal trial mode after Stage 12.
+- P2.4A Development Role Preview is implemented and verified.
+- Stage 13 has not started.
+
+Completed Work:
+- Added development-only system-wide effective role preview.
+- Added Admin, Doctor, and Reception preview options.
+- Added session-based preview state.
+- Added allowlisted account protection.
+- Added role selector and persistent preview banner.
+- Added reset to actual roles.
+- Added logout cleanup.
+- Updated central RBAC and User permission helpers.
+- Confirmed Dashboard queries, routes, navigation, and actions follow the
+  effective role.
+
+Security and RBAC:
+- Actual database roles remain unchanged.
+- Preview is available only when enabled and the current email is allowlisted.
+- Preview state is request/session based.
+- Outside a request context, RBAC uses actual database roles.
+- Production configuration keeps the feature disabled by default.
+
+Database Impact:
+- None.
+
+Migration Impact:
+- None.
+
+Verification:
+- Development role preview tests: 7 passed.
+- Related RBAC, Auth, shell, and dashboard tests: 32 passed.
+- Full regression: 478 passed in 267.69 seconds.
+- Development routes registered successfully.
+- Manual Reception, Doctor, Admin, and reset validation accepted.
+- git diff --check completed without whitespace errors.
+
+Deferred:
+- Demo clinic database and seed data.
+- Additional dashboard polish from personal trial feedback.
+- Stage 13 Reports.
+- Notifications and AI features.
+
+Next Action:
+- Complete final documentation and Git review.
+- Commit and push P2.4A manually.
+- Continue personal trial.
+- Plan demo clinic data as a separate sprint.
+- Do not start Stage 13.

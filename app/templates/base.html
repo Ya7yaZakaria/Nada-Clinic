@@ -340,11 +340,18 @@
                     <div class="sidebar-label sidebar-user-copy">
                         <strong>{{ current_user.name }}</strong>
                         <span>
-                            {{
-                                current_user.roles
-                                | map(attribute='name')
-                                | join(' / ')
-                            }}
+                            {% if dev_role_preview.enabled %}
+                                {{
+                                    dev_role_preview.effective_roles
+                                    | join(' / ')
+                                }}
+                            {% else %}
+                                {{
+                                    current_user.roles
+                                    | map(attribute='name')
+                                    | join(' / ')
+                                }}
+                            {% endif %}
                         </span>
                     </div>
 
@@ -388,16 +395,99 @@
 
                 <div class="topbar-actions">
                     {% if current_user.is_authenticated and not is_print_preview %}
+                        {% if dev_role_preview.enabled %}
+                            <div class="dropdown">
+                                <button
+                                    class="btn btn-sm btn-outline-warning dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                >
+                                    DEV:
+                                    {{
+                                        dev_role_preview.preview_role
+                                        or 'Actual'
+                                    }}
+                                </button>
+
+                                <div
+                                    class="dropdown-menu dropdown-menu-end p-2"
+                                >
+                                    <div
+                                        class="small text-muted px-2 pb-2"
+                                    >
+                                        Actual:
+                                        {{
+                                            dev_role_preview.actual_roles
+                                            | join(' / ')
+                                        }}
+                                    </div>
+
+                                    {% for role_name in dev_role_preview.available_roles %}
+                                        <form
+                                            method="post"
+                                            action="{{ url_for('development.set_role_preview') }}"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="{{ csrf_token() }}"
+                                            >
+                                            <input
+                                                type="hidden"
+                                                name="role_name"
+                                                value="{{ role_name }}"
+                                            >
+                                            <button
+                                                class="dropdown-item"
+                                                type="submit"
+                                            >
+                                                Preview as {{ role_name }}
+                                            </button>
+                                        </form>
+                                    {% endfor %}
+
+                                    {% if dev_role_preview.active %}
+                                        <div class="dropdown-divider"></div>
+
+                                        <form
+                                            method="post"
+                                            action="{{ url_for('development.clear_role_preview') }}"
+                                        >
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="{{ csrf_token() }}"
+                                            >
+                                            <button
+                                                class="dropdown-item text-primary"
+                                                type="submit"
+                                            >
+                                                Return to actual roles
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+
                         <div class="user-summary text-end">
                             <div class="fw-semibold">
                                 {{ current_user.name }}
                             </div>
                             <div class="small text-muted">
-                                {{
-                                    current_user.roles
-                                    | map(attribute='name')
-                                    | join(' / ')
-                                }}
+                                {% if dev_role_preview.enabled %}
+                                    {{
+                                        dev_role_preview.effective_roles
+                                        | join(' / ')
+                                    }}
+                                {% else %}
+                                    {{
+                                        current_user.roles
+                                        | map(attribute='name')
+                                        | join(' / ')
+                                    }}
+                                {% endif %}
                             </div>
                         </div>
 
@@ -428,6 +518,27 @@
                     {% endif %}
                 </div>
             </header>
+
+            {% if dev_role_preview.active %}
+                <div
+                    class="development-role-banner"
+                    role="status"
+                >
+                    <strong>
+                        DEVELOPMENT PREVIEW:
+                        {{ dev_role_preview.preview_role }}
+                    </strong>
+
+                    <span>
+                        Actual database roles:
+                        {{
+                            dev_role_preview.actual_roles
+                            | join(' / ')
+                        }}.
+                        No user roles were changed.
+                    </span>
+                </div>
+            {% endif %}
 
             <div
                 class="mobile-sidebar-backdrop"
