@@ -8,13 +8,25 @@ from datetime import (
 )
 
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 
-from app.models import Appointment, Journey, Patient, Visit
+from app.models import (
+    Appointment, ClinicUltrasoundExam, ExternalUltrasoundRequest,
+    FinanceCharge, FinancePayment, InvestigationOrder,
+    InvestigationOrderItem, InvestigationResult, Journey, Patient,
+    PatientDocument, Prescription, SurgeryCase, Visit,
+)
 from app.services.appointment_service import AppointmentService
 from app.services.finance_service import FinanceService
 
 
 class DashboardService:
+    VISIT_TYPES = (("obs", "Obstetrics"), ("gyn", "Gynecology"), ("infertility", "Infertility"), ("oiti", "OI/TI"), ("iui", "IUI"), ("procedure", "Procedure"), ("general", "General"))
+    APPOINTMENT_TYPES = ((Appointment.TYPE_NEW_CONSULTATION, "New consultation"), (Appointment.TYPE_FOLLOW_UP, "Follow-up"), (Appointment.TYPE_EMERGENCY, "Emergency"))
+    APPOINTMENT_SOURCES = ((Appointment.SOURCE_PHONE, "Phone"), (Appointment.SOURCE_WHATSAPP, "WhatsApp"), (Appointment.SOURCE_CLINIC, "Clinic"), (Appointment.SOURCE_EMERGENCY_UNSCHEDULED, "Emergency / unscheduled"))
+    ULTRASOUND_TYPES = ((ClinicUltrasoundExam.EXAM_TYPE_OBS, "Obstetrics"), (ClinicUltrasoundExam.EXAM_TYPE_GYNE, "Gynecology"), (ClinicUltrasoundExam.EXAM_TYPE_OI_TI, "OI/TI"), (ClinicUltrasoundExam.EXAM_TYPE_OTHER, "Other"))
+    SURGERY_STATUSES = ((SurgeryCase.STATUS_SCHEDULED, "Scheduled"), (SurgeryCase.STATUS_COMPLETED, "Completed"), (SurgeryCase.STATUS_CANCELLED, "Cancelled"), (SurgeryCase.STATUS_POSTPONED, "Postponed"))
+    FINANCE_SERVICES = ((FinanceCharge.SERVICE_CONSULTATION, "Consultation"), (FinanceCharge.SERVICE_FOLLOW_UP, "Follow-up"), (FinanceCharge.SERVICE_EMERGENCY, "Emergency"), (FinanceCharge.SERVICE_SURGERY, "Surgery"), (FinanceCharge.SERVICE_PROCEDURE, "Procedure"), (FinanceCharge.SERVICE_ULTRASOUND, "Ultrasound"), (FinanceCharge.SERVICE_INVESTIGATION, "Investigation"), (FinanceCharge.SERVICE_OTHER, "Other"))
     PRESETS = {
         "today",
         "last_7_days",
@@ -410,10 +422,14 @@ class DashboardService:
             for status, count in status_rows
         })
 
+        type_rows = Appointment.query.with_entities(Appointment.appointment_type, func.count(Appointment.id)).filter(Appointment.appointment_date >= date_from, Appointment.appointment_date <= date_to).group_by(Appointment.appointment_type).all()
+        source_rows = Appointment.query.with_entities(Appointment.source, func.count(Appointment.id)).filter(Appointment.appointment_date >= date_from, Appointment.appointment_date <= date_to).group_by(Appointment.source).all()
+        type_counts, source_counts = dict(type_rows), dict(source_rows)
+        total = sum(status_counts.values())
+        rate = lambda status: round((status_counts.get(status, 0) / total) * 100, 1) if total else 0.0
+
         return {
-            "total": sum(
-                status_counts.values()
-            ),
+            "total": total,
             "labels": [
                 AppointmentService.STATUS_LABELS[
                     status
@@ -429,7 +445,227 @@ class DashboardService:
                 for status
                 in cls.APPOINTMENT_STATUSES
             ],
+            "types": {"labels": [label for _, label in cls.APPOINTMENT_TYPES], "values": [int(type_counts.get(key, 0)) for key, _ in cls.APPOINTMENT_TYPES]},
+            "sources": {"labels": [label for _, label in cls.APPOINTMENT_SOURCES], "values": [int(source_counts.get(key, 0)) for key, _ in cls.APPOINTMENT_SOURCES]},
+            "completed": int(
+                status_counts.get(
+                    Appointment.STATUS_COMPLETED,
+                    0,
+                )
+            ),
+            "no_show": int(
+                status_counts.get(
+                    Appointment.STATUS_NO_SHOW,
+                    0,
+                )
+            ),
+            "cancelled": int(
+                status_counts.get(
+                    Appointment.STATUS_CANCELLED,
+                    0,
+                )
+            ),
+            "completion_rate": rate(
+                Appointment.STATUS_COMPLETED
+            ),
+            "no_show_rate": rate(
+                Appointment.STATUS_NO_SHOW
+            ),
+            "cancellation_rate": rate(
+                Appointment.STATUS_CANCELLED
+            ),
         }
+
+    @classmethod
+    def get_visit_summary(cls, date_from, date_to):
+        start, end = cls._datetime_bounds(date_from, date_to)
+        rows = Visit.query.with_entities(Visit.visit_type, Visit.status, func.count(Visit.id)).filter(Visit.visit_date >= start, Visit.visit_date < end).group_by(Visit.visit_type, Visit.status).all()
+        type_counts, status_counts = Counter(), Counter()
+        for visit_type, status, count in rows:
+            type_counts[visit_type] += int(count)
+            status_counts[status] += int(count)
+        most_common = max(cls.VISIT_TYPES, key=lambda item: type_counts[item[0]]) if type_counts else None
+        return {"total": sum(type_counts.values()), "completed": status_counts["completed"], "incomplete": status_counts["incomplete"], "open": status_counts["open"], "most_common": most_common[1] if most_common and type_counts[most_common[0]] else None, "labels": [label for _, label in cls.VISIT_TYPES], "values": [type_counts[key] for key, _ in cls.VISIT_TYPES]}
+
+    @staticmethod
+    def get_upcoming_appointments():
+        today, current_time = date.today(), datetime.now().time()
+        return Appointment.query.options(joinedload(Appointment.patient)).filter(Appointment.status == Appointment.STATUS_BOOKED, (Appointment.appointment_date > today) | ((Appointment.appointment_date == today) & (Appointment.appointment_time.is_(None) | (Appointment.appointment_time >= current_time)))).order_by(Appointment.appointment_date.asc(), Appointment.appointment_time.is_(None), Appointment.appointment_time.asc(), Appointment.id.asc()).limit(5).all()
+
+    @classmethod
+    def get_investigation_summary(cls, date_from, date_to):
+        start, end = cls._datetime_bounds(date_from, date_to)
+        return {
+            "orders_in_period": InvestigationOrder.query.filter(InvestigationOrder.created_at >= start, InvestigationOrder.created_at < end).count(),
+            "pending_results": InvestigationOrderItem.query.filter(InvestigationOrderItem.status.in_((InvestigationOrderItem.STATUS_ORDERED, InvestigationOrderItem.STATUS_PENDING_RESULT))).count(),
+            "awaiting_review": InvestigationResult.query.filter(InvestigationResult.status == InvestigationResult.STATUS_ENTERED, InvestigationResult.status != InvestigationResult.STATUS_CANCELLED, InvestigationResult.reviewed_at.is_(None)).count(),
+            "urgent_pending": InvestigationOrder.query.filter(InvestigationOrder.priority == InvestigationOrder.PRIORITY_URGENT, InvestigationOrder.status.notin_((InvestigationOrder.STATUS_RESULTED, InvestigationOrder.STATUS_REVIEWED, InvestigationOrder.STATUS_CANCELLED))).count(),
+            "abnormal_noncritical": InvestigationResult.query.filter(InvestigationResult.status != InvestigationResult.STATUS_CANCELLED, InvestigationResult.abnormal_flag.in_((InvestigationResult.FLAG_LOW, InvestigationResult.FLAG_HIGH, InvestigationResult.FLAG_ABNORMAL))).count(),
+            "critical": InvestigationResult.query.filter(InvestigationResult.status != InvestigationResult.STATUS_CANCELLED, InvestigationResult.abnormal_flag == InvestigationResult.FLAG_CRITICAL).count(),
+        }
+
+    @classmethod
+    def get_ultrasound_summary(cls, date_from, date_to):
+        start, end = cls._datetime_bounds(date_from, date_to)
+        rows = ClinicUltrasoundExam.query.with_entities(ClinicUltrasoundExam.exam_type, func.count(ClinicUltrasoundExam.id)).join(Visit, ClinicUltrasoundExam.visit_id == Visit.id).filter(ClinicUltrasoundExam.is_active.is_(True), Visit.visit_date >= start, Visit.visit_date < end).group_by(ClinicUltrasoundExam.exam_type).all()
+        counts = dict(rows)
+        values = [int(counts.get(key, 0)) for key, _ in cls.ULTRASOUND_TYPES]
+        return {"clinic_exams": sum(values), "labels": [label for _, label in cls.ULTRASOUND_TYPES], "values": values, "external_pending": ExternalUltrasoundRequest.query.filter_by(status=ExternalUltrasoundRequest.STATUS_PENDING).count(), "external_completed": ExternalUltrasoundRequest.query.filter_by(status=ExternalUltrasoundRequest.STATUS_COMPLETED).count()}
+
+    @classmethod
+    def get_surgery_summary(cls, date_from, date_to):
+        start, end = cls._datetime_bounds(date_from, date_to)
+        rows = SurgeryCase.query.with_entities(SurgeryCase.status, func.count(SurgeryCase.id)).filter(SurgeryCase.is_active.is_(True), SurgeryCase.scheduled_at >= start, SurgeryCase.scheduled_at < end).group_by(SurgeryCase.status).all()
+        counts = dict(rows)
+        values = [int(counts.get(key, 0)) for key, _ in cls.SURGERY_STATUSES]
+        urgent = SurgeryCase.query.filter(SurgeryCase.is_active.is_(True), SurgeryCase.scheduled_at >= start, SurgeryCase.scheduled_at < end, SurgeryCase.priority.in_((SurgeryCase.PRIORITY_URGENT, SurgeryCase.PRIORITY_EMERGENCY))).count()
+        return {"total": sum(values), "scheduled": int(counts.get(SurgeryCase.STATUS_SCHEDULED, 0)), "completed": int(counts.get(SurgeryCase.STATUS_COMPLETED, 0)), "cancelled": int(counts.get(SurgeryCase.STATUS_CANCELLED, 0)), "postponed": int(counts.get(SurgeryCase.STATUS_POSTPONED, 0)), "urgent_emergency": urgent, "labels": [label for _, label in cls.SURGERY_STATUSES], "values": values}
+
+    @staticmethod
+    def get_upcoming_surgeries():
+        return SurgeryCase.query.options(joinedload(SurgeryCase.patient)).filter(SurgeryCase.is_active.is_(True), SurgeryCase.status == SurgeryCase.STATUS_SCHEDULED, SurgeryCase.scheduled_at > datetime.now(timezone.utc)).order_by(SurgeryCase.scheduled_at.asc(), SurgeryCase.id.asc()).limit(3).all()
+
+    @classmethod
+    def get_module_activity(cls, date_from, date_to, *, include_prescriptions=False, include_documents=False):
+        start, end = cls._datetime_bounds(date_from, date_to)
+        result = {}
+        if include_prescriptions:
+            result["prescriptions"] = Prescription.query.filter(Prescription.created_at >= start, Prescription.created_at < end).count()
+        if include_documents:
+            result["documents"] = PatientDocument.query.filter(PatientDocument.is_active.is_(True), PatientDocument.created_at >= start, PatientDocument.created_at < end).count()
+        return result
+
+    @classmethod
+    def get_revenue_by_service(cls, date_from, date_to):
+        rows = (
+            FinancePayment.query.with_entities(
+                FinanceCharge.service_type,
+                func.coalesce(
+                    func.sum(FinancePayment.amount),
+                    0,
+                ),
+            )
+            .join(
+                FinanceCharge,
+                FinancePayment.charge_id
+                == FinanceCharge.id,
+            )
+            .filter(
+                FinancePayment.payment_date
+                >= date_from,
+                FinancePayment.payment_date
+                <= date_to,
+                FinanceCharge.status
+                != FinanceCharge.STATUS_CANCELLED,
+            )
+            .group_by(
+                FinanceCharge.service_type
+            )
+            .all()
+        )
+        amounts = dict(rows)
+        return {"labels": [label for _, label in cls.FINANCE_SERVICES], "values": [float(amounts.get(key, 0)) for key, _ in cls.FINANCE_SERVICES]}
+
+
+    @staticmethod
+    def build_needs_attention(
+        *,
+        appointment_summary=None,
+        investigation_summary=None,
+        ultrasound_summary=None,
+        surgery_summary=None,
+        finance_summary=None,
+    ):
+        items = []
+
+        def add_item(
+            label,
+            value,
+            severity,
+            icon,
+            endpoint,
+            *,
+            is_money=False,
+        ):
+            if value:
+                items.append(
+                    {
+                        "label": label,
+                        "value": value,
+                        "severity": severity,
+                        "icon": icon,
+                        "endpoint": endpoint,
+                        "is_money": is_money,
+                    }
+                )
+
+        if appointment_summary:
+            add_item(
+                "No-show appointments",
+                appointment_summary["no_show"],
+                "warning",
+                "bi-person-x",
+                "appointments.index",
+            )
+
+        if investigation_summary:
+            add_item(
+                "Critical investigation results",
+                investigation_summary["critical"],
+                "danger",
+                "bi-exclamation-octagon",
+                "investigations.pending_results",
+            )
+            add_item(
+                "Results awaiting review",
+                investigation_summary[
+                    "awaiting_review"
+                ],
+                "warning",
+                "bi-clipboard2-pulse",
+                "investigations.pending_results",
+            )
+            add_item(
+                "Urgent pending investigations",
+                investigation_summary[
+                    "urgent_pending"
+                ],
+                "danger",
+                "bi-hourglass-split",
+                "investigations.index",
+            )
+
+        if ultrasound_summary:
+            add_item(
+                "Pending external ultrasounds",
+                ultrasound_summary[
+                    "external_pending"
+                ],
+                "warning",
+                "bi-soundwave",
+                "patients.index",
+            )
+
+        if surgery_summary:
+            add_item(
+                "Postponed surgeries",
+                surgery_summary["postponed"],
+                "warning",
+                "bi-calendar2-x",
+                "surgeries.index",
+            )
+
+        if finance_summary:
+            add_item(
+                "Outstanding balance",
+                finance_summary["outstanding"],
+                "warning",
+                "bi-cash-stack",
+                "finance.insights",
+                is_money=True,
+            )
+
+        return items
 
     @staticmethod
     def get_finance_summary(

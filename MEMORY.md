@@ -879,3 +879,56 @@ Next Action:
 - Commit and push P2.3A manually.
 - Continue real personal trial.
 - Do not start Stage 13 yet.
+
+## 2026-07-18 — Personal Trial Sprint P2.3B Dashboard Module Intelligence Completed
+
+Current Stage:
+- Project remains in real personal trial mode after Stage 12.
+- P2.3B Dashboard Module Intelligence is implemented and verified.
+- Stage 13 has not started.
+
+Completed Work:
+- Added visits by clinical type.
+- Added appointment type and source breakdowns.
+- Added collected revenue by service.
+- Added investigation, ultrasound, and surgery summaries.
+- Added Needs Attention and Upcoming Events.
+- Added prescription and document activity summaries.
+- Added responsive dashboard UI, charts, and empty-state handling.
+- Manual UI smoke review was accepted.
+
+Security and RBAC:
+- Unauthorized dashboard modules are not queried.
+- Reception does not receive restricted clinical or finance chart payloads.
+- Destination routes remain independently permission protected.
+
+Tests:
+- P2.3B focused tests: 7 passed.
+- P2 dashboard tests: 6 passed.
+- Application shell tests: 8 passed.
+- Authentication tests: 9 passed.
+- Full regression: 471 passed.
+
+Verification:
+- Migration current/head: 20260715_0069.
+- No database changes.
+- No migration changes.
+- git diff --check completed without whitespace errors.
+- Manual Dashboard UI review accepted.
+
+Latest Known Commit:
+- 747a58a feat(dashboard): add role-aware clinic insights
+- P2.3B changes are verified locally but not committed yet.
+
+Deferred:
+- Development Role Preview.
+- Demo clinic database and seed data.
+- Additional dashboard polish from real trial feedback.
+- Stage 13 Reports.
+- Notifications and AI features.
+
+Next Action:
+- Complete final Git review.
+- Commit and push P2.3B manually.
+- Then plan Development Role Preview and demo clinic data.
+- Do not start Stage 13.

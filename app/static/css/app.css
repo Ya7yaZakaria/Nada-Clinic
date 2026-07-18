@@ -1120,6 +1120,23 @@ body.auth-page {
     font-size: .9rem;
 }
 
+.dashboard-intelligence-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.dashboard-dual-chart { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.dashboard-module-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .75rem; }
+.dashboard-module-grid a { display: grid; gap: .2rem; padding: 1rem; color: var(--clinic-ink); text-decoration: none; border: 1px solid var(--clinic-border); border-radius: .9rem; background: var(--clinic-surface-soft); }
+.dashboard-module-grid a:hover { color: var(--clinic-primary); border-color: var(--clinic-primary); }
+.dashboard-module-grid strong { font-size: 1.35rem; }
+.dashboard-module-grid span { color: var(--clinic-muted); font-size: .85rem; }
+
+@media (max-width: 991.98px) {
+    .dashboard-intelligence-grid { grid-template-columns: 1fr; }
+    .dashboard-module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 575.98px) {
+    .dashboard-dual-chart, .dashboard-module-grid { grid-template-columns: 1fr; }
+}
+
 .dashboard-live-label {
     display: inline-flex;
     align-items: center;

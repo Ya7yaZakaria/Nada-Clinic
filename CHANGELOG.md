@@ -1414,3 +1414,30 @@ No diagnosis-linked preset behavior added.
 - Migration current/head: 20260715_0069.
 - No database or migration changes.
 - Local manual smoke review accepted.
+
+## 2026-07-18 — P2.3B Dashboard Module Intelligence
+
+### Added
+- Visits breakdown by clinical type.
+- Appointment type and booking source summaries.
+- Collected revenue breakdown by service.
+- Investigation, ultrasound, and surgery summaries.
+- Needs Attention section.
+- Upcoming appointments and surgeries.
+- Prescription and document activity summaries.
+- Dedicated P2.3B dashboard tests.
+
+### Security
+- Restricted dashboard modules are not queried for unauthorized roles.
+- Reception dashboard JSON omits restricted clinical and finance datasets.
+- Needs Attention entries follow the effective module permissions.
+
+### Verification
+- P2.3B focused tests: 7 passed.
+- P2 dashboard tests: 6 passed.
+- Application shell tests: 8 passed.
+- Authentication tests: 9 passed.
+- Full regression: 471 passed.
+- Migration current/head: 20260715_0069.
+- No database or migration changes.
+- Manual dashboard UI smoke review accepted.

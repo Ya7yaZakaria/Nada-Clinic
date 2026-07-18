@@ -727,3 +727,12 @@ Sprint 12.4 makes the existing workflow default landing setting operational:
 ## Stage 12 — Settings & Personalization Freeze Review
 
 Stage 12 freezes the Settings & Personalization foundation after Settings UI, Appearance/Night Mode/RTL, Clinic Profile Settings, and Workflow Defaults. The system now supports grouped settings, global UI preferences, clinic identity settings, language direction foundation, workflow default login landing, RBAC protection, tests, and documentation. Per-user preferences, full translation, notifications, and logo upload remain deferred.
+
+## Dashboard Module Intelligence — P2.3B
+
+The role-aware clinic dashboard now includes module-level summaries for Visits,
+Appointments, Finance, Investigations, Ultrasound, Surgery, Prescriptions, and
+Documents, together with Needs Attention and Upcoming Events.
+
+The dashboard uses existing models and permissions. No dashboard tables,
+database columns, or migrations were added.

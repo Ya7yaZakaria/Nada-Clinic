@@ -601,6 +601,52 @@ EGP {{ "{:,.2f}".format(value or 0) }}
     {% endif %}
 </section>
 
+{% if visit_summary or investigation_summary or ultrasound_summary or surgery_summary or module_activity or revenue_by_service %}
+<section class="dashboard-intelligence-grid mb-4">
+    {% if visit_summary %}
+    <article class="clinic-card dashboard-chart-card">
+        <div class="dashboard-card-heading"><div><p class="section-kicker mb-1">Clinical</p><h2 class="h5 mb-0">Visits by Type</h2></div><a href="{{ url_for('visits.index') }}" class="btn btn-sm btn-outline-secondary">View visits</a></div>
+        <div class="dashboard-chart-container"><canvas id="dashboard-visit-types-chart"></canvas></div>
+        <div class="dashboard-inline-summary"><span><strong>{{ visit_summary.completed }}</strong> completed</span><span><strong>{{ visit_summary.incomplete }}</strong> incomplete</span><span><strong>{{ visit_summary.open }}</strong> open</span></div>
+        {% if visit_summary.most_common %}<small class="text-muted">Most common: {{ visit_summary.most_common }}</small>{% endif %}
+    </article>
+    {% endif %}
+    {% if revenue_by_service %}
+    <article class="clinic-card dashboard-chart-card"><div class="dashboard-card-heading"><div><p class="section-kicker mb-1">Finance</p><h2 class="h5 mb-0">Collected by Service</h2></div><a href="{{ url_for('finance.insights') }}" class="btn btn-sm btn-outline-secondary">Insights</a></div><div class="dashboard-chart-container"><canvas id="dashboard-revenue-services-chart"></canvas></div></article>
+    {% endif %}
+    {% if appointment_summary %}
+    <article class="clinic-card dashboard-chart-card"><div class="dashboard-card-heading"><div><p class="section-kicker mb-1">Appointments</p><h2 class="h5 mb-0">Types & Sources</h2></div></div><div class="dashboard-dual-chart"><div class="dashboard-chart-container dashboard-chart-donut"><canvas id="dashboard-appointment-types-chart"></canvas></div><div class="dashboard-chart-container dashboard-chart-donut"><canvas id="dashboard-appointment-sources-chart"></canvas></div></div><div class="dashboard-inline-summary"><span><strong>{{ appointment_summary.completion_rate }}%</strong> completed</span><span><strong>{{ appointment_summary.no_show_rate }}%</strong> no-show</span><span><strong>{{ appointment_summary.cancellation_rate }}%</strong> cancelled</span></div></article>
+    {% endif %}
+    {% if ultrasound_summary %}
+    <article class="clinic-card dashboard-chart-card"><div class="dashboard-card-heading"><div><p class="section-kicker mb-1">Ultrasound</p><h2 class="h5 mb-0">Clinic Exam Mix</h2></div><a href="{{ url_for('patients.index') }}" class="btn btn-sm btn-outline-secondary">Patients</a></div><div class="dashboard-chart-container dashboard-chart-donut"><canvas id="dashboard-ultrasound-types-chart"></canvas></div><div class="dashboard-inline-summary"><span><strong>{{ ultrasound_summary.clinic_exams }}</strong> exams</span><span><strong>{{ ultrasound_summary.external_pending }}</strong> external pending</span></div></article>
+    {% endif %}
+    {% if surgery_summary %}
+    <article class="clinic-card dashboard-chart-card"><div class="dashboard-card-heading"><div><p class="section-kicker mb-1">Surgery</p><h2 class="h5 mb-0">Scheduled-period Status</h2></div><a href="{{ url_for('surgeries.index') }}" class="btn btn-sm btn-outline-secondary">Open Surgery</a></div><div class="dashboard-chart-container dashboard-chart-donut"><canvas id="dashboard-surgery-statuses-chart"></canvas></div><div class="dashboard-inline-summary"><span><strong>{{ surgery_summary.urgent_emergency }}</strong> urgent/emergency</span></div></article>
+    {% endif %}
+</section>
+{% endif %}
+
+{% if needs_attention or upcoming_appointments or upcoming_surgeries %}
+<section class="row g-3 mb-4">
+    {% if needs_attention %}<div class="col-12 col-xl-4"><article class="clinic-card h-100"><div class="dashboard-card-heading"><h2 class="h5 mb-0">Needs Attention</h2></div><div class="dashboard-list">{% for item in needs_attention %}<a class="dashboard-list-item" href="{{ url_for(item.endpoint) }}"><span><i class="bi {{ item.icon }} text-{{ item.severity }} me-2"></i>{{ item.label }}</span><strong>{{ money(item.value) if item.is_money else item.value }}</strong></a>{% endfor %}</div></article></div>{% endif %}
+    {% if upcoming_appointments %}<div class="col-12 col-xl-4"><article class="clinic-card h-100"><div class="dashboard-card-heading"><h2 class="h5 mb-0">Upcoming Appointments</h2></div><div class="dashboard-list">{% for appointment in upcoming_appointments %}<a class="dashboard-list-item" href="{{ url_for('appointments.index') }}"><span><strong>{{ appointment.patient.name_en }}</strong><small class="d-block text-muted">{{ appointment.appointment_type|replace('_', ' ') }} · {{ appointment.status }}</small></span><time>{{ appointment.appointment_date.strftime('%d %b') }} {{ appointment.appointment_time.strftime('%H:%M') if appointment.appointment_time else 'Time TBD' }}</time></a>{% endfor %}</div></article></div>{% endif %}
+    {% if upcoming_surgeries %}<div class="col-12 col-xl-4"><article class="clinic-card h-100"><div class="dashboard-card-heading"><h2 class="h5 mb-0">Upcoming Surgeries</h2></div><div class="dashboard-list">{% for surgery in upcoming_surgeries %}<a class="dashboard-list-item" href="{{ url_for('surgeries.index') }}"><span><strong>{{ surgery.patient.name_en }}</strong><small class="d-block text-muted">{{ surgery.procedure_name }} · {{ surgery.priority }}</small></span><time>{{ surgery.scheduled_at.strftime('%d %b %H:%M') }}</time></a>{% endfor %}</div></article></div>{% endif %}
+</section>
+{% endif %}
+
+{% if visit_summary or appointment_summary or investigation_summary or ultrasound_summary or surgery_summary or finance_summary or module_activity %}
+<section class="clinic-card mb-4"><div class="dashboard-card-heading"><div><p class="section-kicker mb-1">Selected period</p><h2 class="h5 mb-0">Module Activity</h2></div></div><div class="dashboard-module-grid">
+{% if visit_summary %}<a href="{{ url_for('visits.index') }}"><strong>{{ visit_summary.total }}</strong><span>Visits</span></a>{% endif %}
+{% if appointment_summary %}<a href="{{ url_for('appointments.index') }}"><strong>{{ appointment_summary.total }}</strong><span>Appointments</span></a>{% endif %}
+{% if investigation_summary %}<a href="{{ url_for('investigations.index') }}"><strong>{{ investigation_summary.orders_in_period }}</strong><span>Investigations</span></a>{% endif %}
+{% if ultrasound_summary %}<a href="{{ url_for('patients.index') }}"><strong>{{ ultrasound_summary.clinic_exams }}</strong><span>Ultrasound</span></a>{% endif %}
+{% if surgery_summary %}<a href="{{ url_for('surgeries.index') }}"><strong>{{ surgery_summary.total }}</strong><span>Surgeries</span></a>{% endif %}
+{% if finance_summary %}<a href="{{ url_for('finance.insights') }}"><strong>{{ money(finance_summary.revenue) }}</strong><span>Collected</span></a>{% endif %}
+{% if 'prescriptions' in module_activity %}<a href="{{ url_for('patients.index') }}"><strong>{{ module_activity.prescriptions }}</strong><span>Prescriptions</span></a>{% endif %}
+{% if 'documents' in module_activity %}<a href="{{ url_for('patients.index') }}"><strong>{{ module_activity.documents }}</strong><span>Documents</span></a>{% endif %}
+</div></section>
+{% endif %}
+
 {% if today_clinic %}
 <section class="row g-3">
     <div class="col-12">

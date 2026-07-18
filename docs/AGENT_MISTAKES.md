@@ -549,3 +549,62 @@ Prevention rule:
 Every Jinja block name must be unique inside one template. After editing
 a shared base template, count block definitions and render both an
 authenticated page and an anonymous page before broader tests.
+
+## 2026-07-18 - Do not delay requested runnable commands
+
+Issue:
+- The assistant continued planning when the user expected an immediate runnable
+  development command.
+
+Prevention:
+- When the user explicitly asks for code or a command to run, provide the narrow
+  runnable command first.
+- Clearly distinguish implemented features from planned features.
+- Do not imply that an unimplemented development control already exists.
+
+## 2026-07-18 - Avoid interactive Git pagers in user-run commands
+
+Issue:
+- A `git diff` command opened Git's interactive pager and left the terminal
+  waiting at `(END)`, which made it look like the command had stopped.
+
+Prevention:
+- Use `git --no-pager diff` in commands intended for the user to run.
+- For session-wide behavior in PowerShell, set:
+  `$env:GIT_PAGER = "cat"`.
+- When `(END)` appears, instruct the user to press `q` to return to the terminal.
+- Avoid giving long interactive terminal commands without explaining how to exit.
+
+## 2026-07-18 - Avoid Unicode punctuation in terminal-generated documentation
+
+Issue:
+- A Unicode em dash in a Python script pasted through PowerShell was written as
+  `?` in the generated Markdown heading because of terminal encoding behavior.
+
+Prevention:
+- Use plain ASCII punctuation such as `-` in terminal-generated file content.
+- Do not use em dashes, smart quotes, or other Unicode punctuation in PowerShell
+  here-strings unless encoding behavior has been verified.
+- Read generated files using `utf-8-sig` and write them explicitly as UTF-8.
+- Review generated headings after writing files.
+- Prefer ASCII-safe documentation text in scripts that users paste into Windows
+  PowerShell.
+
+## 2026-07-18 - Use Python instead of Get-Content for UTF-8 verification
+
+Issue:
+- PowerShell Get-Content displayed valid UTF-8 punctuation as mojibake such as
+  ??? and made it unclear whether the file itself was corrupted or only the
+  terminal display was incorrect.
+
+Prevention:
+- Use Python to read and print UTF-8 files when verifying generated content.
+- Do not rely on Get-Content to validate Unicode or UTF-8 punctuation.
+- Read files with encoding="utf-8-sig" when a BOM may exist.
+- Use Get-Content only for ASCII-safe content or when PowerShell encoding has
+  been explicitly configured and verified.
+- Preferred verification pattern:
+  from pathlib import Path
+  text = Path("path/to/file.md").read_text(encoding="utf-8-sig")
+  for line in text.splitlines():
+      print(line)

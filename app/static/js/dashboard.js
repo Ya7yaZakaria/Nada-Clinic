@@ -142,6 +142,37 @@
         };
     }
 
+    const initializedCanvases = new WeakSet();
+
+    function hasValues(dataset) {
+        return dataset
+            && Array.isArray(dataset.values)
+            && dataset.values.some(function (value) {
+                return Number(value) !== 0;
+            });
+    }
+
+    function renderSimpleChart(id, dataset, type, colors) {
+        const canvas = document.getElementById(id);
+        if (!canvas || initializedCanvases.has(canvas) || !hasValues(dataset)) {
+            return;
+        }
+        initializedCanvases.add(canvas);
+        new Chart(canvas, {
+            type: type,
+            data: {
+                labels: dataset.labels,
+                datasets: [{
+                    data: dataset.values,
+                    backgroundColor: colors,
+                    borderWidth: 0,
+                    borderRadius: type === "bar" ? 6 : 0,
+                }],
+            },
+            options: type === "doughnut" ? doughnutOptions() : cartesianOptions(),
+        });
+    }
+
     function initializeCharts(data) {
         if (
             !data
@@ -158,6 +189,7 @@
         if (
             activityCanvas
             && data.activity
+            && !initializedCanvases.has(activityCanvas)
         ) {
             const activityDatasets = [];
 
@@ -224,6 +256,7 @@
             }
 
             if (activityDatasets.length > 0) {
+                initializedCanvases.add(activityCanvas);
                 new Chart(
                     activityCanvas,
                     {
@@ -248,8 +281,10 @@
 
         if (
             journeyCanvas
-            && data.journeys
+            && hasValues(data.journeys)
+            && !initializedCanvases.has(journeyCanvas)
         ) {
+            initializedCanvases.add(journeyCanvas);
             new Chart(
                 journeyCanvas,
                 {
@@ -285,7 +320,10 @@
         if (
             financeCanvas
             && data.finance
+            && !initializedCanvases.has(financeCanvas)
+            && [data.finance.revenue, data.finance.expenses].flat().some(function (value) { return Number(value) !== 0; })
         ) {
+            initializedCanvases.add(financeCanvas);
             new Chart(
                 financeCanvas,
                 {
@@ -328,8 +366,10 @@
 
         if (
             appointmentCanvas
-            && data.appointments
+            && hasValues(data.appointments)
+            && !initializedCanvases.has(appointmentCanvas)
         ) {
+            initializedCanvases.add(appointmentCanvas);
             new Chart(
                 appointmentCanvas,
                 {
@@ -360,6 +400,13 @@
                 }
             );
         }
+
+        renderSimpleChart("dashboard-visit-types-chart", data.visit_types, "bar", "rgba(111,66,193,.72)");
+        renderSimpleChart("dashboard-revenue-services-chart", data.revenue_services, "bar", "rgba(25,135,84,.72)");
+        renderSimpleChart("dashboard-appointment-types-chart", data.appointment_types, "doughnut", ["#0d6efd", "#20c997", "#dc3545"]);
+        renderSimpleChart("dashboard-appointment-sources-chart", data.appointment_sources, "doughnut", ["#6f42c1", "#198754", "#0dcaf0", "#fd7e14"]);
+        renderSimpleChart("dashboard-ultrasound-types-chart", data.ultrasound_types, "doughnut", ["#0d6efd", "#d63384", "#20c997", "#6c757d"]);
+        renderSimpleChart("dashboard-surgery-statuses-chart", data.surgery_statuses, "doughnut", ["#0d6efd", "#198754", "#dc3545", "#ffc107"]);
     }
 
     document.addEventListener(
