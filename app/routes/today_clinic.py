@@ -1,13 +1,15 @@
-from datetime import date
+from datetime import date, datetime, timezone
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 from app.services.appointment_service import AppointmentService
 from app.services.clinic_day_service import ClinicDayService
+from app.services.finance_service import FinanceService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
 from app.services.rbac_service import RBACService
+from app.services.settings_service import SettingsService
 from app.services.visit_service import VisitService
 
 
@@ -88,6 +90,30 @@ def day(clinic_date):
             visit_snapshot,
         )
     )
+    clinic_intelligence = (
+        ClinicDayService.build_intelligence(
+            clinic_day,
+            visit_snapshot,
+            now=datetime.now(timezone.utc),
+        )
+    )
+
+    display_timezone = SettingsService.get(
+        "localization.timezone",
+        default="Africa/Cairo",
+    )
+
+    finance_summary = None
+    if RBACService.user_has_permission(
+        current_user,
+        "finance.insights",
+    ):
+        finance_summary = (
+            FinanceService.get_insights_summary(
+                selected_date,
+                selected_date,
+            )
+        )
 
     return render_template(
         "clinic/today.html",
@@ -96,6 +122,9 @@ def day(clinic_date):
         visit_snapshot=visit_snapshot,
         resolved=resolved,
         live_counters=live_counters,
+        clinic_intelligence=clinic_intelligence,
+        display_timezone=display_timezone,
+        finance_summary=finance_summary,
         show_close_result=(
             ClinicDayService
             .is_close_result_visible(clinic_day)

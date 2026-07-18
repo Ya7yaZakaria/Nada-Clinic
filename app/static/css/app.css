@@ -1978,3 +1978,108 @@ body.auth-page {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Sprint 2 Today Clinic live intelligence */
+.clinic-live-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    color: var(--bs-secondary-color);
+    font-size: .875rem;
+}
+
+.clinic-flow-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+}
+
+.clinic-flow-step {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+}
+
+.clinic-flow-step span {
+    display: block;
+    color: var(--bs-secondary-color);
+    font-size: .78rem;
+}
+
+.clinic-flow-step strong {
+    display: block;
+    font-size: 1.35rem;
+}
+
+.clinic-flow-arrow {
+    color: var(--bs-secondary-color);
+}
+
+.clinic-alert-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.clinic-alert-strip .alert {
+    flex: 1 1 12rem;
+}
+
+.clinic-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: .75rem;
+}
+
+.clinic-mini-grid > div {
+    border: 1px solid var(--bs-border-color);
+    border-radius: .75rem;
+    padding: .75rem;
+}
+
+.clinic-mini-grid span,
+.clinic-breakdown-row span,
+.clinic-rate-row span {
+    color: var(--bs-secondary-color);
+    font-size: .8rem;
+}
+
+.clinic-mini-grid strong {
+    display: block;
+    margin-top: .15rem;
+}
+
+.clinic-breakdown-row,
+.clinic-rate-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .4rem 0;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.clinic-breakdown-row:last-child,
+.clinic-rate-row:last-child {
+    border-bottom: 0;
+}
+
+@media (max-width: 991.98px) {
+    .clinic-flow-arrow {
+        display: none;
+    }
+
+    .clinic-flow-strip,
+    .clinic-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    .clinic-flow-strip,
+    .clinic-mini-grid {
+        grid-template-columns: 1fr;
+    }
+}

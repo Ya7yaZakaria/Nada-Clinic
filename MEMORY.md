@@ -1003,3 +1003,14 @@ Next Action:
 - `flask db check` still reports unrelated pre-existing drug unique-index and surgery index drift. No Appointment/Visit drift was reported.
 - Advanced Today Clinic intelligence remains deferred to Sprint 2.
 - No commit or push was performed by Codex.
+
+
+## 2026-07-19 — Sprint 2 Today Clinic Live Intelligence Implemented
+
+- Enhanced the existing Today Clinic page without adding a new domain module or migration.
+- Added browser-local live time, UTC last-updated time, manual refresh, waiting duration, and 30-minute long-wait highlighting.
+- Added Clinic Flow, operational alerts, workload, Appointment/Visit type breakdowns, attendance rate, and Visit completion rate.
+- Added same-day Finance insights only for users with `finance.insights`; Reception receives no Finance insights query or payload.
+- Kept the existing Close Day behavior.
+- Did not add ClinicDay persistence, closure snapshots, Visit doctor assignment, or automatic refresh.
+- Verification remains pending local test execution.

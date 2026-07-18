@@ -85,6 +85,17 @@
         </div>
 
         <div class="clinic-patient-context">
+            {% if waiting_info|default(none) %}
+                <span class="badge {{
+                    'text-bg-danger'
+                    if waiting_info.is_long
+                    else 'text-bg-warning'
+                }}">
+                    <i class="bi bi-hourglass-split me-1"></i>
+                    {{ waiting_info.label }}
+                </span>
+            {% endif %}
+
             {% if is_resolved %}
                 <span class="badge text-bg-secondary">
                     {% if resolved_item.kind == 'completed' %}

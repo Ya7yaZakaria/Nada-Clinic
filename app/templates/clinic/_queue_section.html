@@ -27,6 +27,11 @@
         <div class="clinic-patient-stack">
             {% for appointment
                   in clinic_day.waiting_queue %}
+                {% set waiting_info =
+                    clinic_intelligence.waiting_by_id.get(
+                        appointment.id
+                    )
+                %}
                 {% include
                     "clinic/_appointment_card.html"
                 %}

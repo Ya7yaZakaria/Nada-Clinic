@@ -121,19 +121,20 @@ class DashboardService:
 
     @staticmethod
     def _datetime_bounds(date_from, date_to):
-        start = datetime.combine(
+        start_local = datetime.combine(
             date_from,
             time.min,
-            tzinfo=timezone.utc,
         )
 
-        end = datetime.combine(
+        end_local = datetime.combine(
             date_to + timedelta(days=1),
             time.min,
-            tzinfo=timezone.utc,
         )
 
-        return start, end
+        return (
+            start_local.astimezone(timezone.utc),
+            end_local.astimezone(timezone.utc),
+        )
 
     @staticmethod
     def _date_sequence(date_from, date_to):

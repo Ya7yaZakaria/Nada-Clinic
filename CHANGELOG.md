@@ -1506,3 +1506,22 @@ No diagnosis-linked preset behavior added.
 - Related RBAC, Auth, shell, and dashboard tests: 32 passed.
 - Full regression: 478 passed.
 - Manual Admin, Doctor, Reception, and reset validation accepted.
+
+
+## 2026-07-19 — Today Clinic Live Intelligence
+
+### Added
+- Browser-local live clock, server-rendered UTC last-updated time, and manual refresh.
+- Waiting duration with a 30-minute long-wait indicator.
+- Clinic flow, operational alerts, workload, and type breakdowns.
+- Attendance rate and Visit completion rate.
+- Permission-safe same-day finance insights for users with `finance.insights`.
+- Compact end-of-day operational summary using the existing Close Day behavior.
+
+### Deferred
+- Persistent ClinicDay storage and closure snapshots.
+- Visit doctor assignment.
+- Automatic refresh.
+
+### Verification
+- Pending local test execution.
