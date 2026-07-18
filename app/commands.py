@@ -1,10 +1,11 @@
-﻿import os
+import os
 
 import click
 
 from app.extensions import db
 from app.models import User
 from app.services.auth_service import AuthService
+from app.services.demo_data_service import DemoDataService
 from app.services.rbac_service import RBACService
 from app.services.settings_service import SettingsService
 
@@ -68,3 +69,52 @@ def register_commands(app):
 
         SettingsService.seed_defaults()
         click.echo("Default settings seeded.")
+
+    @app.cli.command("seed-demo")
+    def seed_demo():
+        """Create five months of realistic local clinic demo data."""
+        if not (app.debug or app.testing):
+            raise click.ClickException(
+                "seed-demo is available only in development or testing."
+            )
+
+        try:
+            result = DemoDataService.seed()
+        except ValueError as exc:
+            raise click.ClickException(str(exc)) from exc
+
+        summary = DemoDataService.summary()
+
+        click.echo(result["message"])
+        click.echo(
+            "Period: "
+            f'{summary["period_start"]} to '
+            f'{summary["period_end"]}'
+        )
+        click.echo(f'Patients: {summary["patients"]}')
+        click.echo(f'Appointments: {summary["appointments"]}')
+        click.echo(f'Visits: {summary["visits"]}')
+        click.echo(f'Journeys: {summary["journeys"]}')
+        click.echo(f'Partners: {summary["partners"]}')
+        click.echo(
+            f'Prescriptions: {summary["prescriptions"]}'
+        )
+        click.echo(
+            "Investigation results: "
+            f'{summary["investigation_results"]}'
+        )
+        click.echo(
+            "Clinic ultrasounds: "
+            f'{summary["clinic_ultrasounds"]}'
+        )
+        click.echo(
+            "External ultrasounds: "
+            f'{summary["external_ultrasounds"]}'
+        )
+        click.echo(f'Documents: {summary["documents"]}')
+        click.echo(f'Surgeries: {summary["surgeries"]}')
+        click.echo(
+            f'Finance charges: {summary["finance_charges"]}'
+        )
+        click.echo(f'Expenses: {summary["expenses"]}')
+        click.echo("No users were created.")
