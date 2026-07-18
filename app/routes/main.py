@@ -252,6 +252,7 @@ def index():
         period=period,
         permissions=permissions,
         clinic_kpis=clinic_kpis,
+        activity_trend=activity_trend,
         journey_mix=journey_mix,
         appointment_summary=(
             appointment_summary

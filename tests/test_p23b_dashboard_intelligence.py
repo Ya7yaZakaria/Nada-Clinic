@@ -21,8 +21,15 @@ def patient(number=1):
     return record
 
 
-def user_with_role(role, email):
-    user = User(email=email, phone="01099999999", name=f"{role} User")
+def user_with_role(role, email, phone=None):
+    if phone is None:
+        phone = f"0109999{User.query.count() + 1:04d}"
+
+    user = User(
+        email=email,
+        phone=phone,
+        name=f"{role} User",
+    )
     user.set_password("12345678")
     db.session.add(user)
     db.session.commit()
@@ -228,5 +235,146 @@ def test_reception_chart_payload_omits_restricted_keys(
 
         for key in restricted_keys:
             assert key not in response.data
+
+        db.drop_all()
+
+
+
+def test_dashboard_polish_places_today_first_and_removes_redundant_sections():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        user_with_role(
+            "Doctor",
+            "dashboard-polish-doctor@example.com",
+        )
+
+        person = patient(77)
+
+        db.session.add(
+            Appointment(
+                patient_id=person.id,
+                appointment_date=date.today(),
+                appointment_time=time(10, 0),
+                appointment_type=(
+                    Appointment.TYPE_FOLLOW_UP
+                ),
+                source=Appointment.SOURCE_PHONE,
+                status=Appointment.STATUS_NO_SHOW,
+            )
+        )
+        db.session.commit()
+
+        client = app.test_client()
+
+        login(
+            client,
+            "dashboard-polish-doctor@example.com",
+        )
+
+        response = client.get("/?preset=this_month")
+
+        assert response.status_code == 200
+        assert b"Smart clinic pulse" in response.data
+        assert b"Clinical Overview" in response.data
+        assert b"Clinic Operations" in response.data
+        assert b"Financial Overview" in response.data
+
+        assert b"Module Activity" not in response.data
+        assert b"Clinic Exam Mix" not in response.data
+        assert b"Scheduled-period Status" not in response.data
+
+        today_position = response.data.find(
+            b"Today Clinic"
+        )
+        activity_position = response.data.find(
+            b"Activity Trend"
+        )
+
+        assert today_position != -1
+        assert activity_position != -1
+        assert today_position < activity_position
+
+        db.drop_all()
+
+
+def test_book_appointment_action_is_reception_only():
+    doctor_app = make_app()
+
+    with doctor_app.app_context():
+        db.create_all()
+
+        user_with_role(
+            "Doctor",
+            "dashboard-action-doctor@example.com",
+        )
+
+        client = doctor_app.test_client()
+
+        login(
+            client,
+            "dashboard-action-doctor@example.com",
+        )
+
+        response = client.get("/")
+
+        assert response.status_code == 200
+        assert b"Book Appointment" not in response.data
+        assert b"Open Today Clinic" in response.data
+
+        db.drop_all()
+
+    reception_app = make_app()
+
+    with reception_app.app_context():
+        db.create_all()
+
+        user_with_role(
+            "Reception",
+            "dashboard-action-reception@example.com",
+        )
+
+        client = reception_app.test_client()
+
+        login(
+            client,
+            "dashboard-action-reception@example.com",
+        )
+
+        response = client.get("/")
+
+        assert response.status_code == 200
+        assert b"Book Appointment" in response.data
+
+        db.drop_all()
+
+
+def test_dashboard_custom_period_is_compact_inside_command_center():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        user_with_role(
+            "Admin",
+            "dashboard-period-admin@example.com",
+        )
+
+        client = app.test_client()
+
+        login(
+            client,
+            "dashboard-period-admin@example.com",
+        )
+
+        response = client.get("/?preset=this_month")
+
+        assert response.status_code == 200
+        assert b"dashboard-command-center" in response.data
+        assert b"dashboard-period-toolbar" in response.data
+        assert b"dashboard-custom-range" in response.data
+        assert b"dashboard-filter-card" not in response.data
 
         db.drop_all()

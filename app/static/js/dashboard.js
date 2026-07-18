@@ -154,10 +154,28 @@
 
     function renderSimpleChart(id, dataset, type, colors) {
         const canvas = document.getElementById(id);
-        if (!canvas || initializedCanvases.has(canvas) || !hasValues(dataset)) {
+
+        if (
+            !canvas
+            || initializedCanvases.has(canvas)
+            || !hasValues(dataset)
+        ) {
             return;
         }
+
+        const options = (
+            type === "doughnut"
+                ? doughnutOptions()
+                : cartesianOptions()
+        );
+
+        if (type === "bar") {
+            options.indexAxis = "y";
+            options.plugins.legend.display = false;
+        }
+
         initializedCanvases.add(canvas);
+
         new Chart(canvas, {
             type: type,
             data: {
@@ -169,7 +187,7 @@
                     borderRadius: type === "bar" ? 6 : 0,
                 }],
             },
-            options: type === "doughnut" ? doughnutOptions() : cartesianOptions(),
+            options: options,
         });
     }
 
