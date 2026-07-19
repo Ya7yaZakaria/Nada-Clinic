@@ -43,39 +43,11 @@ def previous():
     )
 
 
-@today_clinic_bp.get("/day/<clinic_date>")
-@login_required
-@RBACService.require_permission("appointments.view")
-def day(clinic_date):
-    selected_date = _parse_clinic_date(clinic_date)
-    resolved = AppointmentService.get_resolved_bookings(
-        selected_date,
-        request.args.get("resolved_filter", "all"),
-        request.args.get("resolved_sort", "latest"),
-    )
-
-    if selected_date < date.today():
-        clinic_day = AppointmentService.get_day_summary(
-            selected_date
-        )
-        visit_snapshot = (
-            ClinicDayService.get_visit_snapshot(
-                selected_date
-            )
-        )
-
-        return render_template(
-            "clinic/past_day.html",
-            clinic_day=clinic_day,
-            selected_date=selected_date,
-            visit_snapshot=visit_snapshot,
-            resolved=resolved,
-            AppointmentService=AppointmentService,
-            JourneyService=JourneyService,
-            PatientService=PatientService,
-            VisitService=VisitService,
-        )
-
+def _build_live_context(
+    selected_date,
+    resolved_filter="all",
+    resolved_sort="latest",
+):
     clinic_day = AppointmentService.get_clinic_day(
         selected_date
     )
@@ -83,6 +55,11 @@ def day(clinic_date):
         ClinicDayService.get_visit_snapshot(
             selected_date
         )
+    )
+    resolved = AppointmentService.get_resolved_bookings(
+        selected_date,
+        resolved_filter,
+        resolved_sort,
     )
     live_counters = (
         ClinicDayService.build_live_counters(
@@ -98,11 +75,6 @@ def day(clinic_date):
         )
     )
 
-    display_timezone = SettingsService.get(
-        "localization.timezone",
-        default="Africa/Cairo",
-    )
-
     finance_summary = None
     if RBACService.user_has_permission(
         current_user,
@@ -115,24 +87,111 @@ def day(clinic_date):
             )
         )
 
+    return {
+        "clinic_day": clinic_day,
+        "selected_date": selected_date,
+        "visit_snapshot": visit_snapshot,
+        "resolved": resolved,
+        "live_counters": live_counters,
+        "clinic_intelligence": clinic_intelligence,
+        "finance_summary": finance_summary,
+        "enable_live_actions": True,
+        "AppointmentService": AppointmentService,
+        "JourneyService": JourneyService,
+        "PatientService": PatientService,
+        "VisitService": VisitService,
+    }
+
+
+@today_clinic_bp.get("/day/<clinic_date>")
+@login_required
+@RBACService.require_permission("appointments.view")
+def day(clinic_date):
+    selected_date = _parse_clinic_date(clinic_date)
+    resolved_filter = request.args.get(
+        "resolved_filter",
+        "all",
+    )
+    resolved_sort = request.args.get(
+        "resolved_sort",
+        "latest",
+    )
+
+    if selected_date < date.today():
+        clinic_day = AppointmentService.get_day_summary(
+            selected_date
+        )
+        visit_snapshot = (
+            ClinicDayService.get_visit_snapshot(
+                selected_date
+            )
+        )
+        resolved = (
+            AppointmentService.get_resolved_bookings(
+                selected_date,
+                resolved_filter,
+                resolved_sort,
+            )
+        )
+
+        return render_template(
+            "clinic/past_day.html",
+            clinic_day=clinic_day,
+            selected_date=selected_date,
+            visit_snapshot=visit_snapshot,
+            resolved=resolved,
+            AppointmentService=AppointmentService,
+            JourneyService=JourneyService,
+            PatientService=PatientService,
+            VisitService=VisitService,
+        )
+
+    context = _build_live_context(
+        selected_date,
+        resolved_filter,
+        resolved_sort,
+    )
+    context.update(
+        display_timezone=SettingsService.get(
+            "localization.timezone",
+            default="Africa/Cairo",
+        ),
+        show_close_result=(
+            ClinicDayService.is_close_result_visible(
+                context["clinic_day"]
+            )
+        ),
+    )
+
     return render_template(
         "clinic/today.html",
-        clinic_day=clinic_day,
-        selected_date=selected_date,
-        visit_snapshot=visit_snapshot,
-        resolved=resolved,
-        live_counters=live_counters,
-        clinic_intelligence=clinic_intelligence,
-        display_timezone=display_timezone,
-        finance_summary=finance_summary,
-        show_close_result=(
-            ClinicDayService
-            .is_close_result_visible(clinic_day)
-        ),
-        AppointmentService=AppointmentService,
-        JourneyService=JourneyService,
-        PatientService=PatientService,
-        VisitService=VisitService,
+        **context,
+    )
+
+
+@today_clinic_bp.get("/day/<clinic_date>/dynamic")
+@login_required
+@RBACService.require_permission("appointments.view")
+def dynamic(clinic_date):
+    selected_date = _parse_clinic_date(clinic_date)
+
+    if selected_date < date.today():
+        return redirect(
+            url_for(
+                "today_clinic.day",
+                clinic_date=selected_date.isoformat(),
+            )
+        )
+
+    context = _build_live_context(
+        selected_date,
+        request.args.get("resolved_filter", "all"),
+        request.args.get("resolved_sort", "latest"),
+    )
+
+    return render_template(
+        "clinic/_today_dynamic.html",
+        **context,
     )
 
 

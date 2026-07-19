@@ -372,3 +372,140 @@ def test_resolved_controls_remain_visible_for_empty_filter():
         assert b"No resolved bookings match this filter." in response.data
 
         db.drop_all()
+
+
+def test_htmx_arrival_updates_today_clinic_partial():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        create_user(
+            "Reception",
+            "today-htmx-arrive@example.com",
+            "01088000005",
+        )
+        patient = create_patient(88301)
+        appointment = (
+            AppointmentService.create_appointment(
+                patient_id=patient.id,
+                appointment_date=date.today(),
+                appointment_type=(
+                    Appointment.TYPE_FOLLOW_UP
+                ),
+            )
+        )
+
+        client = app.test_client()
+        login(
+            client,
+            "today-htmx-arrive@example.com",
+        )
+
+        response = client.post(
+            (
+                f"/appointments/{appointment.uuid}"
+                "/arrive"
+            ),
+            headers={"HX-Request": "true"},
+            follow_redirects=True,
+        )
+
+        assert response.status_code == 200
+        assert (
+            b'id="today-clinic-dynamic"'
+            in response.data
+        )
+        assert b"Arrived Patients" in response.data
+        assert b"Undo Arrived" in response.data
+        assert b"Mark Arrived" not in response.data
+
+        db.session.refresh(appointment)
+        assert (
+            appointment.status
+            == Appointment.STATUS_ARRIVED
+        )
+
+        db.drop_all()
+
+
+def test_normal_arrival_returns_to_today_clinic():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        create_user(
+            "Reception",
+            "today-normal-arrive@example.com",
+            "01088000006",
+        )
+        patient = create_patient(88302)
+        appointment = (
+            AppointmentService.create_appointment(
+                patient_id=patient.id,
+                appointment_date=date.today(),
+                appointment_type=(
+                    Appointment.TYPE_FOLLOW_UP
+                ),
+            )
+        )
+
+        client = app.test_client()
+        login(
+            client,
+            "today-normal-arrive@example.com",
+        )
+
+        response = client.post(
+            (
+                f"/appointments/{appointment.uuid}"
+                "/arrive"
+            ),
+            follow_redirects=False,
+        )
+
+        assert response.status_code == 302
+        assert (
+            f"/clinic/day/{date.today().isoformat()}"
+            in response.headers["Location"]
+        )
+        assert (
+            f"/appointments/{appointment.uuid}"
+            not in response.headers["Location"]
+        )
+
+        db.drop_all()
+
+
+def test_today_clinic_renders_three_operational_columns():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        create_user(
+            "Doctor",
+            "today-columns-doctor@example.com",
+            "01088000007",
+        )
+
+        client = app.test_client()
+        login(
+            client,
+            "today-columns-doctor@example.com",
+        )
+
+        response = client.get(
+            f"/clinic/day/{date.today().isoformat()}"
+        )
+
+        assert response.status_code == 200
+        assert b"Upcoming Bookings" in response.data
+        assert b"Arrived Patients" in response.data
+        assert b"Resolved Bookings" in response.data
+        assert (
+            response.data.count(
+                b'class="col-12 col-xl-4"'
+            )
+            == 3
+        )
+
+        db.drop_all()

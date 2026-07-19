@@ -1014,3 +1014,17 @@ Next Action:
 - Kept the existing Close Day behavior.
 - Did not add ClinicDay persistence, closure snapshots, Visit doctor assignment, or automatic refresh.
 - Verification remains pending local test execution.
+
+
+## 2026-07-19 ? Today Clinic Workflow UX Correction Implemented
+
+- Corrected Mark Arrived so it no longer opens Appointment Details.
+- Added HTMX partial refresh for Mark Arrived and Undo Arrived.
+- Kept normal POST fallback returning to Today Clinic.
+- Removed Clinic Flow and Clinic Workload from the live screen.
+- Kept Appointment Type and Visit Type breakdowns.
+- Attendance Rate remains in the Close Day result only.
+- Made Finance cards open same-day Finance Insights.
+- Separated Day Schedule, Waiting, and Resolved into three responsive columns.
+- No model, migration, permission, or audit changes.
+- Verification remains pending local test execution.

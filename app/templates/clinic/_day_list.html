@@ -42,41 +42,4 @@
             </p>
         </div>
     {% endif %}
-
-        <details class="clinic-resolved-panel mt-3" open>
-            <summary>
-                <span>
-                    <i class="bi bi-archive me-1"></i>
-                    Resolved bookings
-                </span>
-
-                <span class="badge text-bg-light border">
-                    {{ resolved['items']|length }}
-                </span>
-            </summary>
-
-            <form class="row g-2 mt-2" method="get">
-                <div class="col"><select class="form-select form-select-sm" name="resolved_filter">
-                    {% for value, label in [('all','All'),('completed','Completed'),('cancelled','Cancelled'),('rescheduled','Rescheduled')] %}<option value="{{ value }}" {{ 'selected' if resolved['filter'] == value else '' }}>{{ label }}</option>{% endfor %}
-                </select></div>
-                <div class="col"><select class="form-select form-select-sm" name="resolved_sort">
-                    <option value="latest" {{ 'selected' if resolved['sort'] == 'latest' else '' }}>Latest resolved</option><option value="oldest" {{ 'selected' if resolved['sort'] == 'oldest' else '' }}>Oldest resolved</option>
-                </select></div>
-                <div class="col-auto"><button class="btn btn-sm btn-outline-secondary">Apply</button></div>
-            </form>
-            {% if resolved['items'] %}
-              <div class="clinic-patient-stack mt-2">
-                {% for resolved_item in resolved['items'] %}
-                    {% set appointment = resolved_item.appointment %}
-                    {% include
-                        "clinic/_appointment_card.html"
-                    %}
-                {% endfor %}
-              </div>
-            {% else %}
-              <div class="clinic-modern-empty clinic-modern-empty-sm mt-2">
-                <strong>No resolved bookings match this filter.</strong>
-              </div>
-            {% endif %}
-        </details>
 </section>

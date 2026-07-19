@@ -1,0 +1,134 @@
+<div id="today-clinic-dynamic">
+    {% include "clinic/_counters.html" %}
+
+    {% if clinic_intelligence.alerts %}
+        <section class="clinic-card clinic-alert-strip mb-3">
+            {% for alert in clinic_intelligence.alerts %}
+                <div
+                    class="alert alert-{{ alert.kind }} py-2 mb-0"
+                >
+                    <strong>{{ alert.count }}</strong>
+                    {{ alert.label }}
+                </div>
+            {% endfor %}
+        </section>
+    {% endif %}
+
+    <section class="clinic-card mb-3">
+        <p class="section-kicker">Type Breakdown</p>
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <h2 class="h6">Appointment Types</h2>
+
+                {% for label, count
+                      in clinic_intelligence
+                      .appointment_type_counts
+                      .items() %}
+                    <div class="clinic-breakdown-row">
+                        <span>{{ label }}</span>
+                        <strong>{{ count }}</strong>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <h2 class="h6">Visit Types</h2>
+
+                {% if clinic_intelligence.visit_type_counts %}
+                    {% for label, count
+                          in clinic_intelligence
+                          .visit_type_counts
+                          .items() %}
+                        <div class="clinic-breakdown-row">
+                            <span>{{ label }}</span>
+                            <strong>{{ count }}</strong>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mb-0">
+                        No Visits yet.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    {% if finance_summary is not none %}
+        <section class="clinic-card clinic-live-finance mb-3">
+            <p class="section-kicker">Live Finance</p>
+            <h2 class="h5 mb-3">
+                Today?s financial position
+            </h2>
+
+            <div class="clinic-mini-grid">
+                {% for label, value in [
+                    (
+                        "Billed",
+                        finance_summary.total_charges
+                    ),
+                    (
+                        "Collected",
+                        finance_summary.total_collected
+                    ),
+                    (
+                        "Outstanding",
+                        finance_summary.total_remaining
+                    ),
+                    (
+                        "Expenses",
+                        finance_summary.total_expenses
+                    ),
+                    (
+                        "Net cash",
+                        finance_summary.net_profit
+                    )
+                ] %}
+                    <a
+                        class="clinic-finance-link"
+                        href="{{
+                            url_for(
+                                'finance.insights',
+                                date_from=(
+                                    selected_date.isoformat()
+                                ),
+                                date_to=(
+                                    selected_date.isoformat()
+                                )
+                            )
+                        }}"
+                    >
+                        <span>{{ label }}</span>
+                        <strong>
+                            EGP
+                            {{
+                                "{:,.2f}".format(
+                                    value or 0
+                                )
+                            }}
+                        </strong>
+
+                        <i
+                            class="bi bi-arrow-up-right"
+                            aria-hidden="true"
+                        ></i>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <div class="row g-3 clinic-operational-columns">
+        <div class="col-12 col-xl-4">
+            {% include "clinic/_day_list.html" %}
+        </div>
+
+        <div class="col-12 col-xl-4">
+            {% include "clinic/_queue_section.html" %}
+        </div>
+
+        <div class="col-12 col-xl-4">
+            {% include "clinic/_resolved_section.html" %}
+        </div>
+    </div>
+</div>

@@ -78,7 +78,7 @@ window.clinicShell = function clinicShell() {
 };
 
 
-/* Today Clinic configured timezone clock and refresh */
+/* Today Clinic configured timezone clock */
 document.addEventListener("DOMContentLoaded", () => {
     const liveMeta = document.getElementById(
         "clinic-live-meta",
@@ -88,9 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     const lastUpdated = document.getElementById(
         "clinic-last-updated",
-    );
-    const refreshButton = document.getElementById(
-        "clinic-manual-refresh",
     );
 
     const configuredTimezone =
@@ -147,14 +144,5 @@ document.addEventListener("DOMContentLoaded", () => {
             lastUpdated.textContent =
                 formatter.format(timestamp);
         }
-    }
-
-    if (refreshButton) {
-        refreshButton.addEventListener(
-            "click",
-            () => {
-                window.location.reload();
-            },
-        );
     }
 });

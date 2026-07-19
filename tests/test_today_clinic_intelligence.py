@@ -229,7 +229,11 @@ def test_reception_does_not_query_finance(monkeypatch):
         assert b"clinic-live-clock" in response.data
         assert b'data-timezone="Africa/Cairo"' in response.data
         assert b"clinic-last-updated" in response.data
-        assert b"Clinic Workload" in response.data
+        assert b"Clinic Workload" not in response.data
+        assert b"Visits Started" not in response.data
+        assert b"Appointment Types" in response.data
+        assert b"Visit Types" in response.data
+        assert b'id="today-clinic-dynamic"' in response.data
 
         db.drop_all()
 
@@ -264,8 +268,14 @@ def test_doctor_receives_finance_and_live_markers(monkeypatch):
         assert response.status_code == 200
         assert called["value"] is True
         assert b"Live Finance" in response.data
-        assert b"Visits Started" in response.data
-        assert b"Attendance rate" in response.data
-        assert b"Refresh" in response.data
+        assert b"Visits Started" not in response.data
+        assert b"Clinic Workload" not in response.data
+        assert b"Attendance rate" not in response.data
+        assert b"Refresh" not in response.data
+        assert b"Appointment Types" in response.data
+        assert b"Visit Types" in response.data
+        assert b"/finance/insights?" in response.data
+        assert b"date_from=" in response.data
+        assert b"date_to=" in response.data
 
         db.drop_all()

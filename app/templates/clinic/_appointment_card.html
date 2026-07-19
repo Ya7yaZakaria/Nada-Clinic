@@ -221,9 +221,34 @@
                             'appointments.arrive',
                             appointment_uuid=(
                                 appointment.uuid
+                            ),
+                            resolved_filter=(
+                                resolved['filter']
+                            ),
+                            resolved_sort=(
+                                resolved['sort']
                             )
                         )
                     }}"
+                    {% if enable_live_actions|default(false) %}
+                        hx-post="{{
+                            url_for(
+                                'appointments.arrive',
+                                appointment_uuid=(
+                                    appointment.uuid
+                                ),
+                                resolved_filter=(
+                                    resolved['filter']
+                                ),
+                                resolved_sort=(
+                                    resolved['sort']
+                                )
+                            )
+                        }}"
+                        hx-target="#today-clinic-dynamic"
+                        hx-swap="outerHTML"
+                        hx-disabled-elt="find button"
+                    {% endif %}
                 >
                     <input
                         type="hidden"
@@ -246,9 +271,34 @@
                             'appointments.undo_arrive',
                             appointment_uuid=(
                                 appointment.uuid
+                            ),
+                            resolved_filter=(
+                                resolved['filter']
+                            ),
+                            resolved_sort=(
+                                resolved['sort']
                             )
                         )
                     }}"
+                    {% if enable_live_actions|default(false) %}
+                        hx-post="{{
+                            url_for(
+                                'appointments.undo_arrive',
+                                appointment_uuid=(
+                                    appointment.uuid
+                                ),
+                                resolved_filter=(
+                                    resolved['filter']
+                                ),
+                                resolved_sort=(
+                                    resolved['sort']
+                                )
+                            )
+                        }}"
+                        hx-target="#today-clinic-dynamic"
+                        hx-swap="outerHTML"
+                        hx-disabled-elt="find button"
+                    {% endif %}
                 >
                     <input
                         type="hidden"

@@ -1,0 +1,123 @@
+<section class="clinic-card clinic-resolved-card h-100">
+    <div class="clinic-section-header">
+        <div>
+            <span class="section-kicker">
+                Resolved
+            </span>
+
+            <h2 class="h4 mb-1">
+                Resolved Bookings
+            </h2>
+
+            <p class="text-muted mb-0">
+                Completed Visits, cancellations, and
+                rescheduled bookings.
+            </p>
+        </div>
+
+        <span class="clinic-count-badge">
+            {{ resolved['items']|length }}
+        </span>
+    </div>
+
+    <form
+        class="row g-2 mb-3"
+        method="get"
+        action="{{
+            url_for(
+                'today_clinic.day',
+                clinic_date=selected_date.isoformat()
+            )
+        }}"
+        hx-get="{{
+            url_for(
+                'today_clinic.dynamic',
+                clinic_date=selected_date.isoformat()
+            )
+        }}"
+        hx-target="#today-clinic-dynamic"
+        hx-swap="outerHTML"
+    >
+        <div class="col-12">
+            <select
+                class="form-select form-select-sm"
+                name="resolved_filter"
+            >
+                {% for value, label in [
+                    ('all', 'All'),
+                    ('completed', 'Completed'),
+                    ('cancelled', 'Cancelled'),
+                    ('rescheduled', 'Rescheduled')
+                ] %}
+                    <option
+                        value="{{ value }}"
+                        {{
+                            'selected'
+                            if resolved['filter'] == value
+                            else ''
+                        }}
+                    >
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col">
+            <select
+                class="form-select form-select-sm"
+                name="resolved_sort"
+            >
+                <option
+                    value="latest"
+                    {{
+                        'selected'
+                        if resolved['sort'] == 'latest'
+                        else ''
+                    }}
+                >
+                    Latest resolved
+                </option>
+
+                <option
+                    value="oldest"
+                    {{
+                        'selected'
+                        if resolved['sort'] == 'oldest'
+                        else ''
+                    }}
+                >
+                    Oldest resolved
+                </option>
+            </select>
+        </div>
+
+        <div class="col-auto">
+            <button
+                class="btn btn-sm btn-outline-secondary"
+                type="submit"
+            >
+                Apply
+            </button>
+        </div>
+    </form>
+
+    {% if resolved['items'] %}
+        <div class="clinic-patient-stack">
+            {% for resolved_item in resolved['items'] %}
+                {% set appointment =
+                    resolved_item.appointment
+                %}
+                {% include
+                    "clinic/_appointment_card.html"
+                %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="clinic-modern-empty clinic-modern-empty-sm">
+            <strong>
+                No resolved bookings match this filter.
+            </strong>
+        </div>
+    {% endif %}
+</section>

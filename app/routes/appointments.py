@@ -234,11 +234,52 @@ def edit(appointment_uuid):
 @login_required
 @RBACService.require_permission("appointments.manage")
 def arrive(appointment_uuid):
-    appointment = Appointment.query.filter_by(uuid=appointment_uuid).first_or_404()
+    appointment = Appointment.query.filter_by(
+        uuid=appointment_uuid,
+    ).first_or_404()
 
     AppointmentService.mark_arrived(appointment)
-    flash("Patient marked as arrived / waiting.", "success")
-    return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
+
+    target = url_for(
+        "today_clinic.day",
+        clinic_date=(
+            appointment.appointment_date.isoformat()
+        ),
+        resolved_filter=request.args.get(
+            "resolved_filter",
+            "all",
+        ),
+        resolved_sort=request.args.get(
+            "resolved_sort",
+            "latest",
+        ),
+    )
+
+    if request.headers.get("HX-Request") == "true":
+        return redirect(
+            url_for(
+                "today_clinic.dynamic",
+                clinic_date=(
+                    appointment
+                    .appointment_date
+                    .isoformat()
+                ),
+                resolved_filter=request.args.get(
+                    "resolved_filter",
+                    "all",
+                ),
+                resolved_sort=request.args.get(
+                    "resolved_sort",
+                    "latest",
+                ),
+            )
+        )
+
+    flash(
+        "Patient marked as arrived / waiting.",
+        "success",
+    )
+    return redirect(target)
 
 
 @appointments_bp.post("/<appointment_uuid>/undo-arrive")
@@ -262,11 +303,25 @@ def undo_arrive(appointment_uuid):
             "info",
         )
 
+    endpoint = (
+        "today_clinic.dynamic"
+        if request.headers.get("HX-Request") == "true"
+        else "today_clinic.day"
+    )
+
     return redirect(
         url_for(
-            "today_clinic.day",
+            endpoint,
             clinic_date=(
                 appointment.appointment_date.isoformat()
+            ),
+            resolved_filter=request.args.get(
+                "resolved_filter",
+                "all",
+            ),
+            resolved_sort=request.args.get(
+                "resolved_sort",
+                "latest",
             ),
         )
     )

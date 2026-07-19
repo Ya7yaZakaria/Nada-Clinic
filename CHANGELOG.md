@@ -1525,3 +1525,19 @@ No diagnosis-linked preset behavior added.
 
 ### Verification
 - Pending local test execution.
+
+
+## 2026-07-19 ? Today Clinic Workflow UX Correction
+
+### Changed
+- Mark Arrived and Undo Arrived now update Today Clinic through HTMX without opening Appointment Details.
+- Normal non-HTMX arrival actions return to the selected Today Clinic day.
+- Removed Clinic Flow and Clinic Workload from the live page.
+- Kept Appointment Type and Visit Type breakdowns.
+- Kept Attendance Rate inside the Close Day result only.
+- Made same-day Finance cards clickable to date-filtered Finance Insights.
+- Split Day Schedule, Waiting Queue, and Resolved Bookings into three responsive operational columns.
+- Removed the manual Refresh button.
+
+### Verification
+- Pending local focused and full regression execution.
