@@ -61,14 +61,6 @@
                 </div>
 
                 <div class="col-md-6">
-                    {{ form.duration_minutes.label(class="form-label") }}
-                    {{ form.duration_minutes(class="form-control") }}
-                    {% for error in form.duration_minutes.errors %}
-                        <div class="text-danger small">{{ error }}</div>
-                    {% endfor %}
-                </div>
-
-                <div class="col-md-6">
                     {{ form.fee_amount.label(class="form-label") }}
                     {{ form.fee_amount(class="form-control") }}
                     {% for error in form.fee_amount.errors %}

@@ -267,7 +267,8 @@ def test_card_shows_patient_identity_and_actions():
         assert response.status_code == 200
         assert patient.formatted_mrn.encode() in response.data
         assert b"Sara Ahmed" in response.data
-        assert b"Open Workspace" in response.data
+        assert b"data-workspace-url=" in response.data
+        assert b"Open Workspace" not in response.data
         assert b"New Visit" in response.data
         assert b"Mark Arrived" not in response.data
         assert b"Manage Booking" not in response.data

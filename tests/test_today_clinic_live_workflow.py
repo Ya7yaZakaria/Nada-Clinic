@@ -275,7 +275,7 @@ def test_today_clinic_uses_booking_and_visit_actions():
         assert b"Waiting Now" in response.data
         assert b"Visits Completed" in response.data
         assert b"Mark Arrived" in response.data
-        assert b"Manage Booking" in response.data
+        assert b"Manage Booking" not in response.data
 
         assert b"Still Booked" not in response.data
         assert b"Mark Completed" not in response.data

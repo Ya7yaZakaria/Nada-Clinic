@@ -157,13 +157,13 @@ def new():
                 patient=None,
                 patients=patients,
                 patient_query=patient_query,
+                PatientService=PatientService,
             )
 
         appointment = AppointmentService.create_appointment(
             patient_id=patient.id,
             appointment_date=form.appointment_date.data,
             appointment_time=form.appointment_time.data,
-            duration_minutes=form.duration_minutes.data,
             appointment_type=form.appointment_type.data,
             source=form.source.data,
             notes=form.notes.data,
@@ -181,6 +181,7 @@ def new():
         patient=patient,
         patients=patients,
         patient_query=patient_query,
+        PatientService=PatientService,
     )
 
 
@@ -216,13 +217,17 @@ def edit(appointment_uuid):
 
         if not patient:
             flash("Please select a patient.", "danger")
-            return render_template("appointments/edit.html", form=form, appointment=appointment)
+            return render_template(
+                "appointments/edit.html",
+                form=form,
+                appointment=appointment,
+                PatientService=PatientService,
+            )
 
         AppointmentService.update_appointment(
             appointment,
             appointment_date=form.appointment_date.data,
             appointment_time=form.appointment_time.data,
-            duration_minutes=form.duration_minutes.data,
             appointment_type=form.appointment_type.data,
             source=form.source.data,
             notes=form.notes.data,
@@ -238,6 +243,7 @@ def edit(appointment_uuid):
         "appointments/edit.html",
         form=form,
         appointment=appointment,
+        PatientService=PatientService,
     )
 
 
@@ -783,7 +789,6 @@ def quick_edit(appointment_uuid):
             AppointmentService.update_appointment(
                 appointment,
                 appointment_time=form.appointment_time.data,
-                duration_minutes=form.duration_minutes.data,
                 appointment_type=form.appointment_type.data,
                 notes=form.notes.data,
                 fee_amount=form.fee_amount.data,

@@ -2246,13 +2246,6 @@ button.htmx-request {
 
 /* Sprint 3B1 destructive appointment action */
 .clinic-patient-actions
-.clinic-patient-cancel-action {
-    order: 99;
-    flex: 0 0 auto;
-    margin-inline-start: auto;
-}
-
-.clinic-patient-actions
 .clinic-patient-cancel-action:hover,
 .clinic-patient-actions
 .clinic-patient-cancel-action:focus-visible {
@@ -2261,11 +2254,146 @@ button.htmx-request {
         rgba(220, 53, 69, .18);
 }
 
+/* Today Clinic Patient card interaction cleanup */
+.clinic-patient-card-clickable {
+    cursor: pointer;
+}
+
+.clinic-patient-card-clickable:focus-visible {
+    outline: 3px solid
+        color-mix(
+            in srgb,
+            var(--clinic-primary) 40%,
+            transparent
+        );
+    outline-offset: 3px;
+}
+
+.clinic-patient-action-bar {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    grid-template-rows:
+        repeat(2, minmax(2.2rem, auto));
+    align-items: stretch;
+    gap: .45rem;
+    width: min(100%, 410px);
+    max-width: 410px;
+}
+
+.clinic-patient-action-bar form {
+    width: 100%;
+    margin: 0;
+}
+
+.clinic-patient-action-bar form .btn {
+    width: 100%;
+    height: 100%;
+}
+
+.clinic-action-visit {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+.clinic-action-arrival {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.clinic-action-reschedule {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.clinic-action-quick-edit {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.clinic-action-cancel {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+}
+
+.clinic-patient-action-bar .btn {
+    display: inline-flex;
+    min-height: 2.2rem;
+    align-items: center;
+    justify-content: center;
+    padding: .4rem .65rem;
+    border-radius: .7rem;
+    font-size: .78rem;
+    font-weight: 650;
+    line-height: 1.1;
+    white-space: nowrap;
+    box-shadow: none;
+    transition:
+        transform .14s ease,
+        box-shadow .14s ease,
+        background-color .14s ease,
+        border-color .14s ease;
+}
+
+.clinic-patient-action-bar .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 .35rem .8rem rgba(15, 23, 42, .08);
+}
+
+.clinic-patient-action-bar .btn-primary {
+    border-color: var(--clinic-primary);
+    background: var(--clinic-primary);
+}
+
+.clinic-patient-action-bar .btn-success {
+    color: var(--bs-success-text-emphasis);
+    border-color: var(--bs-success-border-subtle);
+    background: var(--bs-success-bg-subtle);
+}
+
+.clinic-patient-action-bar .btn-outline-warning {
+    color: var(--bs-warning-text-emphasis);
+    border-color: var(--bs-warning-border-subtle);
+    background: var(--bs-warning-bg-subtle);
+}
+
+.clinic-patient-action-bar .btn-outline-primary {
+    color: var(--clinic-primary);
+    border-color:
+        color-mix(
+            in srgb,
+            var(--clinic-primary) 32%,
+            var(--clinic-border)
+        );
+    background: var(--clinic-primary-soft);
+}
+
+.clinic-patient-action-bar .btn-outline-secondary {
+    color: var(--clinic-ink);
+    border-color: var(--clinic-border);
+    background: var(--bs-tertiary-bg);
+}
+
+.clinic-patient-action-bar .btn-danger {
+    color: var(--bs-danger-text-emphasis);
+    border-color: var(--bs-danger-border-subtle);
+    background: var(--bs-danger-bg-subtle);
+}
+
+.clinic-patient-action-bar .btn-danger:hover {
+    color: #fff;
+    border-color: var(--bs-danger);
+    background: var(--bs-danger);
+}
+
 @media (max-width: 767.98px) {
-    .clinic-patient-actions
-    .clinic-patient-cancel-action {
+    .clinic-patient-action-bar {
         width: 100%;
-        flex: 1 1 100%;
-        margin-inline-start: 0;
+        max-width: none;
+    }
+
+    .clinic-patient-action-bar .btn {
+        width: 100%;
     }
 }

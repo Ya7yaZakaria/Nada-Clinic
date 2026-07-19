@@ -446,3 +446,61 @@ document.body.addEventListener(
         );
     },
 );
+
+/* Today Clinic Patient card workspace navigation */
+function clinicOpenPatientWorkspaceCard(card) {
+    const workspaceUrl = card?.dataset.workspaceUrl;
+
+    if (workspaceUrl) {
+        window.location.assign(workspaceUrl);
+    }
+}
+
+
+document.body.addEventListener(
+    "click",
+    (event) => {
+        const card = event.target.closest(
+            ".clinic-patient-card[data-workspace-url]",
+        );
+
+        if (!card) {
+            return;
+        }
+
+        const interactiveElement = event.target.closest(
+            "a, button, form, input, select, textarea, "
+            + "label, summary, [role='button']",
+        );
+
+        if (interactiveElement) {
+            return;
+        }
+
+        clinicOpenPatientWorkspaceCard(card);
+    },
+);
+
+
+document.body.addEventListener(
+    "keydown",
+    (event) => {
+        if (
+            event.key !== "Enter"
+            && event.key !== " "
+        ) {
+            return;
+        }
+
+        const card = event.target.closest(
+            ".clinic-patient-card[data-workspace-url]",
+        );
+
+        if (!card || event.target !== card) {
+            return;
+        }
+
+        event.preventDefault();
+        clinicOpenPatientWorkspaceCard(card);
+    },
+);

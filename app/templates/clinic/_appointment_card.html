@@ -13,7 +13,24 @@
 {% set is_resolved = resolved_item is not none %}
 {% set allow_operational_actions = not is_resolved and not today_visit %}
 
-<article class="clinic-patient-card">
+<article
+    class="clinic-patient-card{{
+        ' clinic-patient-card-clickable'
+        if current_user.has_permission('clinical.view')
+        else ''
+    }}"
+    {% if current_user.has_permission('clinical.view') %}
+        data-workspace-url="{{
+            url_for(
+                'patients.detail',
+                patient_uuid=patient.uuid
+            )
+        }}"
+        role="link"
+        tabindex="0"
+        aria-label="Open patient workspace"
+    {% endif %}
+>
     <div class="clinic-patient-card-main">
         <div class="clinic-patient-meta">
             <time class="clinic-time-chip">
@@ -165,13 +182,17 @@
         </div>
     </div>
 
-    <div class="clinic-patient-actions">
+    <div
+        class="clinic-patient-actions clinic-patient-action-bar"
+        aria-label="Appointment actions"
+    >
         {% if current_user.has_permission(
             'clinical.view'
         ) %}
             {% if today_visit %}
                 <a
-                    class="btn btn-sm btn-primary"
+                    class="btn btn-sm btn-primary
+                           clinic-action-visit"
                     href="{{
                         url_for(
                             'visits.detail',
@@ -184,7 +205,8 @@
             {% elif allow_operational_actions and appointment.status
                       in ['booked', 'arrived'] %}
                 <a
-                    class="btn btn-sm btn-primary"
+                    class="btn btn-sm btn-primary
+                           clinic-action-visit"
                     href="{{
                         url_for(
                             'visits.new',
@@ -197,17 +219,6 @@
                 </a>
             {% endif %}
 
-            <a
-                class="btn btn-sm btn-outline-secondary"
-                href="{{
-                    url_for(
-                        'patients.detail',
-                        patient_uuid=patient.uuid
-                    )
-                }}"
-            >
-                Open Workspace
-            </a>
         {% endif %}
 
         {% if current_user.has_permission(
@@ -215,6 +226,7 @@
         ) %}
             {% if allow_operational_actions and appointment.status == 'booked' %}
                 <form
+                    class="clinic-action-arrival"
                     method="post"
                     action="{{
                         url_for(
@@ -265,6 +277,7 @@
                 </form>
             {% elif allow_operational_actions and appointment.status == 'arrived' %}
                 <form
+                    class="clinic-action-arrival"
                     method="post"
                     action="{{
                         url_for(
@@ -320,7 +333,8 @@
                   in ['booked', 'arrived'] %}
                 <button
                     class="btn btn-sm btn-danger
-                           clinic-patient-cancel-action"
+                           clinic-patient-cancel-action
+                           clinic-action-cancel"
                     type="button"
                     hx-get="{{
                         url_for(
@@ -343,7 +357,8 @@
                 </button>
 
                 <button
-                    class="btn btn-sm btn-outline-primary"
+                    class="btn btn-sm btn-outline-primary
+                           clinic-action-reschedule"
                     type="button"
                     hx-get="{{
                         url_for(
@@ -366,7 +381,8 @@
                 </button>
 
                 <button
-                    class="btn btn-sm btn-outline-secondary"
+                    class="btn btn-sm btn-outline-secondary
+                           clinic-action-quick-edit"
                     type="button"
                     hx-get="{{
                         url_for(
@@ -389,19 +405,6 @@
                 </button>
             {% endif %}
 
-            <a
-                class="btn btn-sm btn-outline-secondary"
-                href="{{
-                    url_for(
-                        'appointments.detail',
-                        appointment_uuid=(
-                            appointment.uuid
-                        )
-                    )
-                }}"
-            >
-                Manage Booking
-            </a>
         {% endif %}
     </div>
 </article>

@@ -1166,7 +1166,6 @@ def test_quick_edit_modal_and_success():
             f"/appointments/{appointment.uuid}/quick-edit",
             data={
                 "appointment_time": "15:30",
-                "duration_minutes": "30",
                 "appointment_type": Appointment.TYPE_EMERGENCY,
                 "fee_amount": "500.00",
                 "paid_amount": "200.00",
@@ -1180,7 +1179,6 @@ def test_quick_edit_modal_and_success():
 
         db.session.refresh(appointment)
         assert appointment.appointment_time.strftime("%H:%M") == "15:30"
-        assert appointment.duration_minutes == 30
         assert appointment.appointment_type == Appointment.TYPE_EMERGENCY
         assert appointment.notes == "Updated from Today Clinic"
         assert appointment.fee_amount == Decimal("500.00")
@@ -1252,5 +1250,97 @@ def test_new_3b_actions_block_doctor_role():
             response.status_code == 403
             for response in responses
         )
+
+        db.drop_all()
+
+
+
+def test_today_clinic_card_opens_workspace_without_extra_buttons():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        create_user(
+            "Doctor",
+            "card-workspace@example.com",
+            "01099000026",
+        )
+        patient = create_patient(99026)
+
+        AppointmentService.create_appointment(
+            patient_id=patient.id,
+            appointment_date=date.today(),
+            appointment_type=Appointment.TYPE_FOLLOW_UP,
+        )
+
+        client = app.test_client()
+        login(client, "card-workspace@example.com")
+
+        response = client.get(
+            f"/clinic/day/{date.today().isoformat()}"
+        )
+
+        assert response.status_code == 200
+        assert b"data-workspace-url=" in response.data
+        assert (
+            f"/patients/{patient.uuid}".encode()
+            in response.data
+        )
+        assert b"Open Workspace" not in response.data
+        assert b"Manage Booking" not in response.data
+
+        db.drop_all()
+
+
+def test_appointment_forms_do_not_render_duration():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        create_user(
+            "Reception",
+            "duration-hidden@example.com",
+            "01099000027",
+        )
+        patient = create_patient(99027)
+
+        appointment = AppointmentService.create_appointment(
+            patient_id=patient.id,
+            appointment_date=date.today(),
+            appointment_type=Appointment.TYPE_FOLLOW_UP,
+            duration_minutes=45,
+        )
+
+        client = app.test_client()
+        login(client, "duration-hidden@example.com")
+
+        responses = [
+            client.get(
+                f"/appointments/new"
+                f"?patient_uuid={patient.uuid}"
+            ),
+            client.get(
+                f"/appointments/{appointment.uuid}/edit"
+            ),
+            client.get(
+                f"/appointments/{appointment.uuid}"
+                "/quick-edit/modal"
+            ),
+        ]
+
+        assert all(
+            response.status_code == 200
+            for response in responses
+        )
+
+        for response in responses:
+            assert b"duration_minutes" not in response.data
+            assert b"Duration minutes" not in response.data
+
+        db.session.refresh(appointment)
+
+        assert appointment.duration_minutes == 45
 
         db.drop_all()
