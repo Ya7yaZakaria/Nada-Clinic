@@ -102,5 +102,63 @@ class AppointmentRescheduleForm(FlaskForm):
     submit = SubmitField("Reschedule appointment")
 
 
+class AppointmentEmergencyForm(FlaskForm):
+    patient_id = HiddenField(
+        "Patient ID",
+        validators=[DataRequired()],
+    )
+    notes = TextAreaField(
+        "Notes",
+        validators=[Optional(), Length(max=2000)],
+    )
+    submit = SubmitField("Add Emergency Patient")
+
+
+class AppointmentQuickEditForm(FlaskForm):
+    appointment_time = TimeField(
+        "Appointment time",
+        validators=[Optional()],
+        format="%H:%M",
+    )
+    duration_minutes = IntegerField(
+        "Duration minutes",
+        validators=[Optional(), NumberRange(min=5, max=240)],
+    )
+    appointment_type = SelectField(
+        "Appointment type",
+        choices=[
+            (Appointment.TYPE_NEW_CONSULTATION, "كشف"),
+            (Appointment.TYPE_FOLLOW_UP, "إعادة كشف"),
+            (Appointment.TYPE_EMERGENCY, "طوارئ"),
+        ],
+        validators=[DataRequired()],
+    )
+    fee_amount = DecimalField(
+        "Fee",
+        places=2,
+        validators=[Optional(), NumberRange(min=0)],
+    )
+    paid_amount = DecimalField(
+        "Paid now",
+        places=2,
+        validators=[Optional(), NumberRange(min=0)],
+    )
+    payment_method = SelectField(
+        "Payment method",
+        choices=[("", "Not paid")]
+        + FinanceService.payment_method_choices(),
+        validators=[Optional()],
+    )
+    notes = TextAreaField(
+        "Notes",
+        validators=[Optional(), Length(max=2000)],
+    )
+    submit = SubmitField("Save Quick Edit")
+
+    def validate_appointment_type(self, field):
+        if field.data not in Appointment.VALID_TYPES:
+            raise ValidationError("Invalid appointment type.")
+
+
 class AppointmentArriveForm(FlaskForm):
     submit = SubmitField("Mark arrived")

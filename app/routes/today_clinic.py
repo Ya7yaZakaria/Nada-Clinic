@@ -1,6 +1,15 @@
 from datetime import date, datetime, timezone
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    flash,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
+import json
 from flask_login import current_user, login_required
 
 from app.services.appointment_service import AppointmentService
@@ -197,6 +206,41 @@ def dynamic(clinic_date):
     )
 
 
+
+@today_clinic_bp.get("/day/<clinic_date>/close/preview")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def close_day_preview(clinic_date):
+    selected_date = _parse_clinic_date(clinic_date)
+    booked_count = len(
+        AppointmentService.get_booked_no_action(selected_date)
+    )
+    waiting_count = len(
+        AppointmentService.get_waiting_queue(selected_date)
+    )
+    visit_snapshot = ClinicDayService.get_visit_snapshot(
+        selected_date
+    )
+
+    def snapshot_value(name):
+        if isinstance(visit_snapshot, dict):
+            return int(visit_snapshot.get(name, 0) or 0)
+        return int(getattr(visit_snapshot, name, 0) or 0)
+
+    unresolved_visits = (
+        snapshot_value("open")
+        + snapshot_value("incomplete")
+    )
+
+    return render_template(
+        "clinic/actions/_close_day_preview.html",
+        selected_date=selected_date,
+        booked_count=booked_count,
+        waiting_count=waiting_count,
+        unresolved_visits=unresolved_visits,
+    )
+
+
 @today_clinic_bp.post("/day/<clinic_date>/close")
 @login_required
 @RBACService.require_permission("appointments.manage")
@@ -208,6 +252,22 @@ def close_day(clinic_date):
     converted = AppointmentService.close_clinic_day(
         selected_date
     )
+
+    if request.headers.get("HX-Request") == "true":
+        response = make_response("", 204)
+        response.headers["HX-Trigger"] = json.dumps(
+            {
+                "clinic:action-success": {
+                    "message": (
+                        "Clinic day closed. "
+                        f"{len(converted)} booking(s) "
+                        "converted to no-show."
+                    ),
+                    "tone": "warning",
+                }
+            }
+        )
+        return response
 
     flash(
         "Clinic day closed. "

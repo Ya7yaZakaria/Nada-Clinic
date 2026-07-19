@@ -1,0 +1,102 @@
+<div class="modal-content" id="clinic-action-modal-content">
+    <div class="modal-header">
+        <div>
+            <span class="section-kicker">Emergency Workflow</span>
+            <h2 class="h5 mb-0">Add Emergency Patient</h2>
+        </div>
+        <button
+            class="btn-close"
+            type="button"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+        ></button>
+    </div>
+
+    <form
+        method="post"
+        action="{{ url_for('appointments.emergency_create') }}"
+        hx-post="{{ url_for('appointments.emergency_create') }}"
+        hx-disabled-elt="find button"
+    >
+        {{ form.csrf_token }}
+
+        <div class="modal-body">
+            <div class="mb-3">
+                <label class="form-label" for="emergency-patient-search">
+                    Find patient
+                </label>
+
+                <div class="input-group">
+                    <input
+                        class="form-control"
+                        id="emergency-patient-search"
+                        name="q"
+                        value="{{ patient_query or '' }}"
+                        placeholder="Search by name, MRN, or phone"
+                        hx-get="{{ url_for('appointments.emergency_modal') }}"
+                        hx-trigger="keyup changed delay:300ms"
+                        hx-target="#clinic-action-modal-content"
+                        hx-swap="outerHTML"
+                    >
+                </div>
+            </div>
+
+            {% if patients %}
+                <div class="list-group mb-3">
+                    {% for candidate in patients %}
+                        <label class="list-group-item">
+                            <input
+                                class="form-check-input me-2"
+                                type="radio"
+                                name="patient_id"
+                                value="{{ candidate.id }}"
+                                {% if form.patient_id.data|string
+                                      == candidate.id|string %}
+                                    checked
+                                {% endif %}
+                            >
+                            {{ PatientService.get_display_name(candidate) }}
+                            - MRN {{ candidate.formatted_mrn }}
+                            - {{ candidate.phone_primary }}
+                        </label>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.patient_id }}
+                <p class="form-text">
+                    Search for a patient before adding the emergency.
+                </p>
+            {% endif %}
+
+            {% for error in form.patient_id.errors %}
+                <div class="text-danger small mb-2">{{ error }}</div>
+            {% endfor %}
+
+            <div class="alert alert-warning">
+                The appointment will be created for today as an
+                unscheduled emergency and added directly to Waiting.
+            </div>
+
+            {{ form.notes.label(class="form-label") }}
+            {{ form.notes(class="form-control", rows="3") }}
+
+            {% for error in form.notes.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="modal-footer">
+            <button
+                class="btn btn-outline-secondary"
+                type="button"
+                data-bs-dismiss="modal"
+            >
+                Cancel
+            </button>
+
+            <button class="btn btn-danger" type="submit">
+                Add Emergency Patient
+            </button>
+        </div>
+    </form>
+</div>

@@ -997,3 +997,260 @@ def test_visit_link_hides_operational_action_urls():
         assert reschedule_url not in response.data
 
         db.drop_all()
+
+
+
+def test_close_day_preview_and_htmx_success():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        create_user(
+            "Reception",
+            "close-day-htmx@example.com",
+            "01099000021",
+        )
+        patient = create_patient(99021)
+
+        appointment = AppointmentService.create_appointment(
+            patient_id=patient.id,
+            appointment_date=date.today(),
+            appointment_type=Appointment.TYPE_FOLLOW_UP,
+        )
+
+        client = app.test_client()
+        login(client, "close-day-htmx@example.com")
+
+        preview = client.get(
+            f"/clinic/day/{date.today().isoformat()}"
+            "/close/preview"
+        )
+
+        assert preview.status_code == 200
+        assert b"Close Clinic Day" in preview.data
+        assert b"Will become no-show" in preview.data
+        assert b"Visit completion is not changed automatically" in preview.data
+
+        response = client.post(
+            f"/clinic/day/{date.today().isoformat()}/close",
+            headers={"HX-Request": "true"},
+        )
+
+        assert response.status_code == 204
+        trigger = json.loads(response.headers["HX-Trigger"])
+        assert "clinic:action-success" in trigger
+
+        db.session.refresh(appointment)
+        assert appointment.status == Appointment.STATUS_NO_SHOW
+
+        repeated = client.post(
+            f"/clinic/day/{date.today().isoformat()}/close",
+            headers={"HX-Request": "true"},
+        )
+        assert repeated.status_code == 204
+
+        db.drop_all()
+
+
+def test_emergency_modal_search_and_create():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        create_user(
+            "Reception",
+            "emergency-htmx@example.com",
+            "01099000022",
+        )
+        patient = create_patient(99022)
+
+        client = app.test_client()
+        login(client, "emergency-htmx@example.com")
+
+        modal = client.get(
+            "/appointments/emergency/modal"
+            "?q=HTMX"
+        )
+
+        assert modal.status_code == 200
+        assert b"Add Emergency Patient" in modal.data
+        assert str(patient.id).encode() in modal.data
+
+        response = client.post(
+            "/appointments/emergency",
+            data={
+                "patient_id": str(patient.id),
+                "notes": "Urgent walk-in",
+            },
+            headers={"HX-Request": "true"},
+        )
+
+        assert response.status_code == 204
+
+        appointment = Appointment.query.filter_by(
+            patient_id=patient.id,
+            appointment_type=Appointment.TYPE_EMERGENCY,
+        ).one()
+
+        assert appointment.status == Appointment.STATUS_ARRIVED
+        assert (
+            appointment.source
+            == Appointment.SOURCE_EMERGENCY_UNSCHEDULED
+        )
+        assert appointment.notes == "Urgent walk-in"
+
+        db.drop_all()
+
+
+def test_emergency_modal_requires_patient():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        create_user(
+            "Reception",
+            "emergency-invalid@example.com",
+            "01099000023",
+        )
+
+        client = app.test_client()
+        login(client, "emergency-invalid@example.com")
+
+        response = client.post(
+            "/appointments/emergency",
+            data={"patient_id": "", "notes": ""},
+            headers={"HX-Request": "true"},
+        )
+
+        assert response.status_code == 200
+        assert b"This field is required." in response.data
+
+        db.drop_all()
+
+
+def test_quick_edit_modal_and_success():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        create_user(
+            "Reception",
+            "quick-edit@example.com",
+            "01099000024",
+        )
+        patient = create_patient(99024)
+
+        appointment = AppointmentService.create_appointment(
+            patient_id=patient.id,
+            appointment_date=date.today(),
+            appointment_type=Appointment.TYPE_FOLLOW_UP,
+        )
+
+        client = app.test_client()
+        login(client, "quick-edit@example.com")
+
+        modal = client.get(
+            f"/appointments/{appointment.uuid}"
+            "/quick-edit/modal"
+        )
+
+        assert modal.status_code == 200
+        assert b"Quick Edit Appointment" in modal.data
+        assert b"Patient, appointment date, and source cannot be changed here." in modal.data
+
+        response = client.post(
+            f"/appointments/{appointment.uuid}/quick-edit",
+            data={
+                "appointment_time": "15:30",
+                "duration_minutes": "30",
+                "appointment_type": Appointment.TYPE_EMERGENCY,
+                "fee_amount": "500.00",
+                "paid_amount": "200.00",
+                "payment_method": "cash",
+                "notes": "Updated from Today Clinic",
+            },
+            headers={"HX-Request": "true"},
+        )
+
+        assert response.status_code == 204
+
+        db.session.refresh(appointment)
+        assert appointment.appointment_time.strftime("%H:%M") == "15:30"
+        assert appointment.duration_minutes == 30
+        assert appointment.appointment_type == Appointment.TYPE_EMERGENCY
+        assert appointment.notes == "Updated from Today Clinic"
+        assert appointment.fee_amount == Decimal("500.00")
+        assert appointment.paid_amount == Decimal("200.00")
+
+        charge = FinanceCharge.query.filter_by(
+            source_type=FinanceCharge.SOURCE_APPOINTMENT,
+            source_id=appointment.id,
+        ).one()
+
+        assert charge.net_amount == Decimal("500.00")
+        assert charge.paid_amount == Decimal("200.00")
+
+        db.drop_all()
+
+
+def test_new_3b_actions_block_doctor_role():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        create_user(
+            "Doctor",
+            "doctor-rest-3b@example.com",
+            "01099000025",
+        )
+        patient = create_patient(99025)
+
+        appointment = AppointmentService.create_appointment(
+            patient_id=patient.id,
+            appointment_date=date.today(),
+            appointment_type=Appointment.TYPE_FOLLOW_UP,
+        )
+
+        client = app.test_client()
+        login(client, "doctor-rest-3b@example.com")
+
+        responses = [
+            client.get("/appointments/emergency/modal"),
+            client.post(
+                "/appointments/emergency",
+                data={
+                    "patient_id": str(patient.id),
+                    "notes": "",
+                },
+            ),
+            client.get(
+                f"/appointments/{appointment.uuid}"
+                "/quick-edit/modal"
+            ),
+            client.post(
+                f"/appointments/{appointment.uuid}/quick-edit",
+                data={
+                    "appointment_type": Appointment.TYPE_FOLLOW_UP,
+                },
+            ),
+            client.get(
+                f"/clinic/day/{date.today().isoformat()}"
+                "/close/preview"
+            ),
+            client.post(
+                f"/clinic/day/{date.today().isoformat()}"
+                "/close"
+            ),
+        ]
+
+        assert all(
+            response.status_code == 403
+            for response in responses
+        )
+
+        db.drop_all()

@@ -364,6 +364,29 @@
                 >
                     Reschedule
                 </button>
+
+                <button
+                    class="btn btn-sm btn-outline-secondary"
+                    type="button"
+                    hx-get="{{
+                        url_for(
+                            'appointments.quick_edit_modal',
+                            appointment_uuid=(
+                                appointment.uuid
+                            ),
+                            resolved_filter=(
+                                resolved['filter']
+                            ),
+                            resolved_sort=(
+                                resolved['sort']
+                            )
+                        )
+                    }}"
+                    hx-target="#clinic-action-modal-content"
+                    hx-swap="outerHTML"
+                >
+                    Quick Edit
+                </button>
             {% endif %}
 
             <a

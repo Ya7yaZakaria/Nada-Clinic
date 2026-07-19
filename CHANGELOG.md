@@ -1578,3 +1578,30 @@ No diagnosis-linked preset behavior added.
 
 ### Migration
 - No model, database, or migration changes.
+
+## 2026-07-19 - Sprint 3B Operational Actions
+
+### Added
+
+- Close Day HTMX preview and confirmation modal.
+- Close Day operational counts before confirmation.
+- Add Emergency HTMX modal with patient search.
+- Inline emergency validation and direct Waiting queue creation.
+- Quick Appointment Edit modal for time, type, duration, notes, and finance fields.
+- Focused tests for Close Day, Emergency, Quick Edit, repeated submission, RBAC, and Finance synchronization.
+
+### Changed
+
+- Today Clinic Add Emergency no longer requires leaving the page.
+- Today Clinic Close Day no longer uses browser confirm.
+- Appointment cards now expose Quick Edit for active appointments without a linked Visit.
+- HTMX actions return server-confirmed success events without leaving stale flash messages.
+
+### Verification
+
+- Focused Sprint 3B tests: 20 passed.
+- Full regression: 546 passed.
+- Migration head/current: 20260719_0070.
+- No Sprint 3B migration added.
+- Pre-existing drug and surgery index drift remains separately reported by flask db check.
+- Manual browser verification pending.

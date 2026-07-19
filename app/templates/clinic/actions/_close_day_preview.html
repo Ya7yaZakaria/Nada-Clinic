@@ -1,0 +1,74 @@
+<div class="modal-content" id="clinic-action-modal-content">
+    <div class="modal-header">
+        <div>
+            <span class="section-kicker">Close Clinic Day</span>
+            <h2 class="h5 mb-0">
+                {{ selected_date.strftime("%A, %d %B %Y") }}
+            </h2>
+        </div>
+        <button
+            class="btn-close"
+            type="button"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+        ></button>
+    </div>
+
+    <form
+        method="post"
+        action="{{
+            url_for(
+                'today_clinic.close_day',
+                clinic_date=selected_date.isoformat()
+            )
+        }}"
+        hx-post="{{
+            url_for(
+                'today_clinic.close_day',
+                clinic_date=selected_date.isoformat()
+            )
+        }}"
+        hx-disabled-elt="find button"
+    >
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+        >
+
+        <div class="modal-body">
+            <div class="alert alert-warning">
+                Remaining booked appointments will become no-show.
+                Visit completion is not changed automatically.
+            </div>
+
+            <dl class="row mb-0">
+                <dt class="col-8">Booked appointments</dt>
+                <dd class="col-4 text-end">{{ booked_count }}</dd>
+
+                <dt class="col-8">Waiting patients</dt>
+                <dd class="col-4 text-end">{{ waiting_count }}</dd>
+
+                <dt class="col-8">Unresolved Visits</dt>
+                <dd class="col-4 text-end">{{ unresolved_visits }}</dd>
+
+                <dt class="col-8">Will become no-show</dt>
+                <dd class="col-4 text-end">{{ booked_count }}</dd>
+            </dl>
+        </div>
+
+        <div class="modal-footer">
+            <button
+                class="btn btn-outline-secondary"
+                type="button"
+                data-bs-dismiss="modal"
+            >
+                Keep Day Open
+            </button>
+
+            <button class="btn btn-dark" type="submit">
+                Confirm Close Day
+            </button>
+        </div>
+    </form>
+</div>

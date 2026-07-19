@@ -1,0 +1,131 @@
+<div class="modal-content" id="clinic-action-modal-content">
+    <div class="modal-header">
+        <div>
+            <span class="section-kicker">Today Clinic</span>
+            <h2 class="h5 mb-0">Quick Edit Appointment</h2>
+        </div>
+        <button
+            class="btn-close"
+            type="button"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+        ></button>
+    </div>
+
+    <form
+        method="post"
+        action="{{
+            url_for(
+                'appointments.quick_edit',
+                appointment_uuid=appointment.uuid,
+                resolved_filter=resolved_filter,
+                resolved_sort=resolved_sort
+            )
+        }}"
+        hx-post="{{
+            url_for(
+                'appointments.quick_edit',
+                appointment_uuid=appointment.uuid,
+                resolved_filter=resolved_filter,
+                resolved_sort=resolved_sort
+            )
+        }}"
+        hx-disabled-elt="find button"
+    >
+        {{ form.csrf_token }}
+
+        <div class="modal-body">
+            <div class="alert alert-light border">
+                <strong>
+                    {{ PatientService.get_display_name(appointment.patient) }}
+                </strong>
+                <br>
+                Patient, appointment date, and source cannot be changed here.
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    {{ form.appointment_time.label(class="form-label") }}
+                    {{ form.appointment_time(class="form-control") }}
+                    {% for error in form.appointment_time.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.appointment_type.label(class="form-label") }}
+                    {{ form.appointment_type(class="form-select") }}
+                    {% for error in form.appointment_type.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.duration_minutes.label(class="form-label") }}
+                    {{ form.duration_minutes(class="form-control") }}
+                    {% for error in form.duration_minutes.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.fee_amount.label(class="form-label") }}
+                    {{ form.fee_amount(class="form-control") }}
+                    {% for error in form.fee_amount.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.paid_amount.label(class="form-label") }}
+                    {{ form.paid_amount(class="form-control") }}
+                    {% for error in form.paid_amount.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    {{ form.payment_method.label(class="form-label") }}
+                    {{ form.payment_method(class="form-select") }}
+                    {% for error in form.payment_method.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-12">
+                    {{ form.notes.label(class="form-label") }}
+                    {{ form.notes(class="form-control", rows="3") }}
+                    {% for error in form.notes.errors %}
+                        <div class="text-danger small">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <a
+                class="btn btn-outline-secondary"
+                href="{{
+                    url_for(
+                        'appointments.edit',
+                        appointment_uuid=appointment.uuid
+                    )
+                }}"
+            >
+                Full Edit
+            </a>
+
+            <button
+                class="btn btn-outline-secondary"
+                type="button"
+                data-bs-dismiss="modal"
+            >
+                Cancel
+            </button>
+
+            <button class="btn btn-primary" type="submit">
+                Save Quick Edit
+            </button>
+        </div>
+    </form>
+</div>

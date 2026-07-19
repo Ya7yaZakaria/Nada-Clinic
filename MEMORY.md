@@ -1052,3 +1052,23 @@ Next Action:
 - No model, migration, permission, or audit schema changes.
 - Verification remains pending local execution.
 - Next action: verify Sprint 3B1 before Close Day or Emergency work.
+
+## 2026-07-19 - Sprint 3B Operational Actions Implemented
+
+- Completed the remaining Sprint 3B Today Clinic operational actions.
+- Added Close Day HTMX preview and confirmation modal.
+- Close Day shows booked, waiting, unresolved Visit, and no-show conversion counts.
+- Repeated Close Day submission is safe and does not change Visit completion.
+- Added Add Emergency HTMX modal with patient search and inline validation.
+- Emergency appointments are server-controlled as same-day unscheduled emergencies and enter Waiting immediately.
+- Added Quick Appointment Edit HTMX modal.
+- Quick Edit allows time, type, duration, notes, fee, paid amount, and payment method.
+- Patient, appointment date, and source remain unavailable in Quick Edit.
+- Existing full Appointment pages and normal POST fallbacks remain available.
+- No model, migration, permission, or audit schema changes.
+- Focused Sprint 3B verification: 20 passed in 14.27 seconds.
+- Full regression: 546 passed in 290.07 seconds.
+- Migration head/current: 20260719_0070.
+- flask db check still reports the pre-existing drug unique-index and surgery index drift; no new Sprint 3B migration was added.
+- Manual desktop, iPad, mobile, Doctor, Reception, and Admin browser verification remains pending.
+- Current verdict: Ready for manual UI verification.

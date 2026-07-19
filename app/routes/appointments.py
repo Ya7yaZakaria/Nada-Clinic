@@ -17,7 +17,9 @@ from app.extensions import db
 from app.forms.appointment_forms import (
     AppointmentArriveForm,
     AppointmentCancelForm,
+    AppointmentEmergencyForm,
     AppointmentForm,
+    AppointmentQuickEditForm,
     AppointmentRescheduleForm,
 )
 from app.models import Patient
@@ -600,6 +602,244 @@ def reschedule(appointment_uuid):
             clinic_date=(
                 appointment.appointment_date.isoformat()
             ),
+            resolved_filter=resolved_filter,
+            resolved_sort=resolved_sort,
+        )
+    )
+
+
+
+@appointments_bp.get("/emergency/modal")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def emergency_modal():
+    patient_query = request.args.get("q", "").strip()
+    patients = (
+        PatientService.search_patients(patient_query, limit=10)
+        if patient_query
+        else []
+    )
+    form = AppointmentEmergencyForm()
+
+    return render_template(
+        "clinic/actions/_emergency_form.html",
+        form=form,
+        patients=patients,
+        patient_query=patient_query,
+        PatientService=PatientService,
+    )
+
+
+@appointments_bp.post("/emergency")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def emergency_create():
+    form = AppointmentEmergencyForm()
+    patient_query = request.form.get("q", "").strip()
+    patients = (
+        PatientService.search_patients(patient_query, limit=10)
+        if patient_query
+        else []
+    )
+    is_htmx = request.headers.get("HX-Request") == "true"
+
+    if not form.validate_on_submit():
+        if is_htmx:
+            return render_template(
+                "clinic/actions/_emergency_form.html",
+                form=form,
+                patients=patients,
+                patient_query=patient_query,
+                PatientService=PatientService,
+            )
+
+        flash("Emergency request was invalid.", "danger")
+        return redirect(url_for("appointments.emergency_new"))
+
+    patient = db.session.get(Patient, int(form.patient_id.data))
+
+    if patient is None:
+        form.patient_id.errors = tuple(
+            list(form.patient_id.errors)
+            + ["Please select a valid patient."]
+        )
+
+        if is_htmx:
+            return render_template(
+                "clinic/actions/_emergency_form.html",
+                form=form,
+                patients=patients,
+                patient_query=patient_query,
+                PatientService=PatientService,
+            )
+
+        flash("Please select a valid patient.", "danger")
+        return redirect(url_for("appointments.emergency_new"))
+
+    try:
+        AppointmentService.create_emergency_unscheduled(
+            patient_id=patient.id,
+            notes=form.notes.data,
+            created_by_user_id=current_user.id,
+        )
+    except ValueError as exc:
+        form.patient_id.errors = tuple(
+            list(form.patient_id.errors) + [str(exc)]
+        )
+
+        if is_htmx:
+            return render_template(
+                "clinic/actions/_emergency_form.html",
+                form=form,
+                patients=patients,
+                patient_query=patient_query,
+                PatientService=PatientService,
+            )
+
+        flash(str(exc), "danger")
+        return redirect(url_for("appointments.emergency_new"))
+
+    if is_htmx:
+        response = make_response("", 204)
+        response.headers["HX-Trigger"] = json.dumps(
+            {
+                "clinic:action-success": {
+                    "message": "Emergency patient added to Waiting.",
+                    "tone": "warning",
+                }
+            }
+        )
+        return response
+
+    flash(
+        "Emergency patient added to waiting queue.",
+        "success",
+    )
+    return redirect(
+        url_for(
+            "today_clinic.day",
+            clinic_date=date.today().isoformat(),
+        )
+    )
+
+
+@appointments_bp.get("/<appointment_uuid>/quick-edit/modal")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def quick_edit_modal(appointment_uuid):
+    appointment = Appointment.query.filter_by(
+        uuid=appointment_uuid,
+    ).first_or_404()
+
+    if (
+        appointment.status not in AppointmentService.ACTIVE_STATUSES
+        or appointment.visit is not None
+    ):
+        return ("Quick Edit is unavailable for this appointment.", 409)
+
+    form = AppointmentQuickEditForm(obj=appointment)
+
+    return render_template(
+        "clinic/actions/_quick_edit_form.html",
+        appointment=appointment,
+        form=form,
+        resolved_filter=request.args.get(
+            "resolved_filter",
+            "all",
+        ),
+        resolved_sort=request.args.get(
+            "resolved_sort",
+            "latest",
+        ),
+        PatientService=PatientService,
+    )
+
+
+@appointments_bp.post("/<appointment_uuid>/quick-edit")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def quick_edit(appointment_uuid):
+    appointment = Appointment.query.filter_by(
+        uuid=appointment_uuid,
+    ).first_or_404()
+    form = AppointmentQuickEditForm()
+    is_htmx = request.headers.get("HX-Request") == "true"
+    resolved_filter = request.args.get("resolved_filter", "all")
+    resolved_sort = request.args.get("resolved_sort", "latest")
+
+    action_error = None
+
+    if (
+        appointment.status not in AppointmentService.ACTIVE_STATUSES
+        or appointment.visit is not None
+    ):
+        action_error = (
+            "Quick Edit is unavailable after a Visit starts "
+            "or after the appointment is resolved."
+        )
+
+    if action_error is None and form.validate_on_submit():
+        try:
+            AppointmentService.update_appointment(
+                appointment,
+                appointment_time=form.appointment_time.data,
+                duration_minutes=form.duration_minutes.data,
+                appointment_type=form.appointment_type.data,
+                notes=form.notes.data,
+                fee_amount=form.fee_amount.data,
+                paid_amount=form.paid_amount.data,
+                payment_method=form.payment_method.data,
+                updated_by_user_id=current_user.id,
+            )
+        except ValueError as exc:
+            action_error = str(exc)
+    elif action_error is None:
+        action_error = None
+
+    if action_error is not None or not form.validate():
+        if action_error:
+            form.notes.errors = tuple(
+                list(form.notes.errors) + [action_error]
+            )
+
+        if is_htmx:
+            return render_template(
+                "clinic/actions/_quick_edit_form.html",
+                appointment=appointment,
+                form=form,
+                resolved_filter=resolved_filter,
+                resolved_sort=resolved_sort,
+                PatientService=PatientService,
+            )
+
+        flash(
+            action_error or "Quick Edit request was invalid.",
+            "danger",
+        )
+        return redirect(
+            url_for(
+                "appointments.edit",
+                appointment_uuid=appointment.uuid,
+            )
+        )
+
+    if is_htmx:
+        response = make_response("", 204)
+        response.headers["HX-Trigger"] = json.dumps(
+            {
+                "clinic:action-success": {
+                    "message": "Appointment updated.",
+                    "tone": "success",
+                }
+            }
+        )
+        return response
+
+    flash("Appointment updated.", "success")
+    return redirect(
+        url_for(
+            "today_clinic.day",
+            clinic_date=appointment.appointment_date.isoformat(),
             resolved_filter=resolved_filter,
             resolved_sort=resolved_sort,
         )

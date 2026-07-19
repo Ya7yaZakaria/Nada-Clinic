@@ -78,50 +78,36 @@ Live patient flow for the selected clinic day
             {% if current_user.has_permission(
                 'appointments.manage'
             ) %}
-                <a
+                <button
                     class="btn btn-outline-danger"
-                    href="{{
+                    type="button"
+                    hx-get="{{
                         url_for(
-                            'appointments.emergency_new'
+                            'appointments.emergency_modal'
                         )
                     }}"
+                    hx-target="#clinic-action-modal-content"
+                    hx-swap="outerHTML"
                 >
                     <i class="bi bi-lightning-charge me-1"></i>
                     Add Emergency
-                </a>
+                </button>
 
-                <form
-                    method="post"
-                    action="{{
+                <button
+                    class="btn btn-dark"
+                    type="button"
+                    hx-get="{{
                         url_for(
-                            'today_clinic.close_day',
-                            clinic_date=(
-                                selected_date.isoformat()
-                            )
+                            'today_clinic.close_day_preview',
+                            clinic_date=selected_date.isoformat()
                         )
                     }}"
+                    hx-target="#clinic-action-modal-content"
+                    hx-swap="outerHTML"
                 >
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}"
-                    >
-
-                    <button
-                        class="btn btn-dark"
-                        type="submit"
-                        onclick="
-                            return confirm(
-                                'Close this clinic day? ' +
-                                'Remaining booked appointments ' +
-                                'will become no-show.'
-                            );
-                        "
-                    >
-                        <i class="bi bi-lock me-1"></i>
-                        Close Day
-                    </button>
-                </form>
+                    <i class="bi bi-lock me-1"></i>
+                    Close Day
+                </button>
             {% endif %}
         </div>
     </div>
