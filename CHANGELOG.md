@@ -1605,3 +1605,25 @@ No diagnosis-linked preset behavior added.
 - No Sprint 3B migration added.
 - Pre-existing drug and surgery index drift remains separately reported by flask db check.
 - Manual browser verification pending.
+## 2026-07-19 - Sprint 3B Freeze Correction
+
+### Changed
+
+- Removed obsolete duration fields from AppointmentForm and AppointmentQuickEditForm.
+- Preserved the Appointment database duration column and historical values.
+- Added current-clinic-date-only validation to Close Day preview and POST.
+- Malformed Close Day dates return 404.
+- Past and future Close Day requests return 409.
+- Added regression coverage for blocked Close Day dates.
+- Added Sprint 3B Freeze Review documentation.
+
+### Verification
+
+- Focused Today Clinic tests: 43 passed in 25.90s.
+- Full regression: 549 passed in 266.92s (0:04:26).
+- Migration head: 20260719_0070.
+- Migration current: 20260719_0070.
+- flask db check failed because of pre-existing drug unique-index and surgery index drift; no Sprint 3B migration was added.
+- No Sprint 3B migration added.
+- Manual browser verification accepted.
+- Starting commit: 9b3c122.

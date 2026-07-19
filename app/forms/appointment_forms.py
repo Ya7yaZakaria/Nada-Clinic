@@ -1,7 +1,7 @@
 from datetime import date
 
 from flask_wtf import FlaskForm
-from wtforms import DateField, DecimalField, HiddenField, IntegerField, SelectField, StringField, SubmitField, TextAreaField, TimeField
+from wtforms import DateField, DecimalField, HiddenField, SelectField, StringField, SubmitField, TextAreaField, TimeField
 from wtforms.validators import DataRequired, Length, NumberRange, Optional, ValidationError
 
 from app.models.appointment import Appointment
@@ -22,11 +22,6 @@ class AppointmentForm(FlaskForm):
         "Appointment time",
         validators=[Optional()],
         format="%H:%M",
-    )
-
-    duration_minutes = IntegerField(
-        "Duration minutes",
-        validators=[Optional(), NumberRange(min=5, max=240)],
     )
 
     appointment_type = SelectField(
@@ -119,10 +114,6 @@ class AppointmentQuickEditForm(FlaskForm):
         "Appointment time",
         validators=[Optional()],
         format="%H:%M",
-    )
-    duration_minutes = IntegerField(
-        "Duration minutes",
-        validators=[Optional(), NumberRange(min=5, max=240)],
     )
     appointment_type = SelectField(
         "Appointment type",

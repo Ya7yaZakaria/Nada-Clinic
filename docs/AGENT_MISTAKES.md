@@ -647,3 +647,26 @@ Prevention:
 - Do not provide implementation or correction commands before Source Review, Plan, and approval.
 - Prefer the smallest safe command sequence.
 - Record pre-existing migration drift separately and never describe `flask db check` as clean when it fails.
+## 2026-07-19 - Sprint 3B local-state implementation incidents
+
+### Incidents
+
+- Used whole-file exact counts for repeated fields whose class formatting differed.
+- Used committed content while local tracked files had changed.
+- Repeated scripts before requesting the smallest local evidence.
+- Expected blocks and whitespace that did not match local source.
+- Split PowerShell control structures caused standalone else and finally errors.
+
+### Impact
+
+- Multiple workflows stopped before final verification.
+- No incorrect Sprint 3B commit or push was created.
+
+### Prevention
+
+- Inspect repeated fields inside their exact class or function scope.
+- After a failed script, inspect current Git state before patching.
+- Never patch modified local files from stale committed content.
+- Validate replacements and transformed content before writing.
+- Avoid split PowerShell if/else and try/finally workflows.
+- Keep diagnostic reports separate from committed documentation.

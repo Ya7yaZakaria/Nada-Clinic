@@ -366,7 +366,6 @@ def new_appointment(patient_uuid):
             patient_id=patient.id,
             appointment_date=form.appointment_date.data,
             appointment_time=form.appointment_time.data,
-            duration_minutes=form.duration_minutes.data,
             appointment_type=form.appointment_type.data,
             source=form.source.data,
             notes=form.notes.data,

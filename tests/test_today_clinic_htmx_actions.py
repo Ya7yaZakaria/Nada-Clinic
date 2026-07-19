@@ -1344,3 +1344,85 @@ def test_appointment_forms_do_not_render_duration():
         assert appointment.duration_minutes == 45
 
         db.drop_all()
+
+
+def test_close_day_rejects_invalid_and_non_current_dates():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+
+        create_user(
+            "Reception",
+            "close-day-date-guard@example.com",
+            "01099000028",
+        )
+        patient = create_patient(99028)
+
+        past_date = date.today() - timedelta(days=1)
+        future_date = date.today() + timedelta(days=1)
+
+        past_appointment = AppointmentService.create_appointment(
+            patient_id=patient.id,
+            appointment_date=past_date,
+            appointment_type=Appointment.TYPE_FOLLOW_UP,
+        )
+
+        future_appointment = AppointmentService.create_appointment(
+            patient_id=patient.id,
+            appointment_date=future_date,
+            appointment_type=Appointment.TYPE_FOLLOW_UP,
+        )
+
+        client = app.test_client()
+        login(
+            client,
+            "close-day-date-guard@example.com",
+        )
+
+        assert (
+            client.get(
+                "/clinic/day/not-a-date/close/preview"
+            ).status_code
+            == 404
+        )
+
+        assert (
+            client.post(
+                "/clinic/day/not-a-date/close",
+                headers={"HX-Request": "true"},
+            ).status_code
+            == 404
+        )
+
+        for blocked_date in (past_date, future_date):
+            assert (
+                client.get(
+                    f"/clinic/day/{blocked_date.isoformat()}"
+                    "/close/preview"
+                ).status_code
+                == 409
+            )
+
+            assert (
+                client.post(
+                    f"/clinic/day/{blocked_date.isoformat()}"
+                    "/close",
+                    headers={"HX-Request": "true"},
+                ).status_code
+                == 409
+            )
+
+        db.session.refresh(past_appointment)
+        db.session.refresh(future_appointment)
+
+        assert (
+            past_appointment.status
+            == Appointment.STATUS_BOOKED
+        )
+        assert (
+            future_appointment.status
+            == Appointment.STATUS_BOOKED
+        )
+
+        db.drop_all()

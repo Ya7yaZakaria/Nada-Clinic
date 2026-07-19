@@ -1072,3 +1072,37 @@ Next Action:
 - flask db check still reports the pre-existing drug unique-index and surgery index drift; no new Sprint 3B migration was added.
 - Manual desktop, iPad, mobile, Doctor, Reception, and Admin browser verification remains pending.
 - Current verdict: Ready for manual UI verification.
+## 2026-07-19 - Sprint 3B Freeze Correction Verified
+
+This entry supersedes the earlier Sprint 3B verification entry.
+
+Current Stage:
+- Personal Trial after Stage 12.
+- Sprint 3B is ready for final Git review.
+
+Confirmed:
+- Cancel and Reschedule HTMX implemented.
+- Close Day HTMX implemented.
+- Add Emergency HTMX implemented.
+- Quick Appointment Edit HTMX implemented.
+- Quick Edit supports time, type, notes, fee, paid amount, and payment method.
+- Duration is intentionally absent from AppointmentForm, AppointmentQuickEditForm, and Appointment UI.
+- The Appointment database duration column remains unchanged for historical values and default behavior.
+- Close Day preview and POST allow only the current clinic date.
+- Malformed Close Day dates return 404.
+- Past and future Close Day dates return 409.
+- Existing RBAC, CSRF, HTMX success events, and normal fallbacks remain unchanged.
+- No model or migration was added.
+- Manual Today Clinic UI verification was accepted.
+
+Verification:
+- Focused Today Clinic tests: 43 passed in 25.90s.
+- Full regression: 549 passed in 266.92s (0:04:26).
+- Migration head: 20260719_0070.
+- Migration current: 20260719_0070.
+- flask db check failed because of pre-existing drug unique-index and surgery index drift; no Sprint 3B migration was added.
+- Pre-existing migration drift remains separate from Sprint 3B.
+- Starting commit: 9b3c122.
+
+Verdict:
+- Ready for final Git review.

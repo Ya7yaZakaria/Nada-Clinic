@@ -2,6 +2,7 @@ from datetime import date, datetime, timezone
 
 from flask import (
     Blueprint,
+    abort,
     flash,
     make_response,
     redirect,
@@ -31,6 +32,23 @@ def _parse_clinic_date(value):
     except (TypeError, ValueError):
         return date.today()
 
+
+def _require_current_close_day_date(value):
+    try:
+        selected_date = date.fromisoformat(value)
+    except (TypeError, ValueError):
+        abort(404)
+
+    if selected_date != date.today():
+        abort(
+            409,
+            description=(
+                "Close Day is available only for "
+                "the current clinic date."
+            ),
+        )
+
+    return selected_date
 
 @today_clinic_bp.get("/today")
 @login_required
@@ -211,7 +229,9 @@ def dynamic(clinic_date):
 @login_required
 @RBACService.require_permission("appointments.manage")
 def close_day_preview(clinic_date):
-    selected_date = _parse_clinic_date(clinic_date)
+    selected_date = _require_current_close_day_date(
+        clinic_date
+    )
     booked_count = len(
         AppointmentService.get_booked_no_action(selected_date)
     )
@@ -245,7 +265,7 @@ def close_day_preview(clinic_date):
 @login_required
 @RBACService.require_permission("appointments.manage")
 def close_day(clinic_date):
-    selected_date = _parse_clinic_date(
+    selected_date = _require_current_close_day_date(
         clinic_date
     )
 
