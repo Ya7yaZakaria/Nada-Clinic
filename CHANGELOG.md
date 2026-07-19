@@ -1541,3 +1541,19 @@ No diagnosis-linked preset behavior added.
 
 ### Verification
 - Pending local focused and full regression execution.
+
+
+## 2026-07-19 ? Today Clinic HTMX Foundation
+
+### Added
+- Shared Bootstrap modal target for short HTMX action forms.
+- Shared offcanvas drawer target for operational and Finance drill-downs.
+- Shared toast region and global HTMX loading indicator.
+- HTMX request, swap, network-error, and response-error handling.
+- Out-of-band Last Updated refresh for Today Clinic dynamic responses.
+
+### Fixed
+- Corrected malformed Today Clinic Finance heading punctuation.
+
+### Verification
+- Pending local focused and full regression execution for this foundation sprint.

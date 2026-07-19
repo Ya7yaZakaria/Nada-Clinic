@@ -58,7 +58,7 @@
         <section class="clinic-card clinic-live-finance mb-3">
             <p class="section-kicker">Live Finance</p>
             <h2 class="h5 mb-3">
-                Today?s financial position
+                Today's financial position
             </h2>
 
             <div class="clinic-mini-grid">
@@ -131,4 +131,21 @@
             {% include "clinic/_resolved_section.html" %}
         </div>
     </div>
+    {% if is_htmx_partial|default(false) %}
+        <time
+            id="clinic-last-updated"
+            datetime="{{
+                clinic_intelligence
+                .generated_at_utc
+                .isoformat()
+            }}"
+            hx-swap-oob="outerHTML"
+        >
+            {{
+                clinic_intelligence
+                .generated_at_utc
+                .strftime("%H:%M:%S UTC")
+            }}
+        </time>
+    {% endif %}
 </div>

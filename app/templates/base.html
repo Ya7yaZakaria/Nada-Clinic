@@ -783,6 +783,18 @@
 
                 {% block content %}{% endblock %}
             </main>
+
+            {% include
+                "clinic/_action_modal_shell.html"
+            %}
+
+            {% include
+                "clinic/_drilldown_drawer.html"
+            %}
+
+            {% include
+                "clinic/_toast_region.html"
+            %}
         </div>
     </div>
     {% else %}

@@ -189,6 +189,8 @@ def dynamic(clinic_date):
         request.args.get("resolved_sort", "latest"),
     )
 
+    context["is_htmx_partial"] = True
+
     return render_template(
         "clinic/_today_dynamic.html",
         **context,

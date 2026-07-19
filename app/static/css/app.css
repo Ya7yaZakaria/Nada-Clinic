@@ -2152,3 +2152,94 @@ body.auth-page {
     opacity: .65;
     pointer-events: none;
 }
+
+
+/* Shared Today Clinic HTMX foundation */
+.clinic-drilldown-drawer {
+    width: min(92vw, 32rem);
+}
+
+.clinic-toast-region {
+    z-index: 1095;
+}
+
+.clinic-htmx-loading {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .65rem .9rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    box-shadow:
+        0 .75rem 2rem rgba(15, 23, 42, .16);
+    opacity: 0;
+    pointer-events: none;
+    transform:
+        translate(-50%, -.75rem);
+    transition:
+        opacity .15s ease,
+        transform .15s ease;
+}
+
+.clinic-htmx-busy
+.clinic-htmx-loading {
+    opacity: 1;
+    transform:
+        translate(-50%, 0);
+}
+
+.clinic-htmx-busy
+[hx-disabled-elt="find button"].htmx-request
+button,
+.clinic-htmx-busy
+button.htmx-request {
+    cursor: wait;
+}
+
+#clinic-action-modal-content.htmx-swapping,
+#clinic-drilldown-content.htmx-swapping,
+#today-clinic-dynamic.htmx-swapping {
+    opacity: .55;
+    transition: opacity .15s ease;
+}
+
+#clinic-action-modal-content
+.clinic-modern-empty,
+#clinic-drilldown-content
+.clinic-modern-empty {
+    min-height: 12rem;
+}
+
+@media (max-width: 575.98px) {
+    .clinic-drilldown-drawer {
+        width: 100vw;
+    }
+
+    #clinic-action-modal
+    .modal-dialog {
+        align-items: flex-end;
+        min-height: calc(100% - 1rem);
+        margin: .5rem;
+    }
+
+    #clinic-action-modal
+    .modal-content {
+        max-height: calc(100vh - 1rem);
+        border-radius: 1rem 1rem .5rem .5rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .clinic-htmx-loading,
+    #clinic-action-modal-content,
+    #clinic-drilldown-content,
+    #today-clinic-dynamic {
+        transition: none;
+    }
+}

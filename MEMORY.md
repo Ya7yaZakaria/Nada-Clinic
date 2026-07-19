@@ -1013,7 +1013,7 @@ Next Action:
 - Added same-day Finance insights only for users with `finance.insights`; Reception receives no Finance insights query or payload.
 - Kept the existing Close Day behavior.
 - Did not add ClinicDay persistence, closure snapshots, Visit doctor assignment, or automatic refresh.
-- Verification remains pending local test execution.
+- Verification: focused Today Clinic tests `41 passed`; full regression reported passed by the developer.
 
 
 ## 2026-07-19 ? Today Clinic Workflow UX Correction Implemented
@@ -1028,3 +1028,14 @@ Next Action:
 - Separated Day Schedule, Waiting, and Resolved into three responsive columns.
 - No model, migration, permission, or audit changes.
 - Verification remains pending local test execution.
+
+
+## 2026-07-19 ? Sprint 3A HTMX Foundation Implemented
+
+- Added reusable action modal, drill-down drawer, toast region, and HTMX loading state.
+- Added shared HTMX lifecycle and error handling.
+- Added out-of-band Last Updated refresh.
+- Corrected malformed Finance heading punctuation.
+- No operational action, model, migration, permission, or audit change.
+- Verification remains pending local execution.
+- Next action: verify Sprint 3A, then implement Cancel and Reschedule as Sprint 3B.
