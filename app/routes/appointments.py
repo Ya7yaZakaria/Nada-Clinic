@@ -1,7 +1,16 @@
 from calendar import Calendar, month_name
 from datetime import date, timedelta
+import json
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    flash,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user, login_required
 
 from app.extensions import db
@@ -327,42 +336,274 @@ def undo_arrive(appointment_uuid):
     )
 
 
+@appointments_bp.get(
+    "/<appointment_uuid>/cancel/modal"
+)
+@login_required
+@RBACService.require_permission("appointments.manage")
+def cancel_modal(appointment_uuid):
+    appointment = Appointment.query.filter_by(
+        uuid=appointment_uuid,
+    ).first_or_404()
+
+    form = AppointmentCancelForm()
+
+    return render_template(
+        "clinic/actions/_cancel_form.html",
+        appointment=appointment,
+        form=form,
+        resolved_filter=request.args.get(
+            "resolved_filter",
+            "all",
+        ),
+        resolved_sort=request.args.get(
+            "resolved_sort",
+            "latest",
+        ),
+        PatientService=PatientService,
+    )
+
+
+@appointments_bp.get(
+    "/<appointment_uuid>/reschedule/modal"
+)
+@login_required
+@RBACService.require_permission("appointments.manage")
+def reschedule_modal(appointment_uuid):
+    appointment = Appointment.query.filter_by(
+        uuid=appointment_uuid,
+    ).first_or_404()
+
+    form = AppointmentRescheduleForm()
+
+    return render_template(
+        "clinic/actions/_reschedule_form.html",
+        appointment=appointment,
+        form=form,
+        action_error=None,
+        resolved_filter=request.args.get(
+            "resolved_filter",
+            "all",
+        ),
+        resolved_sort=request.args.get(
+            "resolved_sort",
+            "latest",
+        ),
+        PatientService=PatientService,
+    )
+
+
 @appointments_bp.post("/<appointment_uuid>/cancel")
 @login_required
 @RBACService.require_permission("appointments.manage")
 def cancel(appointment_uuid):
-    appointment = Appointment.query.filter_by(uuid=appointment_uuid).first_or_404()
+    appointment = Appointment.query.filter_by(
+        uuid=appointment_uuid,
+    ).first_or_404()
+
     form = AppointmentCancelForm()
+    is_htmx = (
+        request.headers.get("HX-Request") == "true"
+    )
+    resolved_filter = request.args.get(
+        "resolved_filter",
+        "all",
+    )
+    resolved_sort = request.args.get(
+        "resolved_sort",
+        "latest",
+    )
 
     if not form.validate_on_submit():
-        flash("Cancel request was invalid.", "danger")
-        return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
+        if is_htmx:
+            return render_template(
+                "clinic/actions/_cancel_form.html",
+                appointment=appointment,
+                form=form,
+                resolved_filter=resolved_filter,
+                resolved_sort=resolved_sort,
+                PatientService=PatientService,
+            )
 
-    AppointmentService.cancel_appointment(appointment, reason=form.reason.data)
-    flash("Appointment cancelled.", "warning")
-    return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
+        flash(
+            "Cancel request was invalid.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "appointments.detail",
+                appointment_uuid=appointment.uuid,
+            )
+        )
+
+    try:
+        AppointmentService.cancel_appointment(
+            appointment,
+            reason=form.reason.data,
+        )
+    except ValueError as exc:
+        if is_htmx:
+            form.reason.errors = tuple(
+                list(form.reason.errors)
+                + [str(exc)]
+            )
+
+            return render_template(
+                "clinic/actions/_cancel_form.html",
+                appointment=appointment,
+                form=form,
+                resolved_filter=resolved_filter,
+                resolved_sort=resolved_sort,
+                PatientService=PatientService,
+            )
+
+        flash(str(exc), "danger")
+
+        return redirect(
+            url_for(
+                "appointments.detail",
+                appointment_uuid=appointment.uuid,
+            )
+        )
+
+    if is_htmx:
+        response = make_response("", 204)
+
+        response.headers["HX-Trigger"] = json.dumps(
+            {
+                "clinic:action-success": {
+                    "message": (
+                        "Appointment cancelled."
+                    ),
+                    "tone": "warning",
+                }
+            }
+        )
+
+        return response
+
+    flash(
+        "Appointment cancelled.",
+        "warning",
+    )
+
+    return redirect(
+        url_for(
+            "today_clinic.day",
+            clinic_date=(
+                appointment.appointment_date.isoformat()
+            ),
+            resolved_filter=resolved_filter,
+            resolved_sort=resolved_sort,
+        )
+    )
 
 
 @appointments_bp.post("/<appointment_uuid>/reschedule")
 @login_required
 @RBACService.require_permission("appointments.manage")
 def reschedule(appointment_uuid):
-    appointment = Appointment.query.filter_by(uuid=appointment_uuid).first_or_404()
+    appointment = Appointment.query.filter_by(
+        uuid=appointment_uuid,
+    ).first_or_404()
+
     form = AppointmentRescheduleForm()
-
-    if not form.validate_on_submit():
-        flash("Reschedule request was invalid.", "danger")
-        return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
-
-    new_appointment = AppointmentService.reschedule_appointment(
-        appointment,
-        new_date=form.appointment_date.data,
-        new_time=form.appointment_time.data,
-        updated_by_user_id=current_user.id,
+    is_htmx = (
+        request.headers.get("HX-Request") == "true"
+    )
+    resolved_filter = request.args.get(
+        "resolved_filter",
+        "all",
+    )
+    resolved_sort = request.args.get(
+        "resolved_sort",
+        "latest",
     )
 
-    flash("Appointment rescheduled.", "success")
-    return redirect(url_for("appointments.detail", appointment_uuid=new_appointment.uuid))
+    if not form.validate_on_submit():
+        if is_htmx:
+            return render_template(
+                "clinic/actions/_reschedule_form.html",
+                appointment=appointment,
+                form=form,
+                action_error=None,
+                resolved_filter=resolved_filter,
+                resolved_sort=resolved_sort,
+                PatientService=PatientService,
+            )
+
+        flash(
+            "Reschedule request was invalid.",
+            "danger",
+        )
+
+        return redirect(
+            url_for(
+                "appointments.detail",
+                appointment_uuid=appointment.uuid,
+            )
+        )
+
+    try:
+        AppointmentService.reschedule_appointment(
+            appointment,
+            new_date=form.appointment_date.data,
+            new_time=form.appointment_time.data,
+            updated_by_user_id=current_user.id,
+        )
+    except ValueError as exc:
+        if is_htmx:
+            return render_template(
+                "clinic/actions/_reschedule_form.html",
+                appointment=appointment,
+                form=form,
+                action_error=str(exc),
+                resolved_filter=resolved_filter,
+                resolved_sort=resolved_sort,
+                PatientService=PatientService,
+            )
+
+        flash(str(exc), "danger")
+
+        return redirect(
+            url_for(
+                "appointments.detail",
+                appointment_uuid=appointment.uuid,
+            )
+        )
+
+    if is_htmx:
+        response = make_response("", 204)
+
+        response.headers["HX-Trigger"] = json.dumps(
+            {
+                "clinic:action-success": {
+                    "message": (
+                        "Appointment rescheduled."
+                    ),
+                    "tone": "success",
+                }
+            }
+        )
+
+        return response
+
+    flash(
+        "Appointment rescheduled.",
+        "success",
+    )
+
+    return redirect(
+        url_for(
+            "today_clinic.day",
+            clinic_date=(
+                appointment.appointment_date.isoformat()
+            ),
+            resolved_filter=resolved_filter,
+            resolved_sort=resolved_sort,
+        )
+    )
 
 
 @appointments_bp.route("/emergency/new", methods=["GET", "POST"])

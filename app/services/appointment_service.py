@@ -192,13 +192,38 @@ class AppointmentService:
         db.session.commit()
         return appointment
 
-    @staticmethod
-    def cancel_appointment(appointment, reason=None):
+    @classmethod
+    def cancel_appointment(
+        cls,
+        appointment,
+        reason=None,
+    ):
+        if appointment.status not in cls.ACTIVE_STATUSES:
+            raise ValueError(
+                "Only an active appointment can be cancelled."
+            )
+
+        if appointment.visit is not None:
+            raise ValueError(
+                "Appointment cannot be cancelled after "
+                "a Visit has started."
+            )
+
+        normalized_reason = (
+            (reason or "").strip() or None
+        )
+
         appointment.status = Appointment.STATUS_CANCELLED
-        appointment.cancel_reason = reason
+        appointment.cancel_reason = normalized_reason
         appointment.cancelled_at = datetime.now(UTC)
+
         db.session.commit()
-        FinanceService.cancel_source_charge(FinanceCharge.SOURCE_APPOINTMENT, appointment.id)
+
+        FinanceService.cancel_source_charge(
+            FinanceCharge.SOURCE_APPOINTMENT,
+            appointment.id,
+        )
+
         return appointment
 
     @staticmethod
@@ -209,10 +234,30 @@ class AppointmentService:
         return appointment
 
     @classmethod
-    def reschedule_appointment(cls, appointment, *, new_date, new_time=None, updated_by_user_id=None):
+    def reschedule_appointment(
+        cls,
+        appointment,
+        *,
+        new_date,
+        new_time=None,
+        updated_by_user_id=None,
+    ):
         if appointment.status not in cls.ACTIVE_STATUSES:
-            raise ValueError("Only an active appointment can be rescheduled")
-        cls.validate_no_active_daily_duplicate(appointment.patient_id, new_date, exclude_id=appointment.id)
+            raise ValueError(
+                "Only an active appointment can be rescheduled."
+            )
+
+        if appointment.visit is not None:
+            raise ValueError(
+                "Appointment cannot be rescheduled after "
+                "a Visit has started."
+            )
+
+        cls.validate_no_active_daily_duplicate(
+            appointment.patient_id,
+            new_date,
+            exclude_id=appointment.id,
+        )
         new_appointment = Appointment(
             patient_id=appointment.patient_id,
             appointment_date=new_date,

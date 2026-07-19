@@ -2243,3 +2243,29 @@ button.htmx-request {
         transition: none;
     }
 }
+
+/* Sprint 3B1 destructive appointment action */
+.clinic-patient-actions
+.clinic-patient-cancel-action {
+    order: 99;
+    flex: 0 0 auto;
+    margin-inline-start: auto;
+}
+
+.clinic-patient-actions
+.clinic-patient-cancel-action:hover,
+.clinic-patient-actions
+.clinic-patient-cancel-action:focus-visible {
+    box-shadow:
+        0 .35rem .9rem
+        rgba(220, 53, 69, .18);
+}
+
+@media (max-width: 767.98px) {
+    .clinic-patient-actions
+    .clinic-patient-cancel-action {
+        width: 100%;
+        flex: 1 1 100%;
+        margin-inline-start: 0;
+    }
+}

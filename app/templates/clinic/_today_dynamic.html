@@ -1,4 +1,16 @@
-<div id="today-clinic-dynamic">
+<div
+    id="today-clinic-dynamic"
+    hx-get="{{
+        url_for(
+            'today_clinic.dynamic',
+            clinic_date=selected_date.isoformat(),
+            resolved_filter=resolved['filter'],
+            resolved_sort=resolved['sort']
+        )
+    }}"
+    hx-trigger="clinicSync from:body"
+    hx-swap="outerHTML"
+>
     {% include "clinic/_counters.html" %}
 
     {% if clinic_intelligence.alerts %}

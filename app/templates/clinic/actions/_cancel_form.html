@@ -1,0 +1,119 @@
+<div
+    class="modal-content"
+    id="clinic-action-modal-content"
+>
+    <div class="modal-header">
+        <div>
+            <p class="section-kicker mb-1">
+                Appointment action
+            </p>
+
+            <h2
+                class="modal-title fs-5"
+                id="clinic-action-modal-title"
+            >
+                Cancel Appointment
+            </h2>
+        </div>
+
+        <button
+            class="btn-close"
+            type="button"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+        ></button>
+    </div>
+
+    <form
+        method="post"
+        action="{{
+            url_for(
+                'appointments.cancel',
+                appointment_uuid=appointment.uuid,
+                resolved_filter=resolved_filter,
+                resolved_sort=resolved_sort
+            )
+        }}"
+        hx-post="{{
+            url_for(
+                'appointments.cancel',
+                appointment_uuid=appointment.uuid,
+                resolved_filter=resolved_filter,
+                resolved_sort=resolved_sort
+            )
+        }}"
+        hx-target="#clinic-action-modal-content"
+        hx-swap="outerHTML"
+        hx-disabled-elt="find button"
+    >
+        <div class="modal-body">
+            {{ form.hidden_tag() }}
+
+            <div class="alert alert-warning">
+                <strong>
+                    {{
+                        PatientService.get_display_name(
+                            appointment.patient
+                        )
+                    }}
+                </strong>
+
+                <div class="small mt-1">
+                    {{ appointment.appointment_date }}
+                    <span class="mx-1 text-muted">
+                        at
+                    </span>
+                    {{
+                        appointment.appointment_time
+                        .strftime("%H:%M")
+                        if appointment.appointment_time
+                        else "Walk-in"
+                    }}
+                </div>
+            </div>
+
+            {{ form.reason.label(class="form-label") }}
+
+            {{ form.reason(
+                class=(
+                    "form-control"
+                    + (
+                        " is-invalid"
+                        if form.reason.errors
+                        else ""
+                    )
+                ),
+                rows="4",
+                autofocus=true
+            ) }}
+
+            {% for error in form.reason.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ error }}
+                </div>
+            {% endfor %}
+
+            <p class="form-text mb-0">
+                The reason will appear in Resolved Bookings.
+            </p>
+        </div>
+
+        <div class="modal-footer">
+            <button
+                class="btn btn-outline-secondary"
+                type="button"
+                data-bs-dismiss="modal"
+            >
+                Keep Appointment
+            </button>
+
+            <button
+                class="btn btn-danger"
+                type="submit"
+            >
+                <i class="bi bi-x-circle me-1"></i>
+                Cancel Appointment
+            </button>
+        </div>
+    </form>
+</div>

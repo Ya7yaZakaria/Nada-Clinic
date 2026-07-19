@@ -315,6 +315,57 @@
                 </form>
             {% endif %}
 
+            {% if allow_operational_actions
+                  and appointment.status
+                  in ['booked', 'arrived'] %}
+                <button
+                    class="btn btn-sm btn-danger
+                           clinic-patient-cancel-action"
+                    type="button"
+                    hx-get="{{
+                        url_for(
+                            'appointments.cancel_modal',
+                            appointment_uuid=(
+                                appointment.uuid
+                            ),
+                            resolved_filter=(
+                                resolved['filter']
+                            ),
+                            resolved_sort=(
+                                resolved['sort']
+                            )
+                        )
+                    }}"
+                    hx-target="#clinic-action-modal-content"
+                    hx-swap="outerHTML"
+                >
+                    Cancel
+                </button>
+
+                <button
+                    class="btn btn-sm btn-outline-primary"
+                    type="button"
+                    hx-get="{{
+                        url_for(
+                            'appointments.reschedule_modal',
+                            appointment_uuid=(
+                                appointment.uuid
+                            ),
+                            resolved_filter=(
+                                resolved['filter']
+                            ),
+                            resolved_sort=(
+                                resolved['sort']
+                            )
+                        )
+                    }}"
+                    hx-target="#clinic-action-modal-content"
+                    hx-swap="outerHTML"
+                >
+                    Reschedule
+                </button>
+            {% endif %}
+
             <a
                 class="btn btn-sm btn-outline-secondary"
                 href="{{

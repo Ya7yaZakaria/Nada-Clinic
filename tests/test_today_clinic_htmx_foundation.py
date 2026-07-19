@@ -117,3 +117,18 @@ def test_finance_heading_is_clean():
 
     assert "Today?s" not in content
     assert "Today's financial position" in content
+
+
+def test_action_success_refreshes_dynamic_clinic():
+    javascript = read("app/static/js/app.js")
+    dynamic = read(
+        "app/templates/clinic/_today_dynamic.html"
+    )
+
+    assert '"clinic:action-success"' in javascript
+    assert '"clinicSync"' in javascript
+    assert "htmx.trigger(" in javascript
+    assert (
+        'hx-trigger="clinicSync from:body"'
+        in dynamic
+    )

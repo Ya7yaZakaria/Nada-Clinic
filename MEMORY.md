@@ -1039,3 +1039,16 @@ Next Action:
 - No operational action, model, migration, permission, or audit change.
 - Verification remains pending local execution.
 - Next action: verify Sprint 3A, then implement Cancel and Reschedule as Sprint 3B.
+
+
+## 2026-07-19 ? Sprint 3B1 Cancel and Reschedule HTMX Implemented
+
+- Added HTMX Cancel and Reschedule actions to Today Clinic.
+- Added inline modal validation.
+- Added server-confirmed toast and dynamic clinic refresh.
+- Cancel reason is required.
+- Cancel and Reschedule are blocked after Visit start and for resolved Appointments.
+- Existing Appointment Detail forms remain available.
+- No model, migration, permission, or audit schema changes.
+- Verification remains pending local execution.
+- Next action: verify Sprint 3B1 before Close Day or Emergency work.

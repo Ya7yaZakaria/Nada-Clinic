@@ -78,7 +78,10 @@ class AppointmentPatientSearchForm(FlaskForm):
 class AppointmentCancelForm(FlaskForm):
     reason = TextAreaField(
         "Cancel reason",
-        validators=[Optional(), Length(max=1000)],
+        validators=[
+            DataRequired(),
+            Length(max=1000),
+        ],
     )
     submit = SubmitField("Cancel appointment")
 

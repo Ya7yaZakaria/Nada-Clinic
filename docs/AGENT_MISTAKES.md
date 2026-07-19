@@ -626,3 +626,24 @@ Prevention:
   partial script execution.
 - Build correction scripts from the user's current local output, not from the
   original source snapshot.
+## 2026-07-19 — Read-first and guarded patch failures
+
+### Mistakes
+
+- Generated a patch before reading the exact local content of an untracked test file.
+- Assumed form labels and multiline whitespace instead of verifying them.
+- Used a multiline replacement marker that did not match the local line endings/content.
+- After a guard failed, later commands were still presented and manually continued, causing a no-op rewrite.
+- Provided verification and Git commands before clearly completing Source Review and Plan approval.
+- Overcomplicated the final verification workflow instead of using the minimum necessary commands.
+- Suggested commit preparation before clearly separating known pre-existing migration drift.
+
+### Prevention
+
+- For modified or untracked files, read the exact local lines or diff before producing a patch.
+- Never assume labels, whitespace, line endings, route names, permissions, or test expectations.
+- Validate every replacement marker before any write occurs.
+- If any guard fails, stop completely and inspect the current local content.
+- Do not provide implementation or correction commands before Source Review, Plan, and approval.
+- Prefer the smallest safe command sequence.
+- Record pre-existing migration drift separately and never describe `flask db check` as clean when it fails.

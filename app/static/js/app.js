@@ -439,5 +439,10 @@ document.body.addEventListener(
             || "Clinic updated.",
             event.detail?.tone || "success",
         );
+
+        htmx.trigger(
+            document.body,
+            "clinicSync",
+        );
     },
 );

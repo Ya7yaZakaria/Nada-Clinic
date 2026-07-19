@@ -1557,3 +1557,24 @@ No diagnosis-linked preset behavior added.
 
 ### Verification
 - Pending local focused and full regression execution for this foundation sprint.
+
+
+## 2026-07-19 ? Sprint 3B1 Cancel and Reschedule HTMX
+
+### Added
+- Today Clinic Cancel Appointment modal.
+- Today Clinic Reschedule Appointment modal.
+- Inline HTMX validation.
+- Server-confirmed modal close, toast, and clinic refresh.
+
+### Changed
+- Cancel reason is required.
+- Successful normal fallbacks return to Today Clinic.
+- Cancel and Reschedule are blocked after Visit start.
+- Cancel and Reschedule only accept active Appointments.
+
+### Verification
+- Pending local focused and full regression execution.
+
+### Migration
+- No model, database, or migration changes.
