@@ -5,7 +5,9 @@ from app.models import Visit
 from app.models.appointment import Appointment
 from app.models.finance import FinanceCharge
 from app.services.finance_service import FinanceService
-
+from app.services.clinic_day_state_service import (
+    ClinicDayStateService,
+)
 
 class AppointmentService:
     ACTIVE_STATUSES = (Appointment.STATUS_BOOKED, Appointment.STATUS_ARRIVED)
@@ -85,6 +87,10 @@ class AppointmentService:
         if appointment_date is None:
             raise ValueError("Appointment date is required")
 
+        ClinicDayStateService.require_open(
+            appointment_date
+        )
+
         cls.validate_appointment_type(appointment_type)
 
         status = status or Appointment.STATUS_BOOKED
@@ -117,7 +123,16 @@ class AppointmentService:
 
     @classmethod
     def update_appointment(cls, appointment, **kwargs):
-        target_date = kwargs.get("appointment_date", appointment.appointment_date)
+        ClinicDayStateService.require_open(
+            appointment.appointment_date
+        )
+
+        target_date = kwargs.get(
+            "appointment_date",
+            appointment.appointment_date,
+        )
+
+        ClinicDayStateService.require_open(target_date)
         if "appointment_type" in kwargs:
             cls.validate_appointment_type(kwargs["appointment_type"])
         if "source" in kwargs:
@@ -172,6 +187,10 @@ class AppointmentService:
 
     @staticmethod
     def mark_arrived(appointment):
+        ClinicDayStateService.require_open(
+            appointment.appointment_date
+        )
+
         appointment.status = Appointment.STATUS_ARRIVED
         appointment.arrived_at = datetime.now(UTC)
         db.session.commit()
@@ -179,6 +198,10 @@ class AppointmentService:
 
     @staticmethod
     def undo_arrived(appointment):
+        ClinicDayStateService.require_open(
+            appointment.appointment_date
+        )
+
         if appointment.visit is not None:
             raise ValueError("Arrival cannot be undone after a Visit has started.")
         if appointment.status != Appointment.STATUS_ARRIVED:
@@ -198,6 +221,10 @@ class AppointmentService:
         appointment,
         reason=None,
     ):
+        ClinicDayStateService.require_open(
+            appointment.appointment_date
+        )
+
         if appointment.status not in cls.ACTIVE_STATUSES:
             raise ValueError(
                 "Only an active appointment can be cancelled."
@@ -228,6 +255,10 @@ class AppointmentService:
 
     @staticmethod
     def mark_no_show(appointment):
+        ClinicDayStateService.require_open(
+            appointment.appointment_date
+        )
+
         appointment.status = Appointment.STATUS_NO_SHOW
         appointment.no_show_at = datetime.now(UTC)
         db.session.commit()
@@ -242,6 +273,11 @@ class AppointmentService:
         new_time=None,
         updated_by_user_id=None,
     ):
+        ClinicDayStateService.require_open(
+            appointment.appointment_date
+        )
+        ClinicDayStateService.require_open(new_date)
+
         if appointment.status not in cls.ACTIVE_STATUSES:
             raise ValueError(
                 "Only an active appointment can be rescheduled."
@@ -298,7 +334,7 @@ class AppointmentService:
         return cls.mark_arrived(appointment)
 
     @staticmethod
-    def close_clinic_day(clinic_date):
+    def close_clinic_day(clinic_date, *, commit=True):
         appointments = Appointment.query.filter_by(
             appointment_date=clinic_date,
             status=Appointment.STATUS_BOOKED,
@@ -310,7 +346,11 @@ class AppointmentService:
             appointment.status = Appointment.STATUS_NO_SHOW
             appointment.no_show_at = now
 
-        db.session.commit()
+        if commit:
+            db.session.commit()
+        else:
+            db.session.flush()
+
         return appointments
 
     @staticmethod

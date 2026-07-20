@@ -11,8 +11,11 @@
 {% set today_visit = appointment.visit %}
 {% set resolved_item = resolved_item|default(none) %}
 {% set is_resolved = resolved_item is not none %}
-{% set allow_operational_actions = not is_resolved and not today_visit %}
-
+{% set allow_operational_actions =
+    not is_resolved
+    and not today_visit
+    and not is_day_closed|default(false)
+%}
 <article
     class="clinic-patient-card{{
         ' clinic-patient-card-clickable'

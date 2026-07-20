@@ -75,7 +75,57 @@ Live patient flow for the selected clinic day
                 Calendar
             </a>
 
-            {% if current_user.has_permission(
+            {% if is_day_closed %}
+                <span class="badge text-bg-dark px-3 py-2">
+                    Closed
+                    {% if day_state and day_state.closed_at %}
+                        · {{
+                            day_state.closed_at.strftime(
+                                "%H:%M"
+                            )
+                        }}
+                    {% endif %}
+                </span>
+
+                {% if current_user.has_permission(
+                    'clinic_day.reopen'
+                ) %}
+                    <form
+                        method="post"
+                        action="{{
+                            url_for(
+                                'today_clinic.reopen_day',
+                                clinic_date=(
+                                    selected_date.isoformat()
+                                )
+                            )
+                        }}"
+                        hx-post="{{
+                            url_for(
+                                'today_clinic.reopen_day',
+                                clinic_date=(
+                                    selected_date.isoformat()
+                                )
+                            )
+                        }}"
+                        hx-disabled-elt="find button"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <button
+                            class="btn btn-outline-primary"
+                            type="submit"
+                        >
+                            <i class="bi bi-unlock me-1"></i>
+                            Reopen Day
+                        </button>
+                    </form>
+                {% endif %}
+            {% elif current_user.has_permission(
                 'appointments.manage'
             ) %}
                 <button
@@ -89,7 +139,9 @@ Live patient flow for the selected clinic day
                     hx-target="#clinic-action-modal-content"
                     hx-swap="outerHTML"
                 >
-                    <i class="bi bi-lightning-charge me-1"></i>
+                    <i
+                        class="bi bi-lightning-charge me-1"
+                    ></i>
                     Add Emergency
                 </button>
 
@@ -99,7 +151,9 @@ Live patient flow for the selected clinic day
                     hx-get="{{
                         url_for(
                             'today_clinic.close_day_preview',
-                            clinic_date=selected_date.isoformat()
+                            clinic_date=(
+                                selected_date.isoformat()
+                            )
                         )
                     }}"
                     hx-target="#clinic-action-modal-content"
@@ -112,56 +166,12 @@ Live patient flow for the selected clinic day
         </div>
     </div>
 
-    {% if show_close_result %}
-        <div class="clinic-day-closed-result">
-            <div>
-                <span class="section-kicker mb-1">
-                    Close Result
-                </span>
-
-                <strong>
-                    Day processing completed
-                </strong>
-            </div>
-
-            <div>
-                <span>No-show</span>
-                <strong>
-                    {{ clinic_day.counters.no_show }}
-                </strong>
-            </div>
-
-            <div>
-                <span>Cancelled</span>
-                <strong>
-                    {{ clinic_day.counters.cancelled }}
-                </strong>
-            </div>
-
-            <div>
-                <span>Visits completed</span>
-                <strong>
-                    {{ visit_snapshot.completed }}
-                </strong>
-            </div>
-
-            <div>
-                <span>Attendance</span>
-                <strong>
-                    {{ clinic_intelligence.attendance_rate }}%
-                </strong>
-            </div>
-
-            <div>
-                <span>Visit completion</span>
-                <strong>
-                    {{ clinic_intelligence.visit_completion_rate }}%
-                </strong>
-            </div>
-        </div>
-    {% endif %}
 </section>
 
 {% include "clinic/_today_dynamic.html" %}
+
+{% if is_day_closed %}
+    {% include "clinic/_daily_closing_summary.html" %}
+{% endif %}
 
 {% endblock %}

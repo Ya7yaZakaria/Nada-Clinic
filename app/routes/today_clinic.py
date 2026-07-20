@@ -13,8 +13,12 @@ from flask import (
 import json
 from flask_login import current_user, login_required
 
+from app.extensions import db
 from app.services.appointment_service import AppointmentService
 from app.services.clinic_day_service import ClinicDayService
+from app.services.clinic_day_state_service import (
+    ClinicDayStateService,
+)
 from app.services.finance_service import FinanceService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
@@ -122,8 +126,23 @@ def _build_live_context(
         "live_counters": live_counters,
         "clinic_intelligence": clinic_intelligence,
         "finance_summary": finance_summary,
+        "day_state": ClinicDayStateService.get_state(
+            selected_date
+        ),
+        "is_day_closed": (
+            ClinicDayStateService.is_closed(
+                selected_date
+            )
+        ),
+        "closing_summary": (
+            ClinicDayService.build_closing_summary(
+                clinic_day,
+                visit_snapshot,
+            )
+        ),
         "enable_live_actions": True,
         "AppointmentService": AppointmentService,
+        "ClinicDayService": ClinicDayService,
         "JourneyService": JourneyService,
         "PatientService": PatientService,
         "VisitService": VisitService,
@@ -183,11 +202,7 @@ def day(clinic_date):
             "localization.timezone",
             default="Africa/Cairo",
         ),
-        show_close_result=(
-            ClinicDayService.is_close_result_visible(
-                context["clinic_day"]
-            )
-        ),
+        show_close_result=context["is_day_closed"],
     )
 
     return render_template(
@@ -232,6 +247,13 @@ def close_day_preview(clinic_date):
     selected_date = _require_current_close_day_date(
         clinic_date
     )
+
+    if ClinicDayStateService.is_closed(selected_date):
+        abort(
+            409,
+            description="Clinic day is already closed.",
+        )
+
     booked_count = len(
         AppointmentService.get_booked_no_action(selected_date)
     )
@@ -269,32 +291,71 @@ def close_day(clinic_date):
         clinic_date
     )
 
-    converted = AppointmentService.close_clinic_day(
-        selected_date
-    )
+    if ClinicDayStateService.is_closed(selected_date):
+        abort(
+            409,
+            description="Clinic day is already closed.",
+        )
+
+    try:
+        AppointmentService.close_clinic_day(
+            selected_date,
+            commit=False,
+        )
+
+        ClinicDayStateService.close_day(
+            selected_date,
+            commit=False,
+        )
+
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        raise
 
     if request.headers.get("HX-Request") == "true":
         response = make_response("", 204)
-        response.headers["HX-Trigger"] = json.dumps(
-            {
-                "clinic:action-success": {
-                    "message": (
-                        "Clinic day closed. "
-                        f"{len(converted)} booking(s) "
-                        "converted to no-show."
-                    ),
-                    "tone": "warning",
-                }
-            }
+
+        response.headers["HX-Redirect"] = url_for(
+            "today_clinic.day",
+            clinic_date=selected_date.isoformat(),
         )
+
         return response
 
     flash(
-        "Clinic day closed. "
-        f"{len(converted)} remaining booking(s) "
-        "converted to no-show.",
+        "Clinic day closed. Operational and financial "
+        "editing is now locked.",
         "warning",
     )
+    return redirect(
+        url_for(
+            "today_clinic.day",
+            clinic_date=selected_date.isoformat(),
+        )
+    )
+
+@today_clinic_bp.post("/day/<clinic_date>/reopen")
+@login_required
+@RBACService.require_permission("clinic_day.reopen")
+def reopen_day(clinic_date):
+    selected_date = _require_current_close_day_date(
+        clinic_date
+    )
+
+    ClinicDayStateService.reopen_day(selected_date)
+
+    if request.headers.get("HX-Request") == "true":
+        response = make_response("", 204)
+
+        response.headers["HX-Redirect"] = url_for(
+            "today_clinic.day",
+            clinic_date=selected_date.isoformat(),
+        )
+
+        return response
+
+    flash("Clinic day reopened.", "success")
 
     return redirect(
         url_for(

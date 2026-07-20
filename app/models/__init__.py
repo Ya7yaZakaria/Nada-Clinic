@@ -1,6 +1,7 @@
 from app.models.drug_dictionary import DrugCategory, DrugForm, DrugRoute, DrugSafetyStatus
 from app.models.drug import Drug
 from app.models.document import PatientDocument
+from app.models.clinic_day_state import ClinicDayState
 from app.models.finance import FinanceCharge, FinancePayment, FinanceExpense
 from app.models.ultrasound import ClinicUltrasoundExam, ExternalUltrasoundRequest
 from app.models.surgery import SurgeryCase
@@ -36,6 +37,7 @@ __all__ = [
     "Partner",
     "PartnerSemenAnalysis",
     "PatientDocument",
+    "ClinicDayState",
     "FinanceCharge",
     "FinancePayment",
     "FinanceExpense",

@@ -228,6 +228,59 @@ class ClinicDayService:
             "visit_completion_rate": visit_completion_rate,
         }
 
+    @classmethod
+    def build_closing_summary(
+        cls,
+        clinic_day,
+        visit_snapshot,
+    ):
+        visits = visit_snapshot["visits"]
+
+        return {
+            "appointments_total": len(
+                clinic_day["appointments"]
+            ),
+            "visits_completed": visit_snapshot[
+                "completed"
+            ],
+            "visits_open": visit_snapshot["open"],
+            "visits_incomplete": visit_snapshot[
+                "incomplete"
+            ],
+            "cancelled_count": len(
+                clinic_day["cancelled"]
+            ),
+            "rescheduled_count": len(
+                clinic_day["rescheduled"]
+            ),
+            "no_show_count": len(
+                clinic_day["no_show"]
+            ),
+            "completed_visits": [
+                visit
+                for visit in visits
+                if visit.status == "completed"
+            ],
+            "open_visits": [
+                visit
+                for visit in visits
+                if visit.status == "open"
+            ],
+            "incomplete_visits": [
+                visit
+                for visit in visits
+                if visit.status == "incomplete"
+            ],
+            "cancelled_appointments": (
+                clinic_day["cancelled"]
+            ),
+            "rescheduled_appointments": (
+                clinic_day["rescheduled"]
+            ),
+            "no_show_appointments": (
+                clinic_day["no_show"]
+            ),
+        }
     @staticmethod
     def is_close_result_visible(clinic_day):
         counters = clinic_day["counters"]

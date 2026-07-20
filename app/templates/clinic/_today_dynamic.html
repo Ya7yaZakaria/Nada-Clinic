@@ -37,10 +37,59 @@
                       in clinic_intelligence
                       .appointment_type_counts
                       .items() %}
-                    <div class="clinic-breakdown-row">
-                        <span>{{ label }}</span>
-                        <strong>{{ count }}</strong>
-                    </div>
+                    <details class="border-bottom py-2">
+                        <summary class="clinic-breakdown-row">
+                            <span>{{ label }}</span>
+                            <strong>{{ count }}</strong>
+                        </summary>
+
+                        <div class="small mt-2">
+                            {% for appointment
+                                  in clinic_day.appointments
+                                  if ClinicDayService
+                                  .APPOINTMENT_TYPE_LABELS
+                                  .get(
+                                      appointment.appointment_type,
+                                      appointment.appointment_type
+                                      |replace('_', ' ')
+                                      |title
+                                  ) == label %}
+                                <a
+                                    class="d-flex justify-content-between gap-2 py-1 text-decoration-none"
+                                    href="{{
+                                        url_for(
+                                            'patients.detail',
+                                            patient_uuid=(
+                                                appointment.patient.uuid
+                                            )
+                                        )
+                                    }}"
+                                >
+                                    <span>
+                                        {{
+                                            PatientService
+                                            .get_display_name(
+                                                appointment.patient
+                                            )
+                                        }}
+                                    </span>
+
+                                    <span class="text-muted">
+                                        {{
+                                            AppointmentService
+                                            .get_status_label(
+                                                appointment.status
+                                            )
+                                        }}
+                                    </span>
+                                </a>
+                            {% else %}
+                                <span class="text-muted">
+                                    No appointments.
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </details>
                 {% endfor %}
             </div>
 
@@ -52,10 +101,48 @@
                           in clinic_intelligence
                           .visit_type_counts
                           .items() %}
-                        <div class="clinic-breakdown-row">
-                            <span>{{ label }}</span>
-                            <strong>{{ count }}</strong>
-                        </div>
+                        <details class="border-bottom py-2">
+                            <summary class="clinic-breakdown-row">
+                                <span>{{ label }}</span>
+                                <strong>{{ count }}</strong>
+                            </summary>
+
+                            <div class="small mt-2">
+                                {% for visit
+                                      in visit_snapshot.visits
+                                      if ClinicDayService
+                                      .VISIT_TYPE_LABELS
+                                      .get(
+                                          visit.visit_type,
+                                          visit.visit_type
+                                          |replace('_', ' ')
+                                          |title
+                                      ) == label %}
+                                    <a
+                                        class="d-flex justify-content-between gap-2 py-1 text-decoration-none"
+                                        href="{{
+                                            url_for(
+                                                'visits.detail',
+                                                visit_uuid=visit.uuid
+                                            )
+                                        }}"
+                                    >
+                                        <span>
+                                            {{
+                                                PatientService
+                                                .get_display_name(
+                                                    visit.patient
+                                                )
+                                            }}
+                                        </span>
+
+                                        <span class="text-muted">
+                                            {{ visit.status|title }}
+                                        </span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </details>
                     {% endfor %}
                 {% else %}
                     <p class="text-muted mb-0">

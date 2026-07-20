@@ -236,7 +236,7 @@ def test_all_statuses_remain_visible_in_day_list():
             response = client.get(f"/clinic/day/{clinic_date.isoformat()}")
 
         assert response.status_code == 200
-        assert b"No-show" not in response.data
+        assert b"No-show" in response.data
         assert b"Waiting" in response.data
         assert b"Completed" in response.data
         assert b"Cancelled" in response.data

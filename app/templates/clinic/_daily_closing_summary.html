@@ -1,0 +1,373 @@
+<section
+    class="clinic-card mt-3"
+    id="daily-closing-summary"
+>
+    <div
+        class="d-flex flex-column flex-lg-row
+               justify-content-between gap-2 mb-3"
+    >
+        <div>
+            <p class="section-kicker mb-1">
+                Daily Closing Summary
+            </p>
+
+            <h2 class="h5 mb-0">
+                Current totals for {{ selected_date }}
+            </h2>
+        </div>
+
+        <span class="badge text-bg-dark align-self-start">
+            Closed
+        </span>
+    </div>
+
+    <div class="clinic-mini-grid mb-3">
+        {% for label, value in [
+            (
+                "Appointments",
+                closing_summary.appointments_total
+            ),
+            (
+                "Completed Visits",
+                closing_summary.visits_completed
+            ),
+            (
+                "Open Visits",
+                closing_summary.visits_open
+            ),
+            (
+                "Incomplete Visits",
+                closing_summary.visits_incomplete
+            ),
+            (
+                "Cancelled Appointments",
+                closing_summary.cancelled_count
+            ),
+            (
+                "Rescheduled Appointments",
+                closing_summary.rescheduled_count
+            ),
+            (
+                "No-show Appointments",
+                closing_summary.no_show_count
+            )
+        ] %}
+            <div class="clinic-finance-link">
+                <span>{{ label }}</span>
+                <strong>{{ value }}</strong>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="row g-3 mb-3">
+        {% for title, rows, row_kind in [
+            (
+                "Completed Visits",
+                closing_summary.completed_visits,
+                "visit"
+            ),
+            (
+                "Open Visits",
+                closing_summary.open_visits,
+                "visit"
+            ),
+            (
+                "Incomplete Visits",
+                closing_summary.incomplete_visits,
+                "visit"
+            ),
+            (
+                "Cancelled Appointments",
+                closing_summary.cancelled_appointments,
+                "appointment"
+            ),
+            (
+                "Rescheduled Appointments",
+                closing_summary.rescheduled_appointments,
+                "appointment"
+            ),
+            (
+                "No-show Appointments",
+                closing_summary.no_show_appointments,
+                "appointment"
+            )
+        ] %}
+            <div class="col-12 col-lg-6">
+                <details class="border rounded p-3 h-100">
+                    <summary class="fw-semibold">
+                        {{ title }} — {{ rows|length }}
+                    </summary>
+
+                    {% if rows %}
+                        <div
+                            class="list-group list-group-flush mt-2"
+                        >
+                            {% for row in rows %}
+                                {% if row_kind == "visit" %}
+                                    <a
+                                        class="list-group-item list-group-item-action px-0"
+                                        href="{{
+                                            url_for(
+                                                'visits.detail',
+                                                visit_uuid=row.uuid
+                                            )
+                                        }}"
+                                    >
+                                        <div
+                                            class="d-flex justify-content-between gap-2"
+                                        >
+                                            <strong>
+                                                {{
+                                                    PatientService
+                                                    .get_display_name(
+                                                        row.patient
+                                                    )
+                                                }}
+                                            </strong>
+
+                                            <span>
+                                                {{ row.status|title }}
+                                            </span>
+                                        </div>
+
+                                        <small class="text-muted">
+                                            {{
+                                                ClinicDayService
+                                                .VISIT_TYPE_LABELS
+                                                .get(
+                                                    row.visit_type,
+                                                    row.visit_type
+                                                    |replace('_', ' ')
+                                                    |title
+                                                )
+                                            }}
+                                        </small>
+                                    </a>
+                                {% else %}
+                                    <a
+                                        class="list-group-item list-group-item-action px-0"
+                                        href="{{
+                                            url_for(
+                                                'patients.detail',
+                                                patient_uuid=(
+                                                    row.patient.uuid
+                                                )
+                                            )
+                                        }}"
+                                    >
+                                        <div
+                                            class="d-flex justify-content-between gap-2"
+                                        >
+                                            <strong>
+                                                {{
+                                                    PatientService
+                                                    .get_display_name(
+                                                        row.patient
+                                                    )
+                                                }}
+                                            </strong>
+
+                                            <span>
+                                                {{
+                                                    row.appointment_time
+                                                    .strftime("%H:%M")
+                                                    if row.appointment_time
+                                                    else "Walk-in"
+                                                }}
+                                            </span>
+                                        </div>
+
+                                        <small class="text-muted">
+                                            {{
+                                                AppointmentService
+                                                .get_type_label(
+                                                    row.appointment_type
+                                                )
+                                            }}
+                                            ·
+                                            {{
+                                                AppointmentService
+                                                .get_status_label(
+                                                    row.status
+                                                )
+                                            }}
+                                        </small>
+
+                                        {% if row.status == "rescheduled"
+                                              and row.rescheduled_to %}
+                                            <small
+                                                class="d-block text-muted"
+                                            >
+                                                Moved to
+                                                {{
+                                                    row.rescheduled_to
+                                                    .appointment_date
+                                                }}
+                                            </small>
+                                        {% endif %}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mt-2 mb-0">
+                            No records.
+                        </p>
+                    {% endif %}
+                </details>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if finance_summary is not none %}
+        <div class="row g-3">
+            <div class="col-12 col-xl-7">
+                <div class="border rounded p-3 h-100">
+                    <h3 class="h6">
+                        Service Breakdown
+                    </h3>
+
+                    <div class="table-responsive">
+                        <table
+                            class="table table-sm align-middle mb-0"
+                        >
+                            <thead>
+                                <tr>
+                                    <th>Service</th>
+                                    <th class="text-end">
+                                        Count
+                                    </th>
+                                    <th class="text-end">
+                                        Billed
+                                    </th>
+                                    <th class="text-end">
+                                        Collected
+                                    </th>
+                                    <th class="text-end">
+                                        Outstanding
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for row
+                                      in finance_summary
+                                      .service_breakdown
+                                      if row.key in [
+                                          "consultation",
+                                          "follow_up",
+                                          "emergency"
+                                      ] %}
+                                    <tr>
+                                        <td>{{ row.label }}</td>
+                                        <td class="text-end">
+                                            {{ row.count }}
+                                        </td>
+                                        <td class="text-end">
+                                            {{
+                                                "{:,.2f}".format(
+                                                    row.amount
+                                                )
+                                            }}
+                                        </td>
+                                        <td class="text-end">
+                                            {{
+                                                "{:,.2f}".format(
+                                                    row.paid
+                                                )
+                                            }}
+                                        </td>
+                                        <td class="text-end">
+                                            {{
+                                                "{:,.2f}".format(
+                                                    row.remaining
+                                                )
+                                            }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-5">
+                <div class="border rounded p-3 h-100">
+                    <h3 class="h6">
+                        Financial Closing
+                    </h3>
+
+                    {% for label, value in [
+                        (
+                            "Billed",
+                            finance_summary.total_charges
+                        ),
+                        (
+                            "Collected",
+                            finance_summary.total_collected
+                        ),
+                        (
+                            "Outstanding",
+                            finance_summary.total_remaining
+                        ),
+                        (
+                            "Expenses",
+                            finance_summary.total_expenses
+                        ),
+                        (
+                            "Net cash",
+                            finance_summary.net_profit
+                        )
+                    ] %}
+                        <div class="clinic-breakdown-row">
+                            <span>{{ label }}</span>
+
+                            <strong>
+                                EGP
+                                {{
+                                    "{:,.2f}".format(
+                                        value or 0
+                                    )
+                                }}
+                            </strong>
+                        </div>
+                    {% endfor %}
+
+                    <details class="mt-3">
+                        <summary class="fw-semibold">
+                            Expense categories
+                        </summary>
+
+                        <div class="mt-2">
+                            {% for row
+                                  in finance_summary
+                                  .expense_category_breakdown
+                                  if row.count %}
+                                <div class="clinic-breakdown-row">
+                                    <span>
+                                        {{ row.label }}
+                                        ({{ row.count }})
+                                    </span>
+
+                                    <strong>
+                                        EGP
+                                        {{
+                                            "{:,.2f}".format(
+                                                row.amount
+                                            )
+                                        }}
+                                    </strong>
+                                </div>
+                            {% else %}
+                                <p class="text-muted mb-0">
+                                    No expenses.
+                                </p>
+                            {% endfor %}
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</section>

@@ -3,7 +3,9 @@ from decimal import Decimal, InvalidOperation
 
 from app.extensions import db
 from app.models.finance import FinanceCharge, FinanceExpense, FinancePayment
-
+from app.services.clinic_day_state_service import (
+    ClinicDayStateService,
+)
 
 class FinanceService:
     """Central finance layer for embedded clinic payments and expenses."""
@@ -147,6 +149,14 @@ class FinanceService:
         if not patient:
             raise ValueError("Patient is required for finance charge.")
 
+        effective_service_date = (
+            service_date or date.today()
+        )
+
+        ClinicDayStateService.require_open(
+            effective_service_date
+        )
+
         service_type = cls.validate_service_type(service_type)
         gross = cls.normalize_money(gross_amount, None)
         discount = cls.normalize_money(discount_amount, Decimal("0.00")) or Decimal("0.00")
@@ -185,7 +195,7 @@ class FinanceService:
         charge.paid_amount = effective_paid
         charge.remaining_amount = remaining
         charge.status = status
-        charge.service_date = service_date or date.today()
+        charge.service_date = effective_service_date
         charge.updated_by_user = actor_user
 
         db.session.flush()
@@ -303,6 +313,14 @@ class FinanceService:
         notes=None,
         actor_user=None,
     ):
+        effective_expense_date = (
+            expense_date or date.today()
+        )
+
+        ClinicDayStateService.require_open(
+            effective_expense_date
+        )
+
         category = cls.validate_expense_category(category)
         amount = cls.normalize_money(amount, Decimal("0.00")) or Decimal("0.00")
         payment_method = cls.validate_payment_method(payment_method, required=True)
@@ -315,7 +333,7 @@ class FinanceService:
             raise ValueError("Expense title is required.")
 
         expense = FinanceExpense(
-            expense_date=expense_date or date.today(),
+            expense_date=effective_expense_date,
             category=category,
             title=title,
             amount=amount,
@@ -344,6 +362,19 @@ class FinanceService:
         if not expense:
             raise ValueError("Expense is required.")
 
+        ClinicDayStateService.require_open(
+            expense.expense_date
+        )
+
+        effective_expense_date = (
+            expense_date or expense.expense_date
+        )
+
+        ClinicDayStateService.require_open(
+            effective_expense_date
+        )
+
+
         category = cls.validate_expense_category(category)
         amount = cls.normalize_money(amount, Decimal("0.00")) or Decimal("0.00")
         payment_method = cls.validate_payment_method(payment_method, required=True)
@@ -355,7 +386,7 @@ class FinanceService:
         if not title:
             raise ValueError("Expense title is required.")
 
-        expense.expense_date = expense_date or date.today()
+        expense.expense_date = effective_expense_date
         expense.category = category
         expense.title = title
         expense.amount = amount

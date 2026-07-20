@@ -1038,8 +1038,9 @@ def test_close_day_preview_and_htmx_success():
         )
 
         assert response.status_code == 204
-        trigger = json.loads(response.headers["HX-Trigger"])
-        assert "clinic:action-success" in trigger
+        assert response.headers["HX-Redirect"] == (
+            f"/clinic/day/{date.today().isoformat()}"
+        )
 
         db.session.refresh(appointment)
         assert appointment.status == Appointment.STATUS_NO_SHOW
@@ -1048,7 +1049,7 @@ def test_close_day_preview_and_htmx_success():
             f"/clinic/day/{date.today().isoformat()}/close",
             headers={"HX-Request": "true"},
         )
-        assert repeated.status_code == 204
+        assert repeated.status_code == 409
 
         db.drop_all()
 
