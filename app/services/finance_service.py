@@ -11,9 +11,9 @@ class FinanceService:
     """Central finance layer for embedded clinic payments and expenses."""
 
     SERVICE_LABELS = {
-        FinanceCharge.SERVICE_CONSULTATION: "كشف",
-        FinanceCharge.SERVICE_FOLLOW_UP: "إعادة كشف",
-        FinanceCharge.SERVICE_EMERGENCY: "كشف طوارئ",
+        FinanceCharge.SERVICE_CONSULTATION: "New Consultation",
+        FinanceCharge.SERVICE_FOLLOW_UP: "Follow-up",
+        FinanceCharge.SERVICE_EMERGENCY: "Emergency",
         FinanceCharge.SERVICE_SURGERY: "عملية",
         FinanceCharge.SERVICE_PROCEDURE: "Procedure",
         FinanceCharge.SERVICE_ULTRASOUND: "Ultrasound",

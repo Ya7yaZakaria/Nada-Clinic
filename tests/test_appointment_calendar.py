@@ -164,9 +164,9 @@ def test_selected_day_appointments_render_type_and_status():
             response = client.get("/appointments/calendar?date=2026-07-07&view=day")
 
         assert response.status_code == 200
-        assert "كشف".encode() in response.data
-        assert "إعادة كشف".encode() in response.data
-        assert "طوارئ".encode() in response.data
+        assert b"New Consultation" in response.data
+        assert b"Follow-up" in response.data
+        assert b"Emergency" in response.data
         assert b"Booked" in response.data
         assert b"Waiting" in response.data
         assert b"No-show" in response.data

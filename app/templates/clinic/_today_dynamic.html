@@ -14,7 +14,7 @@
     {% include "clinic/_counters.html" %}
 
     {% if clinic_intelligence.alerts %}
-        <section class="clinic-card clinic-alert-strip mb-3">
+        <section class="clinic-card clinic-alert-strip clinic-live-alerts mb-3">
             {% for alert in clinic_intelligence.alerts %}
                 <div
                     class="alert alert-{{ alert.kind }} py-2 mb-0"
@@ -26,7 +26,7 @@
         </section>
     {% endif %}
 
-    <section class="clinic-card mb-3">
+    <section class="clinic-card clinic-type-breakdown mb-3">
         <p class="section-kicker">Type Breakdown</p>
 
         <div class="row g-3">
@@ -218,15 +218,15 @@
     {% endif %}
 
     <div class="row g-3 clinic-operational-columns">
-        <div class="col-12 col-xl-4">
+        <div class="col-12 col-xxl-6">
             {% include "clinic/_day_list.html" %}
         </div>
 
-        <div class="col-12 col-xl-4">
+        <div class="col-12 col-xxl-6">
             {% include "clinic/_queue_section.html" %}
         </div>
 
-        <div class="col-12 col-xl-4">
+        <div class="col-12 clinic-resolved-column">
             {% include "clinic/_resolved_section.html" %}
         </div>
     </div>

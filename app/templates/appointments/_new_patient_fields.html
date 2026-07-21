@@ -1,0 +1,44 @@
+<div class="booking-new-patient-intro">
+    <i class="bi bi-person-badge" aria-hidden="true"></i>
+    <div>
+        <strong>New patient registration</strong>
+        <small>A medical file number will be generated automatically.</small>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% set fields = [
+        (form.new_patient_name_ar, 'col-12 col-lg-6', 'rtl'),
+        (form.new_patient_name_en, 'col-12 col-lg-6', none),
+        (form.new_patient_phone_primary, 'col-12 col-lg-6', none),
+        (form.new_patient_phone_secondary, 'col-12 col-lg-6', none),
+        (form.new_patient_date_of_birth, 'col-12 col-lg-4', none),
+        (form.new_patient_age_years_at_registration, 'col-12 col-lg-4', none),
+        (form.new_patient_marital_status, 'col-12 col-lg-4', none),
+        (form.new_patient_occupation, 'col-12 col-lg-4', none),
+        (form.new_patient_email, 'col-12 col-lg-4', none),
+        (form.new_patient_governorate, 'col-12 col-lg-4', none),
+        (form.new_patient_city, 'col-12 col-lg-4', none),
+        (form.new_patient_street, 'col-12 col-lg-4', none)
+    ] %}
+    {% for field, column_class, direction in fields %}
+        <div class="{{ column_class }}">
+            {{ field.label(class="form-label") }}
+            {% if field.type == 'SelectField' %}
+                {{ field(class="form-select") }}
+            {% else %}
+                {{ field(class="form-control", dir=direction) }}
+            {% endif %}
+            {% for error in field.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    <div class="col-12">
+        <div class="form-check booking-check-row">
+            {{ form.new_patient_is_virgin(class="form-check-input") }}
+            {{ form.new_patient_is_virgin.label(class="form-check-label") }}
+        </div>
+    </div>
+</div>

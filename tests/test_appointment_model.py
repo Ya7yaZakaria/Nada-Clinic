@@ -264,7 +264,7 @@ def test_invalid_source_is_rejected():
         db.drop_all()
 
 
-def test_emergency_unscheduled_is_arrived_without_time():
+def test_emergency_unscheduled_is_arrived_with_minute_precision_time():
     app = make_app()
 
     with app.app_context():
@@ -277,7 +277,9 @@ def test_emergency_unscheduled_is_arrived_without_time():
         assert appointment.appointment_type == Appointment.TYPE_EMERGENCY
         assert appointment.source == Appointment.SOURCE_EMERGENCY_UNSCHEDULED
         assert appointment.status == Appointment.STATUS_ARRIVED
-        assert appointment.appointment_time is None
+        assert appointment.appointment_time is not None
+        assert appointment.appointment_time.second == 0
+        assert appointment.appointment_time.microsecond == 0
         assert appointment.arrived_at is not None
 
         db.drop_all()

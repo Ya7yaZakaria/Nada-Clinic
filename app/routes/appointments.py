@@ -1,5 +1,5 @@
 from calendar import Calendar, month_name
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 import json
 
 from flask import (
@@ -68,7 +68,57 @@ def _get_patient_from_form(form):
     if not patient_id:
         return None
 
-    return db.session.get(Patient, int(patient_id))
+    try:
+        return db.session.get(Patient, int(patient_id))
+    except (TypeError, ValueError):
+        return None
+
+
+def _create_patient_from_appointment_form(form):
+    return PatientService.create_patient(
+        commit=False,
+        name_ar=form.new_patient_name_ar.data,
+        name_en=form.new_patient_name_en.data,
+        phone_primary=form.new_patient_phone_primary.data,
+        phone_secondary=form.new_patient_phone_secondary.data,
+        email=form.new_patient_email.data,
+        date_of_birth=form.new_patient_date_of_birth.data,
+        age_years_at_registration=(
+            form.new_patient_age_years_at_registration.data
+        ),
+        marital_status=form.new_patient_marital_status.data,
+        is_virgin=form.new_patient_is_virgin.data,
+        occupation=form.new_patient_occupation.data,
+        governorate=form.new_patient_governorate.data,
+        city=form.new_patient_city.data,
+        street=form.new_patient_street.data,
+    )
+
+
+def _resolve_appointment_patient(form):
+    if form.patient_mode.data == "new":
+        if not RBACService.user_has_permission(
+            current_user,
+            "patients.basic.create",
+        ):
+            raise ValueError("You do not have permission to create patients.")
+        return _create_patient_from_appointment_form(form), True
+
+    patient = _get_patient_from_form(form)
+    if patient is None:
+        raise ValueError("Please select a valid patient.")
+    return patient, False
+
+
+def _booking_form_context(**context):
+    context.update(
+        PatientService=PatientService,
+        can_create_patient=RBACService.user_has_permission(
+            current_user,
+            "patients.basic.create",
+        ),
+    )
+    return context
 
 
 @appointments_bp.get("/")
@@ -138,51 +188,47 @@ def calendar():
 def new():
     patient_uuid = request.args.get("patient_uuid")
     patient = Patient.query.filter_by(uuid=patient_uuid).first() if patient_uuid else None
-    patient_query = request.args.get("q", "")
-    patients = PatientService.search_patients(patient_query, limit=10) if patient_query else []
-
     form = AppointmentForm()
 
     if patient and request.method == "GET":
         form.patient_id.data = str(patient.id)
+        form.patient_mode.data = "existing"
 
     if form.validate_on_submit():
-        patient = _get_patient_from_form(form)
-
-        if not patient:
-            flash("Please select a patient.", "danger")
-            return render_template(
-                "appointments/new.html",
-                form=form,
-                patient=None,
-                patients=patients,
-                patient_query=patient_query,
-                PatientService=PatientService,
+        try:
+            patient, patient_was_created = _resolve_appointment_patient(form)
+            appointment = AppointmentService.create_appointment(
+                patient_id=patient.id,
+                appointment_date=form.appointment_date.data,
+                appointment_time=form.appointment_time.data,
+                appointment_type=form.appointment_type.data,
+                source=form.source.data,
+                notes=form.notes.data,
+                fee_amount=form.fee_amount.data,
+                paid_amount=form.paid_amount.data,
+                payment_method=form.payment_method.data,
+                created_by_user_id=current_user.id,
             )
+        except ValueError as exc:
+            form.patient_id.errors.append(str(exc))
+        else:
+            if patient_was_created and PatientService.find_duplicate_phone_patients(
+                patient.phone_primary,
+                exclude_patient_id=patient.id,
+            ):
+                flash(
+                    "Appointment booked. Warning: another patient uses this phone number.",
+                    "warning",
+                )
+            else:
+                flash("Appointment booked.", "success")
+            return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
 
-        appointment = AppointmentService.create_appointment(
-            patient_id=patient.id,
-            appointment_date=form.appointment_date.data,
-            appointment_time=form.appointment_time.data,
-            appointment_type=form.appointment_type.data,
-            source=form.source.data,
-            notes=form.notes.data,
-            fee_amount=form.fee_amount.data,
-            paid_amount=form.paid_amount.data,
-            payment_method=form.payment_method.data,
-        )
-
-        flash("Appointment booked.", "success")
-        return redirect(url_for("appointments.detail", appointment_uuid=appointment.uuid))
-
-    return render_template(
-        "appointments/new.html",
+    return render_template("appointments/new.html", **_booking_form_context(
         form=form,
         patient=patient,
-        patients=patients,
-        patient_query=patient_query,
-        PatientService=PatientService,
-    )
+        patient_query="",
+    ))
 
 
 @appointments_bp.get("/<appointment_uuid>")
@@ -211,6 +257,7 @@ def edit(appointment_uuid):
 
     if request.method == "GET":
         form.patient_id.data = str(appointment.patient_id)
+        form.patient_mode.data = "existing"
 
     if form.validate_on_submit():
         patient = _get_patient_from_form(form)
@@ -222,6 +269,7 @@ def edit(appointment_uuid):
                 form=form,
                 appointment=appointment,
                 PatientService=PatientService,
+                can_create_patient=False,
             )
 
         AppointmentService.update_appointment(
@@ -244,6 +292,7 @@ def edit(appointment_uuid):
         form=form,
         appointment=appointment,
         PatientService=PatientService,
+        can_create_patient=False,
     )
 
 
@@ -615,25 +664,46 @@ def reschedule(appointment_uuid):
 
 
 
+@appointments_bp.get("/patient-options")
+@login_required
+@RBACService.require_permission("appointments.manage")
+def patient_options():
+    patient_query = request.args.get("q", "").strip()
+    patients = (
+        PatientService.search_patients(patient_query, limit=8)
+        if patient_query
+        else []
+    )
+    selector_id = request.args.get("selector_id", "booking-patient")
+    selector_id = "".join(
+        character
+        for character in selector_id
+        if character.isalnum() or character in {"-", "_"}
+    ) or "booking-patient"
+
+    return render_template(
+        "appointments/_patient_options.html",
+        patients=patients,
+        patient_query=patient_query,
+        selector_id=selector_id,
+        PatientService=PatientService,
+        can_create_patient=RBACService.user_has_permission(
+            current_user,
+            "patients.basic.create",
+        ),
+    )
+
+
 @appointments_bp.get("/emergency/modal")
 @login_required
 @RBACService.require_permission("appointments.manage")
 def emergency_modal():
-    patient_query = request.args.get("q", "").strip()
-    patients = (
-        PatientService.search_patients(patient_query, limit=10)
-        if patient_query
-        else []
-    )
     form = AppointmentEmergencyForm()
 
-    return render_template(
-        "clinic/actions/_emergency_form.html",
+    return render_template("clinic/actions/_emergency_form.html", **_booking_form_context(
         form=form,
-        patients=patients,
-        patient_query=patient_query,
-        PatientService=PatientService,
-    )
+        patient_query="",
+    ))
 
 
 @appointments_bp.post("/emergency")
@@ -641,76 +711,58 @@ def emergency_modal():
 @RBACService.require_permission("appointments.manage")
 def emergency_create():
     form = AppointmentEmergencyForm()
-    patient_query = request.form.get("q", "").strip()
-    patients = (
-        PatientService.search_patients(patient_query, limit=10)
-        if patient_query
-        else []
-    )
     is_htmx = request.headers.get("HX-Request") == "true"
 
     if not form.validate_on_submit():
         if is_htmx:
-            return render_template(
-                "clinic/actions/_emergency_form.html",
+            return render_template("clinic/actions/_emergency_form.html", **_booking_form_context(
                 form=form,
-                patients=patients,
-                patient_query=patient_query,
-                PatientService=PatientService,
-            )
+                patient_query="",
+            ))
 
         flash("Emergency request was invalid.", "danger")
         return redirect(url_for("appointments.emergency_new"))
 
-    patient = db.session.get(Patient, int(form.patient_id.data))
-
-    if patient is None:
-        form.patient_id.errors = tuple(
-            list(form.patient_id.errors)
-            + ["Please select a valid patient."]
-        )
-
-        if is_htmx:
-            return render_template(
-                "clinic/actions/_emergency_form.html",
-                form=form,
-                patients=patients,
-                patient_query=patient_query,
-                PatientService=PatientService,
-            )
-
-        flash("Please select a valid patient.", "danger")
-        return redirect(url_for("appointments.emergency_new"))
-
     try:
+        patient, patient_was_created = _resolve_appointment_patient(form)
         AppointmentService.create_emergency_unscheduled(
             patient_id=patient.id,
+            appointment_time=datetime.now().time().replace(
+                second=0,
+                microsecond=0,
+            ),
+            fee_amount=form.fee_amount.data,
+            paid_amount=form.paid_amount.data,
+            payment_method=form.payment_method.data,
             notes=form.notes.data,
             created_by_user_id=current_user.id,
         )
     except ValueError as exc:
-        form.patient_id.errors = tuple(
-            list(form.patient_id.errors) + [str(exc)]
-        )
+        form.patient_id.errors.append(str(exc))
 
         if is_htmx:
-            return render_template(
-                "clinic/actions/_emergency_form.html",
+            return render_template("clinic/actions/_emergency_form.html", **_booking_form_context(
                 form=form,
-                patients=patients,
-                patient_query=patient_query,
-                PatientService=PatientService,
-            )
+                patient_query="",
+            ))
 
         flash(str(exc), "danger")
         return redirect(url_for("appointments.emergency_new"))
 
     if is_htmx:
         response = make_response("", 204)
+        message = "Emergency patient added to Waiting."
+        if patient_was_created:
+            message = "New patient created and added to Waiting as an emergency."
+            if PatientService.find_duplicate_phone_patients(
+                patient.phone_primary,
+                exclude_patient_id=patient.id,
+            ):
+                message += " Warning: another patient uses this phone number."
         response.headers["HX-Trigger"] = json.dumps(
             {
                 "clinic:action-success": {
-                    "message": "Emergency patient added to Waiting.",
+                    "message": message,
                     "tone": "warning",
                 }
             }
@@ -878,6 +930,13 @@ def emergency_new():
 
         appointment = AppointmentService.create_emergency_unscheduled(
             patient_id=patient.id,
+            appointment_time=datetime.now().time().replace(
+                second=0,
+                microsecond=0,
+            ),
+            fee_amount=form.fee_amount.data,
+            paid_amount=form.paid_amount.data,
+            payment_method=form.payment_method.data,
             notes=form.notes.data,
             created_by_user_id=current_user.id,
         )

@@ -1,0 +1,96 @@
+{% set selector_id = selector_id|default('booking-patient') %}
+<section
+    class="booking-step booking-patient-selector"
+    x-data="{
+        patientMode: '{{ form.patient_mode.data or 'existing' }}',
+        selectedPatient: {{ 'true' if patient or form.patient_id.data else 'false' }}
+    }"
+>
+    {{ form.patient_mode(x_model='patientMode') }}
+
+    <div class="booking-step-heading">
+        <span class="booking-step-number">1</span>
+        <div>
+            <p class="section-kicker mb-1">Patient</p>
+            <h2 class="h5 mb-1">Who is this appointment for?</h2>
+            <p class="text-muted small mb-0">
+                Find an existing record or register a new patient without leaving this booking.
+            </p>
+        </div>
+    </div>
+
+    {% if patient %}
+        {{ form.patient_id(value=patient.id) }}
+        <div class="booking-selected-patient">
+            <span class="booking-patient-avatar">
+                {{ (PatientService.get_display_name(patient) if PatientService else patient.name_en)[:1]|upper }}
+            </span>
+            <div>
+                <strong>{{ PatientService.get_display_name(patient) if PatientService else patient.name_en }}</strong>
+                <small>MRN {{ patient.formatted_mrn }} · {{ patient.phone_primary }}</small>
+            </div>
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        </div>
+    {% else %}
+        <div class="booking-mode-switch" role="group" aria-label="Patient type">
+            <button
+                class="booking-mode-option"
+                :class="{ 'is-active': patientMode === 'existing' }"
+                type="button"
+                @click="patientMode = 'existing'"
+            >
+                <i class="bi bi-search" aria-hidden="true"></i>
+                Existing Patient
+            </button>
+            {% if can_create_patient|default(false) %}
+                <button
+                    class="booking-mode-option"
+                    :class="{ 'is-active': patientMode === 'new' }"
+                    type="button"
+                    @click="patientMode = 'new'"
+                >
+                    <i class="bi bi-person-plus" aria-hidden="true"></i>
+                    New Patient
+                </button>
+            {% endif %}
+        </div>
+
+        <div x-show="patientMode === 'existing'" x-cloak>
+            <label class="form-label" for="{{ selector_id }}-search">Search patient</label>
+            <div class="booking-search-box">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input
+                    class="form-control"
+                    id="{{ selector_id }}-search"
+                    name="q"
+                    value="{{ patient_query or '' }}"
+                    placeholder="Start typing a name, MRN, or phone number"
+                    autocomplete="off"
+                    hx-get="{{ url_for('appointments.patient_options', selector_id=selector_id) }}"
+                    hx-trigger="input changed delay:250ms, search"
+                    hx-target="#{{ selector_id }}-results"
+                    hx-swap="innerHTML"
+                >
+            </div>
+            <div id="{{ selector_id }}-results" class="booking-search-results" aria-live="polite">
+                <div class="booking-search-hint">
+                    <i class="bi bi-lightning-charge" aria-hidden="true"></i>
+                    Results appear as you type. You can search by partial details.
+                </div>
+            </div>
+        </div>
+
+        {% if can_create_patient|default(false) %}
+            <div x-show="patientMode === 'new'" x-cloak>
+                {% include "appointments/_new_patient_fields.html" %}
+            </div>
+        {% endif %}
+    {% endif %}
+
+    {% for error in form.patient_mode.errors %}
+        <div class="text-danger small mt-2">{{ error }}</div>
+    {% endfor %}
+    {% for error in form.patient_id.errors %}
+        <div class="text-danger small mt-2">{{ error }}</div>
+    {% endfor %}
+</section>

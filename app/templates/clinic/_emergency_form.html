@@ -10,7 +10,9 @@
         <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
 
-    <form class="clinic-modal-form" method="post"
+    <form
+        class="clinic-modal-form"
+        method="post"
         action="{{ url_for('appointments.emergency_create') }}"
         hx-post="{{ url_for('appointments.emergency_create') }}"
         hx-disabled-elt="find button"
@@ -81,4 +83,3 @@
         </div>
     </form>
 </div>
-

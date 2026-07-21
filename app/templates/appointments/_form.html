@@ -1,88 +1,85 @@
-<form method="post">
-    {{ form.hidden_tag() }}
+<form method="post" class="booking-form-shell">
+    {{ form.csrf_token }}
 
-    {% if patient %}
-        {{ form.patient_id(value=patient.id) }}
-        <div class="alert alert-info">
-            Booking for <strong>{{ PatientService.get_display_name(patient) if PatientService is defined else patient.name_en }}</strong>
-            · MRN {{ patient.formatted_mrn }}
-        </div>
-    {% else %}
-        <div class="clinic-card mb-3">
-            <label class="form-label">Find patient</label>
-            <div class="input-group">
-                <input class="form-control" name="q" value="{{ patient_query or '' }}" placeholder="Search by name or phone">
-                <button class="btn btn-outline-secondary" type="submit" formmethod="get">Search</button>
+    {% set selector_id = 'appointment-patient' %}
+    {% include "appointments/_patient_selector.html" %}
+
+    <section class="booking-step">
+        <div class="booking-step-heading">
+            <span class="booking-step-number">2</span>
+            <div>
+                <p class="section-kicker mb-1">Appointment</p>
+                <h2 class="h5 mb-1">Schedule details</h2>
+                <p class="text-muted small mb-0">Set the timing, visit type, and booking source.</p>
             </div>
-
-            {% if patients %}
-                <div class="list-group mt-3">
-                    {% for candidate in patients %}
-                        <label class="list-group-item">
-                            <input class="form-check-input me-2" type="radio" name="patient_id" value="{{ candidate.id }}" {% if form.patient_id.data|string == candidate.id|string %}checked{% endif %}>
-                            {{ candidate.name_en }} · {{ candidate.name_ar }} · MRN {{ candidate.formatted_mrn }} · {{ candidate.phone_primary }}
-                        </label>
-                    {% endfor %}
-                </div>
-            {% else %}
-                {{ form.patient_id(class="form-control", placeholder="Patient ID") }}
-                <div class="form-text">Search first, or enter Patient ID during testing.</div>
-            {% endif %}
         </div>
-    {% endif %}
 
-    <div class="clinic-card">
         <div class="row g-3">
             <div class="col-12 col-md-6">
                 {{ form.appointment_date.label(class="form-label") }}
                 {{ form.appointment_date(class="form-control") }}
+                {% for error in form.appointment_date.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
             </div>
-
             <div class="col-12 col-md-6">
                 {{ form.appointment_time.label(class="form-label") }}
                 {{ form.appointment_time(class="form-control") }}
+                {% for error in form.appointment_time.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
             </div>
-
             <div class="col-12 col-md-6">
                 {{ form.appointment_type.label(class="form-label") }}
                 {{ form.appointment_type(class="form-select") }}
+                {% for error in form.appointment_type.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
             </div>
-
             <div class="col-12 col-md-6">
                 {{ form.source.label(class="form-label") }}
                 {{ form.source(class="form-select") }}
+                {% for error in form.source.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
             </div>
+        </div>
+    </section>
 
-            <div class="col-12">
-                <hr>
-                <p class="section-kicker">Embedded Finance</p>
-                <h2 class="h6">Payment for this appointment</h2>
+    <section class="booking-step">
+        <div class="booking-step-heading">
+            <span class="booking-step-number">3</span>
+            <div>
+                <p class="section-kicker mb-1">Payment & notes</p>
+                <h2 class="h5 mb-1">Complete the booking</h2>
+                <p class="text-muted small mb-0">The finance charge is synchronized automatically.</p>
             </div>
+        </div>
 
+        <div class="row g-3">
             <div class="col-12 col-md-4">
                 {{ form.fee_amount.label(class="form-label") }}
-                {{ form.fee_amount(class="form-control") }}
+                <div class="input-group">
+                    <span class="input-group-text">EGP</span>
+                    {{ form.fee_amount(class="form-control") }}
+                </div>
+                {% for error in form.fee_amount.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
             </div>
-
             <div class="col-12 col-md-4">
                 {{ form.paid_amount.label(class="form-label") }}
-                {{ form.paid_amount(class="form-control") }}
+                <div class="input-group">
+                    <span class="input-group-text">EGP</span>
+                    {{ form.paid_amount(class="form-control") }}
+                </div>
+                {% for error in form.paid_amount.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
             </div>
-
             <div class="col-12 col-md-4">
                 {{ form.payment_method.label(class="form-label") }}
                 {{ form.payment_method(class="form-select") }}
+                {% for error in form.payment_method.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
             </div>
-
             <div class="col-12">
                 {{ form.notes.label(class="form-label") }}
-                {{ form.notes(class="form-control", rows="3") }}
+                {{ form.notes(class="form-control", rows="3", placeholder="Optional booking notes") }}
+                {% for error in form.notes.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
             </div>
         </div>
+    </section>
 
-        <div class="mt-3">
-            {{ form.submit(class="btn btn-primary") }}
-            <a class="btn btn-outline-secondary" href="{{ url_for('appointments.calendar') }}">Cancel</a>
-        </div>
+    <div class="booking-form-actions">
+        <a class="btn btn-outline-secondary" href="{{ url_for('appointments.calendar') }}">Cancel</a>
+        {{ form.submit(class="btn btn-primary px-4") }}
     </div>
 </form>

@@ -5,6 +5,14 @@
 {% block page_subtitle %}Create a booking record without creating a Visit{% endblock %}
 
 {% block content %}
+<div class="booking-page-intro">
+    <div>
+        <span class="section-kicker">Guided booking</span>
+        <h1>Book with confidence</h1>
+        <p>Patient, appointment, and payment details in one clear flow.</p>
+    </div>
+    <span class="booking-security-note"><i class="bi bi-shield-check"></i> No Visit is created until the patient is seen</span>
+</div>
 {% set PatientService = PatientService if PatientService is defined else none %}
 {% include "appointments/_form.html" %}
 {% endblock %}

@@ -92,7 +92,7 @@ class PatientService:
             raise ValueError(f"Invalid marital status: {marital_status}")
 
     @staticmethod
-    def create_patient(**data):
+    def create_patient(*, commit=True, **data):
         PatientService.validate_patient_data(data)
 
         medical_file_number = data.get("medical_file_number")
@@ -138,7 +138,10 @@ class PatientService:
         )
 
         db.session.add(patient)
-        db.session.commit()
+        if commit:
+            db.session.commit()
+        else:
+            db.session.flush()
 
         return patient
 

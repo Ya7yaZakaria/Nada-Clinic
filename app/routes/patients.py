@@ -360,6 +360,7 @@ def new_appointment(patient_uuid):
 
     if request.method == "GET":
         form.patient_id.data = str(patient.id)
+        form.patient_mode.data = "existing"
 
     if form.validate_on_submit():
         appointment = AppointmentService.create_appointment(
@@ -369,6 +370,10 @@ def new_appointment(patient_uuid):
             appointment_type=form.appointment_type.data,
             source=form.source.data,
             notes=form.notes.data,
+            fee_amount=form.fee_amount.data,
+            paid_amount=form.paid_amount.data,
+            payment_method=form.payment_method.data,
+            created_by_user_id=current_user.id,
         )
 
         flash("Appointment booked.", "success")
@@ -380,6 +385,8 @@ def new_appointment(patient_uuid):
         patient=patient,
         patients=[],
         patient_query="",
+        PatientService=PatientService,
+        can_create_patient=False,
     )
 
 

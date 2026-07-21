@@ -206,7 +206,9 @@ def test_emergency_unscheduled_route_creates_arrived_emergency_without_visit():
         assert appointment.appointment_type == Appointment.TYPE_EMERGENCY
         assert appointment.source == Appointment.SOURCE_EMERGENCY_UNSCHEDULED
         assert appointment.status == Appointment.STATUS_ARRIVED
-        assert appointment.appointment_time is None
+        assert appointment.appointment_time is not None
+        assert appointment.appointment_time.second == 0
+        assert appointment.appointment_time.microsecond == 0
         assert appointment.arrived_at is not None
         assert patient.visits.count() == 0
 

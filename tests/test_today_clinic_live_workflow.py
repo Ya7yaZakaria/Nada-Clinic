@@ -501,11 +501,7 @@ def test_today_clinic_renders_three_operational_columns():
         assert b"Upcoming Bookings" in response.data
         assert b"Arrived Patients" in response.data
         assert b"Resolved Bookings" in response.data
-        assert (
-            response.data.count(
-                b'class="col-12 col-xl-4"'
-            )
-            == 3
-        )
+        assert response.data.count(b'class="col-12 col-xxl-6"') == 2
+        assert b'class="col-12 clinic-resolved-column"' in response.data
 
         db.drop_all()

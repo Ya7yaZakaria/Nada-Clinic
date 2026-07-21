@@ -14,9 +14,9 @@ class AppointmentService:
     RESOLVED_FILTERS = {"all", "completed", "cancelled", "rescheduled"}
     RESOLVED_SORTS = {"latest", "oldest"}
     TYPE_LABELS = {
-        Appointment.TYPE_NEW_CONSULTATION: "كشف",
-        Appointment.TYPE_FOLLOW_UP: "إعادة كشف",
-        Appointment.TYPE_EMERGENCY: "طوارئ",
+        Appointment.TYPE_NEW_CONSULTATION: "New Consultation",
+        Appointment.TYPE_FOLLOW_UP: "Follow-up",
+        Appointment.TYPE_EMERGENCY: "Emergency",
     }
 
     STATUS_LABELS = {
@@ -319,16 +319,34 @@ class AppointmentService:
         return new_appointment
 
     @classmethod
-    def create_emergency_unscheduled(cls, *, patient_id, notes=None, created_by_user_id=None):
+    def create_emergency_unscheduled(
+        cls,
+        *,
+        patient_id,
+        appointment_time=None,
+        fee_amount=None,
+        paid_amount=None,
+        payment_method=None,
+        notes=None,
+        created_by_user_id=None,
+    ):
+        appointment_time = appointment_time or datetime.now().time().replace(
+            second=0,
+            microsecond=0,
+        )
+
         appointment = cls.create_appointment(
             patient_id=patient_id,
             appointment_date=date.today(),
-            appointment_time=None,
+            appointment_time=appointment_time,
             appointment_type=Appointment.TYPE_EMERGENCY,
             status=Appointment.STATUS_BOOKED,
             source=Appointment.SOURCE_EMERGENCY_UNSCHEDULED,
             notes=notes,
             created_by_user_id=created_by_user_id,
+            fee_amount=fee_amount,
+            paid_amount=paid_amount,
+            payment_method=payment_method,
         )
 
         return cls.mark_arrived(appointment)

@@ -308,7 +308,7 @@ def test_today_clinic_shows_active_journey_and_last_visit():
         assert response.status_code == 200
         assert b"Gynecology" in response.data
         assert b"Last visit" in response.data
-        assert b"Pending flags" in response.data
+        assert b"Pending flags" not in response.data
 
         db.drop_all()
 
