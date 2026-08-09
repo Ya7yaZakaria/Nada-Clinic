@@ -1,7 +1,7 @@
 
 from app import create_app
 from app.extensions import db
-from app.models import User
+from app.models import Permission, Role, User
 from app.services.rbac_service import RBACService
 from tests.factories import set_test_password
 
@@ -251,5 +251,47 @@ def test_preview_disabled_keeps_actual_permissions():
             assert client.get(
                 "/clinical-placeholder"
             ).status_code == 200
+
+        db.drop_all()
+
+def test_new_database_role_appears_and_uses_stored_permissions():
+    app = make_app()
+
+    with app.app_context():
+        db.create_all()
+        RBACService.seed_roles_permissions()
+        create_user()
+
+        dashboard_permission = Permission.query.filter_by(
+            name="dashboard.view"
+        ).one()
+        assistant_role = Role(
+            name="Assistant",
+            description="Future test role",
+            is_system=False,
+        )
+        assistant_role.permissions = [dashboard_permission]
+        db.session.add(assistant_role)
+        db.session.commit()
+
+        with app.test_client() as client:
+            login(client)
+
+            response = client.get("/")
+            assert b"Preview as Assistant" in response.data
+
+            response = client.post(
+                "/development/role-preview",
+                data={"role_name": "Assistant"},
+                follow_redirects=True,
+            )
+
+            assert response.status_code == 200
+            assert b"DEVELOPMENT PREVIEW" in response.data
+            assert b"Assistant" in response.data
+            assert client.get("/").status_code == 200
+            assert client.get(
+                "/clinical-placeholder"
+            ).status_code == 403
 
         db.drop_all()

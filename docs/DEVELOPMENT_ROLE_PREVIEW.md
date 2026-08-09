@@ -10,7 +10,7 @@ authenticated account without modifying database roles.
 ## Scope Completed
 
 - Session-based effective role preview.
-- Admin, Doctor, and Reception preview roles.
+- Database-backed role selector, including future stored roles.
 - Development configuration guard.
 - Email allowlist.
 - Central RBAC integration.
@@ -37,7 +37,7 @@ authenticated account without modifying database roles.
 
 - `app/routes/development.py`
 - `app/services/development_role_preview_service.py`
-- `tests/test_dev_role_preview.py`
+- `tests/auth_rbac/test_dev_role_preview.py`
 - `docs/DEVELOPMENT_ROLE_PREVIEW.md`
 
 ## Files Modified
@@ -69,7 +69,7 @@ None.
 
 ## Permissions and Security
 
-- Existing permission matrix remains the source of role permissions.
+- Preview permissions come from the selected database `Role.permissions` relationship.
 - The effective preview role is applied only during an active request.
 - The actual user roles remain stored unchanged in the database.
 - Non-allowlisted users receive 404 from preview routes.
@@ -114,3 +114,17 @@ Accepted:
 ## Status
 
 P2.4A is ready for final Git review and manual commit.
+
+## 2026-08-09 — Dynamic role preview extension
+
+The development selector now reads available roles from the `roles` table instead
+of a hard-coded role-name list. Preview authorization still requires the existing
+development enable flag and email allowlist.
+
+While a preview is active, permission checks use the selected database
+`Role.permissions` relationship. Therefore, a future role becomes available in
+the selector and uses its stored permissions without adding that role name to
+the preview service or to a separate preview permission matrix.
+
+No user role is mutated, production remains disabled by default, and no database
+migration is required for this extension.

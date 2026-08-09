@@ -1246,6 +1246,37 @@ body.auth-page {
     letter-spacing: 0.02em;
 }
 
+.development-role-banner-close {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: currentColor;
+    font-size: 0.75rem;
+    line-height: 1;
+    opacity: 0.65;
+    cursor: pointer;
+    transition:
+        background-color 120ms ease,
+        opacity 120ms ease;
+}
+
+.development-role-banner-close:hover,
+.development-role-banner-close:focus-visible {
+    background: rgba(0, 0, 0, 0.08);
+    opacity: 1;
+}
+
+.development-role-banner-close:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
 
 /* P2.5 Dashboard UX Polish */
 .dashboard-command-center {

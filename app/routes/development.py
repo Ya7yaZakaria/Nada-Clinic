@@ -2,7 +2,6 @@
 from flask import (
     Blueprint,
     abort,
-    flash,
     redirect,
     request,
     url_for,
@@ -41,11 +40,6 @@ def set_role_preview():
     except ValueError:
         abort(400)
 
-    flash(
-        f"Development preview switched to {role_name}.",
-        "warning",
-    )
-
     return redirect(url_for("main.index"))
 
 
@@ -58,10 +52,5 @@ def clear_role_preview():
         abort(404)
 
     DevelopmentRolePreviewService.clear_preview_role()
-
-    flash(
-        "Returned to actual account roles.",
-        "info",
-    )
 
     return redirect(url_for("main.index"))

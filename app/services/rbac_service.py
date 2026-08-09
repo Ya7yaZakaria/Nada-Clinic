@@ -128,18 +128,13 @@ class RBACService:
         ):
             return False
 
-        preview_role = (
+        preview_permissions = (
             DevelopmentRolePreviewService
-            .get_preview_role(user)
+            .preview_permission_names(user)
         )
 
-        if preview_role:
-            return permission_name in (
-                RBACService.ROLE_PERMISSION_MATRIX.get(
-                    preview_role,
-                    [],
-                )
-            )
+        if preview_permissions is not None:
+            return permission_name in preview_permissions
 
         return any(
             permission.name == permission_name

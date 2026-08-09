@@ -528,8 +528,8 @@
 
             {% if dev_role_preview.active %}
                 <div
-                    class="development-role-banner"
-                    role="status"
+                    class="development-role-banner alert alert-warning alert-dismissible fade show mb-0 rounded-0"
+                    role="alert"
                 >
                     <strong>
                         DEVELOPMENT PREVIEW:
@@ -544,6 +544,19 @@
                         }}.
                         No user roles were changed.
                     </span>
+
+                    <button
+                        type="button"
+                        class="development-role-banner-close ms-auto"
+                        data-bs-dismiss="alert"
+                        aria-label="Close development preview notice"
+                        title="Close"
+                    >
+                        <i
+                            class="bi bi-x-lg"
+                            aria-hidden="true"
+                        ></i>
+                    </button>
                 </div>
             {% endif %}
 
@@ -778,10 +791,16 @@
                         <div class="mb-3">
                             {% for category, message in messages %}
                                 <div
-                                    class="alert alert-{{ category }}"
+                                    class="alert alert-{{ category }} alert-dismissible fade show"
                                     role="alert"
                                 >
                                     {{ message }}
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="alert"
+                                        aria-label="Close alert"
+                                    ></button>
                                 </div>
                             {% endfor %}
                         </div>
@@ -814,10 +833,16 @@
                     <div class="auth-flashes">
                         {% for category, message in messages %}
                             <div
-                                class="alert alert-{{ category }}"
+                                class="alert alert-{{ category }} alert-dismissible fade show"
                                 role="alert"
                             >
                                 {{ message }}
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="alert"
+                                    aria-label="Close alert"
+                                ></button>
                             </div>
                         {% endfor %}
                     </div>
