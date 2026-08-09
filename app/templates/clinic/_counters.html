@@ -1,45 +1,47 @@
 <section class="clinic-day-kpis mb-3">
     {% for item in [
         {
-            "label": "Appointments",
+            "label": "Scheduled",
             "value": live_counters.appointments,
             "icon": "bi-calendar-check",
-            "tone": "primary"
+            "tone": "primary",
+            "filter": "all"
         },
         {
             "label": "Waiting Now",
             "value": live_counters.waiting,
             "icon": "bi-hourglass-split",
-            "tone": "warning"
+            "tone": "warning",
+            "filter": "waiting"
         },
         {
             "label": "Remaining",
             "value": live_counters.remaining,
             "icon": "bi-list-task",
-            "tone": "info"
+            "tone": "info",
+            "filter": "remaining"
         },
         {
-            "label": "Visits Today",
-            "value": live_counters.visits,
-            "icon": "bi-clipboard2-pulse",
-            "tone": "purple"
-        },
-        {
-            "label": "Visits Completed",
+            "label": "Completed",
             "value": live_counters.visits_completed,
             "icon": "bi-check2-circle",
-            "tone": "success"
+            "tone": "success",
+            "filter": "completed"
         },
         {
-            "label": "Cancelled",
-            "value": live_counters.cancelled,
+            "label": "Cancelled / No-show",
+            "value": live_counters.cancelled_no_show,
             "icon": "bi-x-circle",
-            "tone": "secondary"
+            "tone": "secondary",
+            "filter": "resolved"
         }
     ] %}
-        <article
+        <button
+            type="button"
             class="clinic-card clinic-day-kpi
                    clinic-day-kpi-{{ item.tone }}"
+            data-clinic-kpi-filter="{{ item.filter }}"
+            aria-pressed="false"
         >
             <span class="clinic-day-kpi-icon">
                 <i class="bi {{ item.icon }}"></i>
@@ -48,6 +50,6 @@
             <span>{{ item.label }}</span>
 
             <strong>{{ item.value }}</strong>
-        </article>
+        </button>
     {% endfor %}
 </section>

@@ -1,0 +1,24 @@
+{% if query %}
+    {% if directory and directory.items %}
+        <div class="patient-global-result-list" role="listbox" aria-label="Patient search results">
+            {% for row in directory.items %}
+                {% set patient = row.patient %}
+                <a class="patient-global-result" role="option" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">
+                    <span class="patient-avatar" aria-hidden="true">{{ patient.name_en[:1]|upper }}</span>
+                    <span>
+                        <b>{{ PatientService.get_display_name(patient) }}</b>
+                        <small>MRN {{ patient.formatted_mrn }} · {{ patient.phone_primary }}</small>
+                    </span>
+                    <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
+                </a>
+            {% endfor %}
+        </div>
+        {% if directory.total > directory.items|length %}
+            <a class="patient-global-view-all" href="{{ url_for('patients.index', q=query) }}">
+                View all {{ directory.total }} matches <i class="bi bi-arrow-right"></i>
+            </a>
+        {% endif %}
+    {% else %}
+        <div class="patient-global-empty"><i class="bi bi-person-x"></i>No patients match “{{ query }}”</div>
+    {% endif %}
+{% endif %}

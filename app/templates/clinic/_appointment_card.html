@@ -22,6 +22,16 @@
         if current_user.has_permission('clinical.view')
         else ''
     }}"
+    data-clinic-patient-card
+    data-name="{{ PatientService.get_display_name(patient)|lower|e }}"
+    data-mrn="{{ patient.formatted_mrn|lower|e }}"
+    data-phone="{{ patient.phone_primary|lower|e }}"
+    data-status="{{ 'completed' if today_visit and today_visit.status == 'completed' else ('waiting' if appointment.status == 'arrived' else ('cancelled' if appointment.status in ['cancelled', 'no_show'] else appointment.status)) }}"
+    data-type="{{ appointment.appointment_type }}"
+    data-emergency="{{ 'true' if appointment.appointment_type == 'emergency' else 'false' }}"
+    data-delayed="{{ 'true' if waiting_info|default(none) and waiting_info.is_long else 'false' }}"
+    data-wait-minutes="{{ waiting_info.minutes if waiting_info|default(none) and waiting_info.minutes is not none else 0 }}"
+    data-time="{{ appointment.appointment_time.strftime('%H:%M') if appointment.appointment_time else '99:99' }}"
     {% if current_user.has_permission('clinical.view') %}
         data-workspace-url="{{
             url_for(
@@ -36,14 +46,14 @@
 >
     <div class="clinic-patient-card-main">
         <div class="clinic-patient-meta">
-            <time class="clinic-time-chip">
+            <a class="clinic-time-chip" href="{{ url_for('appointments.detail', appointment_uuid=appointment.uuid) }}">
                 {{
                     appointment.appointment_time
                     .strftime("%H:%M")
                     if appointment.appointment_time
                     else "Walk-in"
                 }}
-            </time>
+            </a>
 
             <span class="appointment-type-badge appointment-type-{{ appointment.appointment_type|replace('_', '-') }}">
                 {{
@@ -79,13 +89,13 @@
 
         <div class="clinic-patient-identity">
             <div>
-                <strong>
+                <a class="clinic-patient-name-link" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">
                     {{
                         PatientService.get_display_name(
                             patient
                         )
                     }}
-                </strong>
+                </a>
 
                 <span>
                     MRN {{ patient.formatted_mrn }}
@@ -151,252 +161,36 @@
             {% endif %}
 
             {% for journey in active_journeys %}
-                <span class="badge text-bg-info">
+                {% if current_user.has_permission('clinical.view') %}
+                <a class="badge text-bg-info clinic-actionable-badge" href="{{ url_for('journeys.detail', journey_uuid=journey.uuid) }}">
                     {{
                         JourneyService.get_type_label(
                             journey.journey_type
                         )
                     }}
-                </span>
+                </a>
+                {% endif %}
             {% endfor %}
 
             {% if last_visit %}
-                <span class="badge text-bg-light border">
+                {% if current_user.has_permission('clinical.view') %}
+                <a class="badge text-bg-light border clinic-actionable-badge" href="{{ url_for('visits.detail', visit_uuid=last_visit.uuid) }}">
                     Last visit
                     {{
                         last_visit.visit_date.date()
                         if last_visit.visit_date
                         else "-"
                     }}
-                </span>
+                </a>
+                {% else %}
+                <span class="badge text-bg-light border">Last visit {{ last_visit.visit_date.date() if last_visit.visit_date else '-' }}</span>
+                {% endif %}
+            {% else %}
+                <span class="badge text-bg-light border">Last visit Never</span>
             {% endif %}
 
         </div>
     </div>
 
-    <div
-        class="clinic-patient-actions clinic-patient-action-bar"
-        aria-label="Appointment actions"
-    >
-        {% if current_user.has_permission(
-            'clinical.view'
-        ) %}
-            {% if today_visit %}
-                <a
-                    class="btn btn-sm btn-primary
-                           clinic-action-visit"
-                    href="{{
-                        url_for(
-                            'visits.detail',
-                            visit_uuid=today_visit.uuid
-                        )
-                    }}"
-                >
-                    Open Visit
-                </a>
-            {% elif allow_operational_actions and appointment.status
-                      in ['booked', 'arrived'] %}
-                <a
-                    class="btn btn-sm btn-primary
-                           clinic-action-visit"
-                    href="{{
-                        url_for(
-                            'visits.new',
-                            patient_uuid=patient.uuid,
-                            appointment_uuid=appointment.uuid
-                        )
-                    }}"
-                >
-                    New Visit
-                </a>
-            {% endif %}
-
-        {% endif %}
-
-        {% if current_user.has_permission(
-            'appointments.manage'
-        ) %}
-            {% if allow_operational_actions and appointment.status == 'booked' %}
-                <form
-                    class="clinic-action-arrival"
-                    method="post"
-                    action="{{
-                        url_for(
-                            'appointments.arrive',
-                            appointment_uuid=(
-                                appointment.uuid
-                            ),
-                            resolved_filter=(
-                                resolved['filter']
-                            ),
-                            resolved_sort=(
-                                resolved['sort']
-                            )
-                        )
-                    }}"
-                    {% if enable_live_actions|default(false) %}
-                        hx-post="{{
-                            url_for(
-                                'appointments.arrive',
-                                appointment_uuid=(
-                                    appointment.uuid
-                                ),
-                                resolved_filter=(
-                                    resolved['filter']
-                                ),
-                                resolved_sort=(
-                                    resolved['sort']
-                                )
-                            )
-                        }}"
-                        hx-target="#today-clinic-dynamic"
-                        hx-swap="outerHTML"
-                        hx-disabled-elt="find button"
-                    {% endif %}
-                >
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}"
-                    >
-
-                    <button
-                        class="btn btn-sm btn-success"
-                        type="submit"
-                    >
-                        Mark Arrived
-                    </button>
-                </form>
-            {% elif allow_operational_actions and appointment.status == 'arrived' %}
-                <form
-                    class="clinic-action-arrival"
-                    method="post"
-                    action="{{
-                        url_for(
-                            'appointments.undo_arrive',
-                            appointment_uuid=(
-                                appointment.uuid
-                            ),
-                            resolved_filter=(
-                                resolved['filter']
-                            ),
-                            resolved_sort=(
-                                resolved['sort']
-                            )
-                        )
-                    }}"
-                    {% if enable_live_actions|default(false) %}
-                        hx-post="{{
-                            url_for(
-                                'appointments.undo_arrive',
-                                appointment_uuid=(
-                                    appointment.uuid
-                                ),
-                                resolved_filter=(
-                                    resolved['filter']
-                                ),
-                                resolved_sort=(
-                                    resolved['sort']
-                                )
-                            )
-                        }}"
-                        hx-target="#today-clinic-dynamic"
-                        hx-swap="outerHTML"
-                        hx-disabled-elt="find button"
-                    {% endif %}
-                >
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{ csrf_token() }}"
-                    >
-
-                    <button
-                        class="btn btn-sm btn-outline-warning"
-                        type="submit"
-                    >
-                        Undo Arrived
-                    </button>
-                </form>
-            {% endif %}
-
-            {% if allow_operational_actions
-                  and appointment.status
-                  in ['booked', 'arrived'] %}
-                <button
-                    class="btn btn-sm btn-danger
-                           clinic-patient-cancel-action
-                           clinic-action-cancel"
-                    type="button"
-                    hx-get="{{
-                        url_for(
-                            'appointments.cancel_modal',
-                            appointment_uuid=(
-                                appointment.uuid
-                            ),
-                            resolved_filter=(
-                                resolved['filter']
-                            ),
-                            resolved_sort=(
-                                resolved['sort']
-                            )
-                        )
-                    }}"
-                    hx-target="#clinic-action-modal-content"
-                    hx-swap="outerHTML"
-                >
-                    Cancel
-                </button>
-
-                <button
-                    class="btn btn-sm btn-outline-primary
-                           clinic-action-reschedule"
-                    type="button"
-                    hx-get="{{
-                        url_for(
-                            'appointments.reschedule_modal',
-                            appointment_uuid=(
-                                appointment.uuid
-                            ),
-                            resolved_filter=(
-                                resolved['filter']
-                            ),
-                            resolved_sort=(
-                                resolved['sort']
-                            )
-                        )
-                    }}"
-                    hx-target="#clinic-action-modal-content"
-                    hx-swap="outerHTML"
-                >
-                    Reschedule
-                </button>
-
-                <button
-                    class="btn btn-sm btn-outline-secondary
-                           clinic-action-quick-edit"
-                    type="button"
-                    hx-get="{{
-                        url_for(
-                            'appointments.quick_edit_modal',
-                            appointment_uuid=(
-                                appointment.uuid
-                            ),
-                            resolved_filter=(
-                                resolved['filter']
-                            ),
-                            resolved_sort=(
-                                resolved['sort']
-                            )
-                        )
-                    }}"
-                    hx-target="#clinic-action-modal-content"
-                    hx-swap="outerHTML"
-                >
-                    Quick Edit
-                </button>
-            {% endif %}
-
-        {% endif %}
-    </div>
+    {% include "clinic/_appointment_actions.html" %}
 </article>

@@ -1,5 +1,87 @@
 # Changelog
 
+## 2026-08-09 — Test architecture and documentation cleanup
+
+### Changed
+
+- Standardized the pytest policy around domain-organized tests, shared lifecycle/factories, protected regression coverage, runtime tiers, collection safety, and evidence-based performance optimization.
+- Recorded the verified suite checkpoint of 544 passed in 203.31 seconds after test credential optimization.
+- Consolidated legacy sprint/stage documentation into a smaller canonical documentation set while preserving original historical text in `docs/history/` bundles.
+- Kept `AGENTS.md` as the workflow authority, corrected its skill paths, and added concise project test rules.
+
+### Database impact
+
+- None. No model, migration, or database data changes.
+
+### Production-code impact
+
+- None. Documentation, agent/test-guard instructions, and documentation organization only.
+
+## 2026-07-21 — Today Clinic Command Center Refresh
+
+### Added
+
+- Compact clinic command header with previous, today, and next-day navigation.
+- Actionable five-item KPI strip, queue search, status/type filters, sorting, and emergency/delayed quick filters.
+- Compact Clinic Pulse for average/longest wait, emergency count, next booking, schedule progress, and the single current open Visit.
+- Exact Appointment, Patient, Journey, and Last Visit links where permitted.
+- Focused Today Clinic command-center regression coverage.
+
+### Changed
+
+- Removed the cumulative `Visits Today` KPI because clinic operations allow only one active Visit at a time.
+- Moved long-wait warnings into the Waiting Queue heading and delayed patient cards.
+- Reduced cards to one primary workflow action and a compact secondary-actions menu.
+- Preserved queue search/filter/sort state and page position across HTMX refreshes.
+
+### Database impact
+
+- None. No migration or model change.
+
+### Verification
+
+- Focused Today Clinic tests: 60 passed.
+- Full regression: 572 passed in 196.61 seconds.
+- Python and JavaScript syntax checks passed.
+
+## 2026-07-21 — Patients Command Center v3
+
+### Added
+
+- True top-bar global patient search with compact instant results and keyboard access.
+- Search, result count, and permission-aware sorting inside patient quick-list drawers.
+- Exact deep links for active journeys, last visits, appointments, pending investigation reviews, and patient finance summaries.
+- Manual tabs, previous/next navigation, touch swipe, period selection, and deterministic operational insights across multiple patient analytics views.
+- Patient growth, new-versus-returning, activity, age, appointment, journey, follow-up, attention, and authorized finance analytics.
+
+### Changed
+
+- Restored a separate live search field to the main Patient Directory.
+- Made dashboard badges and chart segments visibly actionable while preserving RBAC.
+- Kept `Never` as plain text when a patient has no visit.
+
+### Database impact
+
+- None. No migration or model change.
+
+## 2026-07-21 — Patients Command Center
+
+### Added
+
+- Real patient KPIs and six-month registration trend.
+- Role-aware active journey analytics.
+- Patient directory filters, sorting, server-side pagination, and operational indicators.
+- Responsive patient cards with workspace, booking, visit, and call actions.
+- Focused Patient Command Center tests and implementation notes.
+
+### Changed
+
+- Rebuilt the original Stage 2 search page as the main operational patient hub.
+
+### Database impact
+
+- None.
+
 ## 2026-07-18 — Appointment–Visit Domain Correction Completion
 
 ### Added
@@ -1627,3 +1709,25 @@ No diagnosis-linked preset behavior added.
 - No Sprint 3B migration added.
 - Manual browser verification accepted.
 - Starting commit: 9b3c122.
+## 2026-07-21 — Patients Command Center v2
+
+### Added
+
+- Persistent live patient search inside the Patients topbar.
+- Clickable patient KPI cards with responsive quick-list drawers.
+- Active-care-journey drill-down drawers for clinical roles.
+- Permission-aware patient actions inside quick lists.
+- Read-only patient cohort queries for active, new-this-month, seen-in-30-days,
+  attention, and active-journey lists.
+
+### Changed
+
+- Removed the duplicate search field from the directory body while preserving
+  all HTMX filters, sorting, and pagination.
+- Kept clinical journey and pending-review data hidden from Reception.
+
+### Verification
+
+- Focused Patient tests: 17 passed.
+- Full regression: 567 passed in 616.39s.
+- No model or migration changes.

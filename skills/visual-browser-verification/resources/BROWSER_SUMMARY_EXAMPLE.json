@@ -1,0 +1,45 @@
+{
+  "skill": "visual-browser-verification",
+  "status": "VISUALLY_VERIFIED",
+  "source_checkpoint": "<commit-or-working-tree-identifier>",
+  "target_routes": [
+    "/example"
+  ],
+  "roles_tested": [
+    "<role>"
+  ],
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "workflows": [
+    {
+      "name": "<workflow>",
+      "status": "passed"
+    }
+  ],
+  "console_errors": 0,
+  "page_errors": 0,
+  "critical_network_failures": 0,
+  "screenshots": [
+    "screenshots/<screen>__<role>__desktop__default.png",
+    "screenshots/<screen>__<role>__mobile__default.png"
+  ],
+  "traces": [],
+  "remaining_risks": [],
+  "automation_evidence": {
+    "source_contract_checked": true,
+    "deterministic_fixture": "<fixture-or-none>",
+    "preflight_checks": [
+      "<auth/state/endpoint prerequisite>"
+    ]
+  }
+}

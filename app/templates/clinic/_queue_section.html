@@ -16,6 +16,13 @@
             <p class="text-muted mb-0">
                 Patients currently waiting to be seen
             </p>
+
+            {% if clinic_intelligence.pulse.longest_wait_minutes >= ClinicDayService.LONG_WAIT_MINUTES %}
+                <button class="clinic-inline-wait-alert" type="button" data-clinic-quick-filter="delayed">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    {{ clinic_intelligence.long_wait_count }} delayed · longest {{ clinic_intelligence.pulse.longest_wait_minutes }} min
+                </button>
+            {% endif %}
         </div>
 
         <span class="clinic-count-badge">
@@ -24,7 +31,7 @@
     </div>
 
     {% if clinic_day.waiting_queue %}
-        <div class="clinic-patient-stack">
+        <div class="clinic-patient-stack" data-clinic-sort-container>
             {% for appointment
                   in clinic_day.waiting_queue %}
                 {% set waiting_info =

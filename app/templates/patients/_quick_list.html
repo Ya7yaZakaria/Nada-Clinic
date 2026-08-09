@@ -1,0 +1,113 @@
+<div class="offcanvas-header patient-drawer-header">
+    <div>
+        <span class="patient-eyebrow">Quick patient list</span>
+        <h2 class="offcanvas-title" id="patientQuickListLabel">{{ drawer_title }}</h2>
+        <p>{{ drawer_subtitle }}</p>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+</div>
+
+<form
+    class="patient-drawer-controls"
+    hx-get="{{ url_for('patients.quick_list') }}"
+    hx-target="#patient-quick-list-content"
+    hx-swap="innerHTML focus-scroll:false"
+    hx-trigger="input changed delay:250ms from:input[type='search'], change from:select, submit"
+>
+    <input type="hidden" name="cohort" value="{{ drawer_cohort }}">
+    <input type="hidden" name="journey" value="{{ drawer_journey }}">
+    <input type="hidden" name="period" value="{{ drawer_period }}">
+    <input type="hidden" name="segment" value="{{ drawer_segment }}">
+    <label class="patient-drawer-search">
+        <i class="bi bi-search"></i>
+        <span class="visually-hidden">Search this patient list</span>
+        <input id="patient-drawer-search-input" class="form-control" type="search" name="q" value="{{ drawer_query }}" placeholder="Search this list..." autocomplete="off">
+    </label>
+    <label class="patient-drawer-sort">
+        <span class="visually-hidden">Sort patient list</span>
+        <select class="form-select" name="sort">
+            <option value="urgent" {{ 'selected' if drawer_sort == 'urgent' }}>Most urgent</option>
+            <option value="recently_seen" {{ 'selected' if drawer_sort == 'recently_seen' }}>Most recent visit</option>
+            <option value="nearest" {{ 'selected' if drawer_sort == 'nearest' }}>Nearest appointment</option>
+            <option value="name" {{ 'selected' if drawer_sort == 'name' }}>Patient name</option>
+            <option value="newest" {{ 'selected' if drawer_sort == 'newest' }}>Newest record</option>
+            {% if can_view_finance %}<option value="balance" {{ 'selected' if drawer_sort == 'balance' }}>Highest balance</option>{% endif %}
+        </select>
+    </label>
+    <span class="patient-drawer-count"><b>{{ directory.total }}</b> match{{ '' if directory.total == 1 else 'es' }}</span>
+</form>
+
+<div class="offcanvas-body patient-drawer-body">
+    {% if directory.items %}
+        <div class="patient-drawer-list">
+            {% for row in directory.items %}
+                {% set patient = row.patient %}
+                <article class="patient-drawer-row">
+                    <div class="patient-drawer-identity">
+                        <span class="patient-avatar" aria-hidden="true">{{ patient.name_en[:1]|upper }}</span>
+                        <div>
+                            <a href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">{{ PatientService.get_display_name(patient) }}</a>
+                            <span>MRN {{ patient.formatted_mrn }} · {{ patient.phone_primary }}</span>
+                        </div>
+                    </div>
+
+                    <div class="patient-drawer-context">
+                        {% if can_view_clinical and row.active_journey %}
+                            <a class="patient-journey-badge journey-{{ row.active_journey.journey_type }} patient-action-badge" href="{{ url_for('journeys.detail', journey_uuid=row.active_journey.uuid) }}">
+                                <i></i>{{ row.active_journey.journey_type|replace('gynecology', 'Gynecology')|title }}
+                            </a>
+                        {% endif %}
+                        {% if can_view_clinical and row.last_visit %}
+                            <a class="patient-meta-link" href="{{ url_for('visits.detail', visit_uuid=row.last_visit.uuid) }}">Last visit: <b>{{ row.last_visit_at.strftime('%d %b %Y') }}</b></a>
+                        {% else %}
+                            <small>Last visit: <b>{{ row.last_visit_at.strftime('%d %b %Y') if row.last_visit_at else 'Never' }}</b></small>
+                        {% endif %}
+                        {% if row.next_appointment %}
+                            <a class="patient-meta-link patient-drawer-next" href="{{ url_for('appointments.detail', appointment_uuid=row.next_appointment.uuid) }}"><i class="bi bi-calendar2-check"></i> Next: {{ row.next_appointment.appointment_date.strftime('%d %b') }}</a>
+                        {% endif %}
+                    </div>
+
+                    <div class="patient-attention-badges">
+                        {% if can_view_clinical and row.pending_result_count and row.first_pending_result %}
+                            {% if row.first_pending_result.order_item %}
+                                {% set review_url = url_for('investigations.detail', order_uuid=row.first_pending_result.order_item.order.uuid) %}
+                            {% else %}
+                                {% set review_url = url_for('investigations.patient_orders', patient_uuid=patient.uuid) %}
+                            {% endif %}
+                            <a class="attention-clinical patient-action-badge" href="{{ review_url }}"><i class="bi bi-clipboard2-pulse"></i>{{ row.pending_result_count }} pending review</a>
+                        {% endif %}
+                        {% if can_view_finance and row.outstanding_balance > 0 %}
+                            <a class="attention-finance patient-action-badge" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}#patient-finance"><i class="bi bi-wallet2"></i>{{ '{:,.0f}'.format(row.outstanding_balance) }} EGP outstanding</a>
+                        {% endif %}
+                    </div>
+
+                    <div class="patient-drawer-actions">
+                        {% if can_view_clinical and row.active_journey %}
+                            <a class="btn btn-primary btn-sm" href="{{ url_for('journeys.detail', journey_uuid=row.active_journey.uuid) }}">Open journey</a>
+                        {% else %}
+                            <a class="btn btn-primary btn-sm" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}">Open patient</a>
+                        {% endif %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More actions"><i class="bi bi-three-dots"></i></button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('patients.detail', patient_uuid=patient.uuid) }}"><i class="bi bi-person"></i>Patient workspace</a></li>
+                                {% if can_view_clinical and row.last_visit %}<li><a class="dropdown-item" href="{{ url_for('visits.detail', visit_uuid=row.last_visit.uuid) }}"><i class="bi bi-clock-history"></i>Last visit</a></li>{% endif %}
+                                {% if can_manage_appointments %}<li><a class="dropdown-item" href="{{ url_for('appointments.new', patient_uuid=patient.uuid) }}"><i class="bi bi-calendar-plus"></i>Book appointment</a></li>{% endif %}
+                                <li><a class="dropdown-item" href="tel:{{ patient.phone_primary }}"><i class="bi bi-telephone"></i>Call patient</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+        {% if directory.total > directory.items|length %}
+            <a class="patient-drawer-view-all" href="{{ url_for('patients.index', q=drawer_query) }}">View all patients in directory <i class="bi bi-arrow-right"></i></a>
+        {% endif %}
+    {% else %}
+        <div class="patient-drawer-empty">
+            <span><i class="bi bi-people"></i></span>
+            <h3>No matching patients</h3>
+            <p>Clear the drawer search or choose another view.</p>
+        </div>
+    {% endif %}
+</div>

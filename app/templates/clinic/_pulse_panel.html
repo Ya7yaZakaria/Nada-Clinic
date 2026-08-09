@@ -1,0 +1,39 @@
+{% set pulse = clinic_intelligence.pulse %}
+<details
+    class="clinic-card clinic-pulse-panel clinic-mobile-disclosure mb-3"
+    open
+    data-clinic-mobile-collapse
+>
+    <summary class="clinic-pulse-heading clinic-mobile-disclosure-summary">
+        <div>
+            <span class="section-kicker">Clinic Pulse</span>
+            <strong>Live operational snapshot</strong>
+        </div>
+        <div class="clinic-progress-copy">
+            <span>{{ pulse.schedule_progress }}% resolved</span>
+            <div class="progress" role="progressbar" aria-valuenow="{{ pulse.schedule_progress }}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" style="width: {{ pulse.schedule_progress }}%"></div>
+            </div>
+        </div>
+    </summary>
+
+    <div class="clinic-pulse-metrics">
+        <div><span>Average wait</span><strong>{{ pulse.average_wait_minutes }} min</strong></div>
+        <button type="button" data-clinic-quick-filter="delayed"><span>Longest wait</span><strong>{{ pulse.longest_wait_minutes }} min</strong></button>
+        <button type="button" data-clinic-quick-filter="emergency"><span>Emergency / walk-in</span><strong>{{ pulse.emergency_count }}</strong></button>
+        <div>
+            <span>Next booking</span>
+            <strong>{{ pulse.next_booking.appointment_time.strftime('%H:%M') if pulse.next_booking else '—' }}</strong>
+        </div>
+        <div class="clinic-open-visit-pulse">
+            <span>Current visit</span>
+            {% if pulse.open_visit and current_user.has_permission('clinical.view') %}
+                <a href="{{ url_for('visits.detail', visit_uuid=pulse.open_visit.uuid) }}">Continue {{ PatientService.get_display_name(pulse.open_visit.patient) }}</a>
+            {% elif pulse.open_visit %}
+                <strong>In progress</strong>
+            {% else %}
+                <strong>None open</strong>
+            {% endif %}
+        </div>
+    </div>
+</details>

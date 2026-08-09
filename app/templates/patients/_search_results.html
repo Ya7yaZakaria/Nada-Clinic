@@ -1,19 +1,65 @@
-﻿{% if query and query.strip() %}
-    <div class="mb-2 small text-muted">
-        Search results for <strong>{{ query }}</strong>
+<div class="patient-results-toolbar">
+    <div>
+        <strong>{{ directory.total }} patient{{ '' if directory.total == 1 else 's' }}</strong>
+        <span>
+            {% if filters.q %}
+                matching “{{ filters.q }}”
+            {% else %}
+                in the current view
+                <span class="visually-hidden">Recent patients</span>
+            {% endif %}
+        </span>
     </div>
-{% else %}
-    <div class="mb-2 small text-muted">
-        Recent patients
-    </div>
-{% endif %}
+    {% if directory.total %}
+        <small>Page {{ directory.page }} of {{ directory.pages }}</small>
+    {% endif %}
+</div>
 
-{% if patients %}
-    <div class="list-group list-group-flush">
-        {% for patient in patients %}
+{% if directory.items %}
+    <div class="patient-directory-list">
+        {% for row in directory.items %}
+            {% set patient = row.patient %}
             {% include "patients/_patient_card.html" %}
         {% endfor %}
     </div>
+
+    {% if directory.pages > 1 %}
+        <nav class="patient-pagination" aria-label="Patient directory pages">
+            <a
+                class="btn btn-outline-secondary {{ 'disabled' if not directory.has_prev }}"
+                {% if directory.has_prev %}
+                    href="{{ url_for('patients.index', q=filters.q, status=filters.status, journey=filters.journey, last_seen=filters.last_seen, upcoming='1' if filters.upcoming else '', pending_results='1' if filters.pending_results else '', outstanding='1' if filters.outstanding else '', sort=filters.sort, page=directory.prev_num) }}"
+                    hx-get="{{ url_for('patients.search', q=filters.q, status=filters.status, journey=filters.journey, last_seen=filters.last_seen, upcoming='1' if filters.upcoming else '', pending_results='1' if filters.pending_results else '', outstanding='1' if filters.outstanding else '', sort=filters.sort, page=directory.prev_num) }}"
+                    hx-target="#patient-search-results"
+                    hx-swap="innerHTML"
+                {% endif %}
+            >
+                <i class="bi bi-chevron-left"></i> Previous
+            </a>
+            <span>{{ directory.page }} / {{ directory.pages }}</span>
+            <a
+                class="btn btn-outline-secondary {{ 'disabled' if not directory.has_next }}"
+                {% if directory.has_next %}
+                    href="{{ url_for('patients.index', q=filters.q, status=filters.status, journey=filters.journey, last_seen=filters.last_seen, upcoming='1' if filters.upcoming else '', pending_results='1' if filters.pending_results else '', outstanding='1' if filters.outstanding else '', sort=filters.sort, page=directory.next_num) }}"
+                    hx-get="{{ url_for('patients.search', q=filters.q, status=filters.status, journey=filters.journey, last_seen=filters.last_seen, upcoming='1' if filters.upcoming else '', pending_results='1' if filters.pending_results else '', outstanding='1' if filters.outstanding else '', sort=filters.sort, page=directory.next_num) }}"
+                    hx-target="#patient-search-results"
+                    hx-swap="innerHTML"
+                {% endif %}
+            >
+                Next <i class="bi bi-chevron-right"></i>
+            </a>
+        </nav>
+    {% endif %}
 {% else %}
-    <p class="text-muted mb-0">No matching patients found.</p>
+    <div class="patient-empty-state">
+        <span><i class="bi bi-person-search"></i></span>
+        <h3>No matching patients</h3>
+        <p>Try a different name, phone, MRN, or clear the active filters.</p>
+        <div>
+            <a class="btn btn-outline-secondary" href="{{ url_for('patients.index') }}">Clear filters</a>
+            {% if current_user.has_permission('patients.basic.create') %}
+                <a class="btn btn-primary" href="{{ url_for('patients.new') }}">Register patient</a>
+            {% endif %}
+        </div>
+    </div>
 {% endif %}

@@ -1,0 +1,57 @@
+<section class="patient-analytics" x-data="patientAnalytics({{ analytics.charts|length }})" aria-label="Patient analytics">
+    <div class="patient-analytics-header">
+        <div>
+            <span class="patient-eyebrow">Analytics</span>
+            <h2>Patient intelligence</h2>
+        </div>
+        <div class="patient-analytics-actions">
+            <div class="patient-period-switch" aria-label="Analytics period">
+                {% for value, label in [('30d', '30 days'), ('6m', '6 months'), ('12m', '12 months')] %}
+                    <a href="{{ url_for('patients.index', period=value) }}" class="{{ 'active' if analytics.period == value }}">{{ label }}</a>
+                {% endfor %}
+            </div>
+            <button type="button" @click="previous()" aria-label="Previous chart"><i class="bi bi-chevron-left"></i></button>
+            <button type="button" @click="next()" aria-label="Next chart"><i class="bi bi-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <div class="patient-chart-tabs" role="tablist" aria-label="Choose analytics view">
+        {% for chart in analytics.charts %}
+            <button type="button" role="tab" @click="goTo({{ loop.index0 }})" :aria-selected="active === {{ loop.index0 }}" :class="{ 'active': active === {{ loop.index0 }} }">{{ chart.title }}</button>
+        {% endfor %}
+    </div>
+
+    <div class="patient-analytics-viewport" x-ref="viewport" @touchstart.passive="touchStart($event)" @touchend.passive="touchEnd($event)">
+        {% for chart in analytics.charts %}
+            <article class="patient-analytics-slide" x-show="active === {{ loop.index0 }}" x-transition.opacity role="tabpanel">
+                <div class="patient-card-heading">
+                    <div><span>{{ chart.kicker }}</span><h3>{{ chart.title }}</h3></div>
+                    <small>{{ analytics.period|replace('30d', '30 days')|replace('6m', '6 months')|replace('12m', '12 months') }}</small>
+                </div>
+                <div class="patient-modern-chart" style="--chart-columns: {{ chart['items']|length }}">
+                    {% for item in chart['items'] %}
+                        {% set drawer_url = url_for('patients.quick_list', cohort=item.cohort if item.cohort is defined else 'active', journey=item.journey if item.journey is defined else '', segment=item.segment if item.segment is defined else '', period=analytics.period) %}
+                        <button
+                            type="button"
+                            class="patient-modern-bar"
+                            title="{{ item.label }}: {{ item.value }}"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#patientQuickList"
+                            hx-get="{{ drawer_url }}"
+                            hx-target="#patient-quick-list-content"
+                            hx-swap="innerHTML"
+                        >
+                            <b>{{ item.value }}</b>
+                            <span><i style="height: {{ item.percent }}%"></i></span>
+                            <small>{{ item.label }}</small>
+                        </button>
+                    {% endfor %}
+                </div>
+                <p class="patient-calculated-insight"><i class="bi bi-lightbulb"></i>{{ chart.insight }}</p>
+            </article>
+        {% endfor %}
+    </div>
+    <div class="patient-slide-indicator" aria-hidden="true">
+        {% for chart in analytics.charts %}<i :class="{ 'active': active === {{ loop.index0 }} }"></i>{% endfor %}
+    </div>
+</section>

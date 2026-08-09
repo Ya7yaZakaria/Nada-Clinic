@@ -103,7 +103,7 @@
     </form>
 
     {% if resolved['items'] %}
-        <div class="clinic-patient-stack">
+        <div class="clinic-patient-stack" data-clinic-sort-container>
             {% for resolved_item in resolved['items'] %}
                 {% set appointment =
                     resolved_item.appointment

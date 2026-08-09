@@ -28,13 +28,14 @@
         rel="stylesheet"
     >
     <link
-        href="{{ url_for('static', filename='css/product-refresh.css', v='20260721-scrollbar-v5') }}"
+        href="{{ url_for('static', filename='css/product-refresh.css', v='20260721-today-clinic-v1') }}"
         rel="stylesheet"
     >
     <link
         rel="manifest"
         href="{{ url_for('static', filename='manifest.json') }}"
     >
+    {% block extra_css %}{% endblock %}
     <meta name="theme-color" content="#102a2f">
 </head>
 
@@ -396,6 +397,8 @@
                         </div>
                     </div>
                 </div>
+
+                {% block topbar_center %}{% endblock %}
 
                 <div class="topbar-actions">
                     {% if current_user.is_authenticated and not is_print_preview %}
@@ -831,7 +834,9 @@
         src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"
     ></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js', v='20260721-today-clinic-v1') }}"></script>
+
+    {% block extra_scripts %}{% endblock %}
 
     <script>
         if ("serviceWorker" in navigator) {

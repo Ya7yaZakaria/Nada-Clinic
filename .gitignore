@@ -33,3 +33,9 @@ Thumbs.db
 
 # Local implementation backups
 .local_backups/
+
+# Google Drive sync temporary files
+.tmp.driveupload/
+
+# Local verification/generated artifacts
+artifacts/

@@ -1,0 +1,22 @@
+{
+  "profile": "feature",
+  "scope": "Describe the verified change",
+  "final_status": "verified",
+  "changed_files": [],
+  "checks": {
+    "format": "passed",
+    "lint": "passed",
+    "focused_tests": "passed",
+    "broader_tests": "passed",
+    "application": "not_required",
+    "migration": "not_required",
+    "browser": "not_required",
+    "accessibility": "not_required",
+    "coverage": "not_required",
+    "schema": "not_required",
+    "repository_hygiene": "passed"
+  },
+  "evidence": [],
+  "failures": [],
+  "remaining_risks": []
+}

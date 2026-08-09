@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 from app.forms.appointment_forms import AppointmentForm
 
 from app.forms.patient_forms import MRNChangeForm, PatientForm
-from app.models import Patient
+from app.models import Journey, Patient
 from app.services.appointment_service import AppointmentService
 from app.services.clinic_ultrasound_service import ClinicUltrasoundService
 from app.services.external_ultrasound_service import ExternalUltrasoundService
@@ -14,6 +14,7 @@ from app.services.investigation_preset_service import InvestigationPresetService
 from app.services.investigation_service import InvestigationService
 from app.services.journey_service import JourneyService
 from app.services.patient_service import PatientService
+from app.services.patient_dashboard_service import PatientDashboardService
 from app.services.partner_service import PartnerService
 from app.services.partner_semen_analysis_service import PartnerSemenAnalysisService
 from app.services.rbac_service import RBACService
@@ -22,6 +23,125 @@ from app.services.timeline_service import TimelineService
 from app.services.visit_service import VisitService
 
 patients_bp = Blueprint("patients", __name__, url_prefix="/patients")
+
+
+def _patient_directory_context():
+    can_view_clinical = RBACService.user_has_permission(current_user, "clinical.view")
+    can_view_finance = RBACService.user_has_permission(current_user, "finance.view")
+    can_manage_appointments = RBACService.user_has_permission(
+        current_user,
+        "appointments.manage",
+    )
+    can_start_visit = RBACService.user_has_permission(
+        current_user,
+        "clinical.note.write",
+    )
+
+    filters = {
+        "q": (request.args.get("q") or "").strip(),
+        "status": request.args.get("status", "active"),
+        "journey": request.args.get("journey", "all"),
+        "last_seen": request.args.get("last_seen", "any"),
+        "upcoming": request.args.get("upcoming") == "1",
+        "pending_results": request.args.get("pending_results") == "1",
+        "outstanding": request.args.get("outstanding") == "1",
+        "sort": request.args.get("sort", "recently_seen"),
+    }
+
+    directory = PatientDashboardService.list_patients(
+        **filters,
+        page=request.args.get("page", 1, type=int),
+        can_view_clinical=can_view_clinical,
+        can_view_finance=can_view_finance,
+    )
+
+    return {
+        "directory": directory,
+        "filters": filters,
+        "PatientService": PatientService,
+        "can_view_clinical": can_view_clinical,
+        "can_view_finance": can_view_finance,
+        "can_manage_appointments": can_manage_appointments,
+        "can_start_visit": can_start_visit,
+    }
+
+
+def _patient_quick_list_context(cohort):
+    can_view_clinical = RBACService.user_has_permission(current_user, "clinical.view")
+    can_view_finance = RBACService.user_has_permission(current_user, "finance.view")
+    can_manage_appointments = RBACService.user_has_permission(
+        current_user,
+        "appointments.manage",
+    )
+    can_start_visit = RBACService.user_has_permission(current_user, "clinical.note.write")
+
+    valid_cohorts = {
+        "active": ("Active patients", "Current active patient records"),
+        "new_this_month": ("New this month", "Patients registered during the current month"),
+        "seen_30_days": ("Seen in 30 days", "Patients with a visit in the last 30 days"),
+        "attention": ("Need attention", "Patients with an item that needs follow-up"),
+        "new_period": ("New patients", "Registered during the selected analytics period"),
+        "returning": ("Returning patients", "Established patients seen during the selected period"),
+        "seen_recent": ("Recently seen", "Patients seen within the last six months"),
+        "dormant": ("Dormant patients", "Active patients not seen within the last six months"),
+        "never_seen": ("Never seen", "Registered patients without a visit"),
+        "follow_up_overdue": ("Overdue follow-ups", "Patients with a recorded follow-up date in the past"),
+        "follow_up_upcoming": ("Upcoming follow-ups", "Patients with a future follow-up date"),
+        "pending_review": ("Pending reviews", "Patients with investigation results awaiting review"),
+        "outstanding": ("Outstanding balances", "Patients with an unpaid or partial balance"),
+        "appointment": ("Appointment activity", "Patients in the selected appointment group"),
+        "age": ("Age group", "Patients in the selected recorded age range"),
+    }
+    q = (request.args.get("q") or "").strip()
+    sort = request.args.get("sort", "urgent" if cohort == "attention" else "recently_seen")
+    if sort not in PatientDashboardService.VALID_DRAWER_SORTS:
+        sort = "recently_seen"
+    period = request.args.get("period", "6m")
+    segment = request.args.get("segment")
+    journey = request.args.get("journey")
+    if journey in {"pregnancy", "infertility", "gynecology"} and can_view_clinical:
+        title = f"{journey.replace('gynecology', 'Gynecology').title()} journeys"
+        subtitle = "Patients currently active in this care journey"
+        directory = PatientDashboardService.list_patients(
+            q=q,
+            status="active",
+            journey=journey,
+            sort=sort,
+            per_page=30,
+            can_view_clinical=True,
+            can_view_finance=can_view_finance,
+        )
+    else:
+        cohort = cohort if cohort in valid_cohorts else "active"
+        title, subtitle = valid_cohorts[cohort]
+        directory = PatientDashboardService.list_patients(
+            q=q,
+            status="active",
+            cohort=cohort,
+            segment=segment,
+            period=period,
+            sort="newest" if cohort == "new_this_month" and not request.args.get("sort") else sort,
+            per_page=30,
+            can_view_clinical=can_view_clinical,
+            can_view_finance=can_view_finance,
+        )
+
+    return {
+        "directory": directory,
+        "drawer_title": title,
+        "drawer_subtitle": subtitle,
+        "PatientService": PatientService,
+        "can_view_clinical": can_view_clinical,
+        "can_view_finance": can_view_finance,
+        "can_manage_appointments": can_manage_appointments,
+        "can_start_visit": can_start_visit,
+        "drawer_query": q,
+        "drawer_sort": sort,
+        "drawer_cohort": cohort,
+        "drawer_journey": journey if journey in Journey.VALID_TYPES and can_view_clinical else "",
+        "drawer_period": period,
+        "drawer_segment": segment or "",
+    }
 
 
 def _get_patient_workspace_investigation_context(patient):
@@ -159,12 +279,19 @@ def _get_patient_workspace_finance_context(patient):
 @login_required
 @RBACService.require_permission("patients.basic.view")
 def index():
-    patients = PatientService.get_recent_patients(limit=10)
-
+    period = request.args.get("period", "6m")
     return render_template(
         "patients/index.html",
-        patients=patients,
-        PatientService=PatientService,
+        **_patient_directory_context(),
+        kpis=PatientDashboardService.get_kpis(
+            can_view_clinical=RBACService.user_has_permission(current_user, "clinical.view"),
+            can_view_finance=RBACService.user_has_permission(current_user, "finance.view"),
+        ),
+        analytics=PatientDashboardService.get_analytics(
+            period=period,
+            can_view_clinical=RBACService.user_has_permission(current_user, "clinical.view"),
+            can_view_finance=RBACService.user_has_permission(current_user, "finance.view"),
+        ),
     )
 
 
@@ -172,14 +299,42 @@ def index():
 @login_required
 @RBACService.require_permission("patients.basic.view")
 def search():
-    query = request.args.get("q", "")
-    patients = PatientService.search_patients(query, limit=20)
-
     return render_template(
         "patients/_search_results.html",
-        patients=patients,
+        **_patient_directory_context(),
+    )
+
+
+@patients_bp.get("/global-search")
+@login_required
+@RBACService.require_permission("patients.basic.view")
+def global_search():
+    query = (request.args.get("q") or "").strip()
+    directory = None
+    if query:
+        directory = PatientDashboardService.list_patients(
+            q=query,
+            status="all",
+            page=1,
+            per_page=8,
+            can_view_clinical=False,
+            can_view_finance=False,
+        )
+    return render_template(
+        "patients/_global_search_results.html",
         query=query,
+        directory=directory,
         PatientService=PatientService,
+    )
+
+
+@patients_bp.get("/quick-list")
+@login_required
+@RBACService.require_permission("patients.basic.view")
+def quick_list():
+    return render_template(
+        "patients/_quick_list.html",
+        **_patient_quick_list_context(request.args.get("cohort", "active")),
     )
 
 

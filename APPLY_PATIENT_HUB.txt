@@ -1,0 +1,37 @@
+NADA CLINIC — PATIENTS COMMAND CENTER V3 DIRECT PATCH
+=====================================================
+
+1. Stop Flask.
+2. Save the supplied PowerShell script outside D:\Nada-Clinic.
+3. Run it from PowerShell. It validates the project, creates a timestamped
+   backup under .patient-hub-backups, writes only the v3 files, and runs the
+   focused tests.
+4. No database migration is required.
+
+Focused test command:
+
+   python -m pytest tests/test_patient_search.py tests/test_patient_dashboard.py -q
+
+Full regression command:
+
+   python -m pytest -q
+
+Verified on the supplied project snapshot:
+
+   21 focused tests passed in 36.88s
+   571 full-suite tests passed in 614.20s
+
+KNOWN EXISTING-WORKFLOW LIMITATION
+----------------------------------
+
+Investigation alerts open the existing review-capable screen. Finance badges
+open the patient's existing Finance Summary because this repository has no
+dedicated per-charge edit/resolve route. No fake endpoint was added.
+
+EXPLICITLY NOT ADDED
+--------------------
+
+- “Why shown here” labels.
+- Recently viewed tracking.
+- AI clinical recommendations.
+- Database migrations.

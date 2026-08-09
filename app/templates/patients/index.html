@@ -1,44 +1,162 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Patients — Nada Clinic System{% endblock %}
 {% block page_title %}Patients{% endblock %}
-{% block page_subtitle %}Patient registration, recent patients, and live search{% endblock %}
+{% block page_subtitle %}Patient command center{% endblock %}
+
+{% block extra_css %}
+    <link href="{{ url_for('static', filename='css/patient-hub.css', v='20260721-v3') }}" rel="stylesheet">
+{% endblock %}
+
+{% block topbar_center %}
+    <div class="patient-topbar-search" id="patient-global-search" x-data="{ open: false }" @click.outside="open = false">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="visually-hidden" for="patient-global-search-input">Global patient search</label>
+        <input
+            id="patient-global-search-input"
+            class="form-control"
+            name="q"
+            type="search"
+            autocomplete="off"
+            placeholder="Search patients by name, MRN, or phone..."
+            hx-get="{{ url_for('patients.global_search') }}"
+            hx-trigger="input changed delay:220ms, search"
+            hx-target="#patient-global-search-results"
+            hx-swap="innerHTML"
+            @focus="open = true"
+            @input="open = true"
+            @keydown.escape="open = false; $el.blur()"
+            @keydown.down.prevent="focusGlobalResult(1)"
+            @keydown.up.prevent="focusGlobalResult(-1)"
+            @keydown.enter.prevent="openFirstGlobalResult()"
+        >
+        <kbd>/</kbd>
+        <div id="patient-global-search-results" class="patient-global-results" x-show="open" x-transition.opacity></div>
+    </div>
+{% endblock %}
 
 {% block content %}
-<div class="clinic-card mb-3">
-    <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
+<div class="patient-hub">
+    <header class="patient-hub-header">
         <div>
-            <p class="section-kicker">Stage 2 / Sprint 2.3</p>
-            <h1 class="h4 mb-1">Patients</h1>
-            <p class="text-muted mb-0">Search by Arabic name, English name, MRN, or phone.</p>
+            <span class="patient-eyebrow">Patient command center</span>
+            <h1>Every patient, one clear next step.</h1>
+            <p>Find a patient, understand where she is in care, and continue the workflow without leaving this page.</p>
+        </div>
+        {% if current_user.has_permission('patients.basic.create') %}
+            <a class="btn btn-primary patient-new-button" href="{{ url_for('patients.new') }}">
+                <i class="bi bi-person-plus-fill"></i>
+                New patient
+            </a>
+        {% endif %}
+    </header>
+
+    <section class="patient-kpi-grid" aria-label="Patient overview">
+        <button class="patient-kpi-card kpi-teal" type="button" data-bs-toggle="offcanvas" data-bs-target="#patientQuickList" hx-get="{{ url_for('patients.quick_list', cohort='active') }}" hx-target="#patient-quick-list-content" hx-swap="innerHTML">
+            <span class="patient-kpi-icon"><i class="bi bi-people-fill"></i></span>
+            <div><strong>{{ kpis.active_patients }}</strong><span>Active patients</span></div>
+            <small>Current patient records</small>
+            <i class="bi bi-arrow-up-right patient-kpi-open" aria-hidden="true"></i>
+        </button>
+        <button class="patient-kpi-card kpi-blue" type="button" data-bs-toggle="offcanvas" data-bs-target="#patientQuickList" hx-get="{{ url_for('patients.quick_list', cohort='new_this_month') }}" hx-target="#patient-quick-list-content" hx-swap="innerHTML">
+            <span class="patient-kpi-icon"><i class="bi bi-person-plus"></i></span>
+            <div><strong>{{ kpis.new_this_month }}</strong><span>New this month</span></div>
+            <small>Registration growth</small>
+            <i class="bi bi-arrow-up-right patient-kpi-open" aria-hidden="true"></i>
+        </button>
+        <button class="patient-kpi-card kpi-violet" type="button" data-bs-toggle="offcanvas" data-bs-target="#patientQuickList" hx-get="{{ url_for('patients.quick_list', cohort='seen_30_days') }}" hx-target="#patient-quick-list-content" hx-swap="innerHTML">
+            <span class="patient-kpi-icon"><i class="bi bi-clock-history"></i></span>
+            <div><strong>{{ kpis.seen_last_30_days }}</strong><span>Seen in 30 days</span></div>
+            <small>Recently engaged</small>
+            <i class="bi bi-arrow-up-right patient-kpi-open" aria-hidden="true"></i>
+        </button>
+        <button class="patient-kpi-card kpi-amber" type="button" data-bs-toggle="offcanvas" data-bs-target="#patientQuickList" hx-get="{{ url_for('patients.quick_list', cohort='attention') }}" hx-target="#patient-quick-list-content" hx-swap="innerHTML">
+            <span class="patient-kpi-icon"><i class="bi bi-exclamation-circle"></i></span>
+            <div><strong>{{ kpis.need_attention }}</strong><span>Need attention</span></div>
+            <small>Review or payment follow-up</small>
+            <i class="bi bi-arrow-up-right patient-kpi-open" aria-hidden="true"></i>
+        </button>
+    </section>
+
+    {% include "patients/_analytics.html" %}
+
+    <section class="patient-directory-card">
+        <div class="patient-directory-heading">
+            <div>
+                <span class="patient-eyebrow">Directory</span>
+                <h2>Find and continue care</h2>
+            </div>
+            <p>Live search and operational filters</p>
         </div>
 
-        <div>
-            <a class="btn btn-primary" href="{{ url_for('patients.new') }}">New patient</a>
+        {% include "patients/_filters.html" %}
+
+        <div id="patient-search-results" aria-live="polite">
+            {% include "patients/_search_results.html" %}
+        </div>
+    </section>
+</div>
+
+<aside class="offcanvas offcanvas-end patient-quick-list" tabindex="-1" id="patientQuickList" aria-labelledby="patientQuickListLabel">
+    <div id="patient-quick-list-content" class="patient-quick-list-content">
+        <div class="patient-drawer-loading">
+            <span class="spinner-border text-primary" aria-hidden="true"></span>
+            <span>Loading patients...</span>
         </div>
     </div>
-</div>
+</aside>
+{% endblock %}
 
-<div class="clinic-card mb-3">
-    <label class="form-label" for="patient-search-input">Patient search</label>
-    <input
-        id="patient-search-input"
-        class="form-control form-control-lg"
-        name="q"
-        type="search"
-        placeholder="Search by name, MRN, or phone..."
-        hx-get="{{ url_for('patients.search') }}"
-        hx-trigger="keyup changed delay:250ms, search"
-        hx-target="#patient-search-results"
-        hx-swap="innerHTML"
-    >
-    <div class="form-text">
-        Supports Arabic name, English name, MRN like 1 or 000001, and phone numbers.
-    </div>
-</div>
+{% block extra_scripts %}
+<script>
+    function patientAnalytics(total) {
+        return {
+            active: 0,
+            touchX: null,
+            next() { this.active = (this.active + 1) % total; },
+            previous() { this.active = (this.active - 1 + total) % total; },
+            goTo(index) { this.active = index; },
+            touchStart(event) { this.touchX = event.changedTouches[0].screenX; },
+            touchEnd(event) {
+                if (this.touchX === null) return;
+                const delta = event.changedTouches[0].screenX - this.touchX;
+                if (Math.abs(delta) > 45) delta < 0 ? this.next() : this.previous();
+                this.touchX = null;
+            }
+        };
+    }
 
-<div class="clinic-card" id="patient-search-results">
-    {% set query = "" %}
-    {% include "patients/_search_results.html" %}
-</div>
+    function globalPatientLinks() {
+        return Array.from(document.querySelectorAll("#patient-global-search-results .patient-global-result"));
+    }
+
+    function focusGlobalResult(direction) {
+        const links = globalPatientLinks();
+        if (!links.length) return;
+        const current = links.indexOf(document.activeElement);
+        links[(current + direction + links.length) % links.length].focus();
+    }
+
+    function openFirstGlobalResult() {
+        const first = globalPatientLinks()[0];
+        if (first) window.location.assign(first.href);
+    }
+
+    document.addEventListener("keydown", function (event) {
+        const target = event.target;
+        const isTyping = target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+        if (event.key === "/" && !isTyping) {
+            event.preventDefault();
+            document.getElementById("patient-global-search-input")?.focus();
+        }
+    });
+
+    document.getElementById("patientQuickList")?.addEventListener("hidden.bs.offcanvas", function () {
+        document.getElementById("patient-quick-list-content").innerHTML = `
+            <div class="patient-drawer-loading">
+                <span class="spinner-border text-primary" aria-hidden="true"></span>
+                <span>Loading patients...</span>
+            </div>`;
+    });
+</script>
 {% endblock %}

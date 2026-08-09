@@ -1,0 +1,53 @@
+<details
+    class="clinic-card clinic-queue-controls clinic-mobile-disclosure mb-3"
+    open
+    data-clinic-mobile-collapse
+>
+    <summary class="clinic-mobile-disclosure-summary clinic-mobile-only-summary">
+        <span>
+            <i class="bi bi-funnel me-1" aria-hidden="true"></i>
+            Search &amp; filters
+        </span>
+    </summary>
+
+    <div class="clinic-queue-controls-body">
+            <label class="clinic-queue-search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <span class="visually-hidden">Search today's patients</span>
+                <input id="clinic-list-search" class="form-control form-control-sm" type="search" placeholder="Search name, MRN or phone" autocomplete="off">
+            </label>
+
+            <select id="clinic-status-filter" class="form-select form-select-sm" aria-label="Filter by workflow status">
+                <option value="all">All statuses</option>
+                <option value="booked">Booked</option>
+                <option value="waiting">Waiting</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled / No-show</option>
+            </select>
+
+            <select id="clinic-type-filter" class="form-select form-select-sm" aria-label="Filter by appointment type">
+                <option value="all">All appointment types</option>
+                {% for value, label in AppointmentService.TYPE_LABELS.items() %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <select id="clinic-list-sort" class="form-select form-select-sm" aria-label="Sort today's patients">
+                <option value="time">Appointment time</option>
+                <option value="wait">Longest wait</option>
+                <option value="name">Patient name</option>
+            </select>
+
+            <div class="clinic-queue-quick-filters" role="group" aria-label="Quick filters">
+                <button class="btn btn-sm btn-outline-danger" type="button" data-clinic-quick-filter="emergency">
+                    <i class="bi bi-lightning-charge"></i> Emergency
+                </button>
+                <button class="btn btn-sm btn-outline-warning" type="button" data-clinic-quick-filter="delayed">
+                    <i class="bi bi-hourglass-bottom"></i> Delayed
+                </button>
+                <button class="btn btn-sm btn-link" type="button" data-clinic-clear-filters>Clear</button>
+            </div>
+
+            <span id="clinic-visible-count" class="clinic-control-count" aria-live="polite"></span>
+    </div>
+</details>

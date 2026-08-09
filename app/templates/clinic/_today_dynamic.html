@@ -9,27 +9,27 @@
         )
     }}"
     hx-trigger="clinicSync from:body"
-    hx-swap="outerHTML"
+    hx-swap="outerHTML transition:true settle:120ms"
 >
     {% include "clinic/_counters.html" %}
 
-    {% if clinic_intelligence.alerts %}
-        <section class="clinic-card clinic-alert-strip clinic-live-alerts mb-3">
-            {% for alert in clinic_intelligence.alerts %}
-                <div
-                    class="alert alert-{{ alert.kind }} py-2 mb-0"
-                >
-                    <strong>{{ alert.count }}</strong>
-                    {{ alert.label }}
-                </div>
-            {% endfor %}
-        </section>
-    {% endif %}
+    {% include "clinic/_pulse_panel.html" %}
+    {% include "clinic/_clinic_controls.html" %}
 
-    <section class="clinic-card clinic-type-breakdown mb-3">
-        <p class="section-kicker">Type Breakdown</p>
+    <details
+        class="clinic-card clinic-type-breakdown clinic-mobile-disclosure mb-3"
+        open
+        data-clinic-mobile-collapse
+    >
+        <summary class="clinic-mobile-disclosure-summary clinic-section-disclosure-heading">
+            <span>
+                <span class="section-kicker">Type Breakdown</span>
+                <strong>Appointment &amp; Visit types</strong>
+            </span>
+        </summary>
 
-        <div class="row g-3">
+        <div class="clinic-mobile-disclosure-body">
+            <div class="row g-3">
             <div class="col-12 col-lg-6">
                 <h2 class="h6">Appointment Types</h2>
 
@@ -150,17 +150,25 @@
                     </p>
                 {% endif %}
             </div>
+            </div>
         </div>
-    </section>
+    </details>
 
     {% if finance_summary is not none %}
-        <section class="clinic-card clinic-live-finance mb-3">
-            <p class="section-kicker">Live Finance</p>
-            <h2 class="h5 mb-3">
-                Today's financial position
-            </h2>
+        <details
+            class="clinic-card clinic-live-finance clinic-mobile-disclosure mb-3"
+            open
+            data-clinic-mobile-collapse
+        >
+            <summary class="clinic-mobile-disclosure-summary clinic-section-disclosure-heading">
+                <span>
+                    <span class="section-kicker">Live Finance</span>
+                    <strong>Today's financial position</strong>
+                </span>
+            </summary>
 
-            <div class="clinic-mini-grid">
+            <div class="clinic-mobile-disclosure-body">
+                <div class="clinic-mini-grid">
                 {% for label, value in [
                     (
                         "Billed",
@@ -213,8 +221,9 @@
                         ></i>
                     </a>
                 {% endfor %}
+                </div>
             </div>
-        </section>
+        </details>
     {% endif %}
 
     <div class="row g-3 clinic-operational-columns">

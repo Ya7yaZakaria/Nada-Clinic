@@ -94,9 +94,11 @@ class ClinicDayService:
                 len(clinic_day["waiting_queue"])
                 + len(clinic_day["booked_no_action"])
             ),
-            "visits": visit_snapshot["total"],
             "visits_completed": visit_snapshot["completed"],
-            "cancelled": clinic_day["counters"]["cancelled"],
+            "cancelled_no_show": (
+                clinic_day["counters"]["cancelled"]
+                + clinic_day["counters"]["no_show"]
+            ),
         }
 
     @classmethod
@@ -179,6 +181,42 @@ class ClinicDayService:
             else 0.0
         )
 
+        waiting_minutes = [
+            info["minutes"]
+            for info in waiting_by_id.values()
+            if info["minutes"] is not None
+        ]
+        average_wait_minutes = (
+            round(sum(waiting_minutes) / len(waiting_minutes))
+            if waiting_minutes
+            else 0
+        )
+        longest_wait_minutes = max(waiting_minutes, default=0)
+        emergency_count = sum(
+            1
+            for appointment in clinic_day["appointments"]
+            if appointment.appointment_type == Appointment.TYPE_EMERGENCY
+        )
+        next_booking = next(
+            (
+                appointment
+                for appointment in clinic_day["booked_no_action"]
+                if appointment.appointment_time is not None
+            ),
+            None,
+        )
+        resolved_count = (
+            visit_snapshot["completed"]
+            + clinic_day["counters"]["cancelled"]
+            + clinic_day["counters"]["no_show"]
+        )
+        schedule_total = len(clinic_day["appointments"])
+        schedule_progress = (
+            round((resolved_count / schedule_total) * 100)
+            if schedule_total
+            else 0
+        )
+
         alerts = []
         if long_wait_count:
             alerts.append(
@@ -208,6 +246,7 @@ class ClinicDayService:
         return {
             "generated_at_utc": now.astimezone(UTC),
             "waiting_by_id": waiting_by_id,
+            "long_wait_count": long_wait_count,
             "alerts": alerts,
             "flow": {
                 "scheduled": len(clinic_day["appointments"]),
@@ -226,6 +265,21 @@ class ClinicDayService:
             },
             "attendance_rate": attendance_rate,
             "visit_completion_rate": visit_completion_rate,
+            "pulse": {
+                "average_wait_minutes": average_wait_minutes,
+                "longest_wait_minutes": longest_wait_minutes,
+                "emergency_count": emergency_count,
+                "next_booking": next_booking,
+                "schedule_progress": min(schedule_progress, 100),
+                "open_visit": next(
+                    (
+                        visit
+                        for visit in visit_snapshot["visits"]
+                        if visit.status == "open"
+                    ),
+                    None,
+                ),
+            },
         }
 
     @classmethod

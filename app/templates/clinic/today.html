@@ -19,7 +19,7 @@ Live patient flow for the selected clinic day
             <div class="clinic-day-live-row">
                 <span class="clinic-day-live-dot"></span>
                 <span class="section-kicker mb-0">
-                    Live Clinic
+                    {{ "Closed clinic day" if is_day_closed else "Live clinic" }}
                 </span>
             </div>
 
@@ -62,8 +62,18 @@ Live patient flow for the selected clinic day
         </div>
 
         <div class="clinic-day-command-actions">
+            <nav class="clinic-day-nav" aria-label="Clinic day navigation">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('today_clinic.day', clinic_date=(selected_date - timedelta(days=1)).isoformat()) }}" aria-label="Previous day">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                <a class="btn btn-sm {{ 'btn-primary' if selected_date == today_date else 'btn-outline-primary' }}" href="{{ url_for('today_clinic.day', clinic_date=today_date.isoformat()) }}">Today</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('today_clinic.day', clinic_date=(selected_date + timedelta(days=1)).isoformat()) }}" aria-label="Next day">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </nav>
+
             <a
-                class="btn btn-outline-secondary"
+                class="btn btn-sm btn-outline-secondary"
                 href="{{
                     url_for(
                         'appointments.calendar',
@@ -117,7 +127,7 @@ Live patient flow for the selected clinic day
                         >
 
                         <button
-                            class="btn btn-outline-primary"
+                            class="btn btn-sm btn-outline-primary"
                             type="submit"
                         >
                             <i class="bi bi-unlock me-1"></i>
@@ -129,7 +139,7 @@ Live patient flow for the selected clinic day
                 'appointments.manage'
             ) %}
                 <button
-                    class="btn btn-outline-danger"
+                    class="btn btn-sm btn-outline-danger"
                     type="button"
                     hx-get="{{
                         url_for(
@@ -146,7 +156,7 @@ Live patient flow for the selected clinic day
                 </button>
 
                 <button
-                    class="btn btn-dark"
+                    class="btn btn-sm btn-dark"
                     type="button"
                     hx-get="{{
                         url_for(

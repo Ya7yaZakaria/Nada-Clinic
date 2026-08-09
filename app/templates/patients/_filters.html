@@ -1,0 +1,104 @@
+<form
+    id="patient-directory-controls"
+    class="patient-filter-form"
+    hx-get="{{ url_for('patients.search') }}"
+    hx-target="#patient-search-results"
+    hx-swap="innerHTML"
+    hx-indicator="#patient-directory-loading"
+    hx-trigger="change delay:100ms, submit"
+>
+    <div class="patient-search-box">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <span class="visually-hidden">Patient search</span>
+        <label class="visually-hidden" for="patient-directory-search">Search patient directory</label>
+        <input
+            id="patient-directory-search"
+            class="form-control"
+            type="search"
+            name="q"
+            value="{{ filters.q }}"
+            autocomplete="off"
+            placeholder="Filter this directory by name, MRN, or phone..."
+            hx-get="{{ url_for('patients.search') }}"
+            hx-trigger="input changed delay:300ms, search"
+            hx-include="#patient-directory-controls"
+            hx-target="#patient-search-results"
+            hx-swap="innerHTML"
+            hx-indicator="#patient-directory-loading"
+        >
+    </div>
+    <div class="patient-filter-grid">
+        <label class="patient-filter-field">
+            <span>Status</span>
+            <select class="form-select" name="status">
+                <option value="active" {{ 'selected' if filters.status == 'active' }}>Active</option>
+                <option value="all" {{ 'selected' if filters.status == 'all' }}>All patients</option>
+                <option value="inactive" {{ 'selected' if filters.status == 'inactive' }}>Inactive</option>
+            </select>
+        </label>
+
+        {% if can_view_clinical %}
+            <label class="patient-filter-field">
+                <span>Active journey</span>
+                <select class="form-select" name="journey">
+                    <option value="all">All journeys</option>
+                    <option value="pregnancy" {{ 'selected' if filters.journey == 'pregnancy' }}>Pregnancy</option>
+                    <option value="infertility" {{ 'selected' if filters.journey == 'infertility' }}>Infertility</option>
+                    <option value="gynecology" {{ 'selected' if filters.journey == 'gynecology' }}>Gynecology</option>
+                </select>
+            </label>
+        {% endif %}
+
+        <label class="patient-filter-field">
+            <span>Last seen</span>
+            <select class="form-select" name="last_seen">
+                <option value="any">Any time</option>
+                <option value="today" {{ 'selected' if filters.last_seen == 'today' }}>Today</option>
+                <option value="30d" {{ 'selected' if filters.last_seen == '30d' }}>Last 30 days</option>
+                <option value="6m" {{ 'selected' if filters.last_seen == '6m' }}>Last 6 months</option>
+                <option value="never" {{ 'selected' if filters.last_seen == 'never' }}>Never seen</option>
+            </select>
+        </label>
+
+        <label class="patient-filter-field">
+            <span>Sort by</span>
+            <select class="form-select" name="sort">
+                <option value="recently_seen">Recently seen</option>
+                <option value="newest" {{ 'selected' if filters.sort == 'newest' }}>Newly registered</option>
+                <option value="name" {{ 'selected' if filters.sort == 'name' }}>Name</option>
+                <option value="mrn" {{ 'selected' if filters.sort == 'mrn' }}>MRN</option>
+            </select>
+        </label>
+    </div>
+
+    <div class="patient-filter-toggles">
+        <label class="patient-filter-chip">
+            <input type="checkbox" name="upcoming" value="1" {{ 'checked' if filters.upcoming }}>
+            <i class="bi bi-calendar2-check"></i>
+            Upcoming appointment
+        </label>
+        {% if can_view_clinical %}
+            <label class="patient-filter-chip">
+                <input type="checkbox" name="pending_results" value="1" {{ 'checked' if filters.pending_results }}>
+                <i class="bi bi-clipboard2-pulse"></i>
+                Pending review
+            </label>
+        {% endif %}
+        {% if can_view_finance %}
+            <label class="patient-filter-chip">
+                <input type="checkbox" name="outstanding" value="1" {{ 'checked' if filters.outstanding }}>
+                <i class="bi bi-wallet2"></i>
+                Outstanding balance
+            </label>
+        {% endif %}
+
+        <a class="patient-clear-filters" href="{{ url_for('patients.index') }}">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            Reset
+        </a>
+        <span id="patient-directory-loading" class="htmx-indicator patient-loading">
+            <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            Updating
+        </span>
+    </div>
+</form>

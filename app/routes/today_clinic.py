@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from flask import (
     Blueprint,
@@ -203,6 +203,8 @@ def day(clinic_date):
             default="Africa/Cairo",
         ),
         show_close_result=context["is_day_closed"],
+        today_date=date.today(),
+        timedelta=timedelta,
     )
 
     return render_template(

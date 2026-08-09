@@ -21,7 +21,7 @@
     </div>
 
     {% if clinic_day.booked_no_action %}
-        <div class="clinic-patient-stack">
+        <div class="clinic-patient-stack" data-clinic-sort-container>
             {% for appointment
                   in clinic_day.booked_no_action %}
                 {% include
